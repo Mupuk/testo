@@ -45,14 +45,22 @@ jobs:
           console.log(prefix);
           core.setOutput('prefix', prefix);
 
-    - name: Run jai -version
+    - name: Run jai -version and parse output
+      uses: actions/github-script@v7
       id: jai_version
-      run: |
-        jai_version_output=$(jai -version)
-        echo "$jai_version_output"
-        version=$(echo "$jai_version_output" | grep -oP '(beta \d+\.\d+\.\d+)')
-        echo "Parsed Version: $version"
-        echo "::set-output name=version::$version"
+      with:
+        script: |
+          const { execSync } = require('child_process');
+
+          let jaiVersionOutput = execSync('jai -version').toString();
+
+          console.log(jaiVersionOutput);
+
+          const versionMatch = jaiVersionOutput.match(/beta \d+\.\d+\.\d+/);
+          const version = versionMatch ? versionMatch[0] : 'Version not found';
+
+          console.log(`Parsed Version: ${version}`);
+          core.setOutput('version', version);
 
     - name: Create a new issue
       uses: actions/github-script@v7
