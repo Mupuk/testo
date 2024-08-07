@@ -1,0 +1,18 @@
+name: Custom Command Workflow
+
+on:
+  push:
+    branches:
+      - master
+
+jobs:
+  run-on-windows:
+    runs-on: [self-hosted, windows]
+    if: github.event_name == 'push' || (github.event_name == 'pull_request' && github.event.pull_request.head.repo.full_name == github.repository)
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+      - name: Run custom command on Windows
+        run: |
+          jai .\bug_suit.jai
