@@ -48,9 +48,18 @@ jobs:
           console.log(prefix);
           core.setOutput('prefix', prefix);
 
+    - name: Run Jai -version and capture output
+      id: jai_version_output
+      run: |
+        $output = jai -version
+        echo $output
+        echo "::set-output name=version::$output"
+          
     - name: Run jai -version and parse output
       uses: actions/github-script@v7
       id: jai_version
+      # This doesnt seem to work due a jai bug not showing the output in subprocesses or smth
+      if: false
       with:
         script: |
           let jaiVersionOutput = '';
