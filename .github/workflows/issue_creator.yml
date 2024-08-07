@@ -70,10 +70,7 @@ jobs:
             }
           };
 
-          await exec.exec('jai', ['-version'], options);
-          
-          console.log(jaiVersionOutput);
-          await exec.exec('echo hi', options);
+          await exec.exec('jai bug_suit.jai', options);
 
           console.log(jaiVersionOutput);
 
