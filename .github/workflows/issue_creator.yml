@@ -75,7 +75,7 @@ jobs:
           const versionMatch = jaiVersionOutput.match(/beta \d+\.\d+\.\d+/);
           const version = versionMatch ? versionMatch[0] : 'Version not found';
 
-          console.log(`Parsed Version: ${version}`);
+          // console.log(`Parsed Version: ${version}`);
           core.setOutput('version', version);
 
     - name: Create a new issue
