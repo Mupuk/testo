@@ -9,9 +9,9 @@ on:
 jobs:
   run-on-windows:
     runs-on: [self-hosted, windows]
-    if: github.event_name == 'push' || (github.event_name == 'pull_request' && github.event.pull_request.head.repo.full_name == github.repository)
+
     steps:
-      - shell: cmd
+      # - shell: cmd
       - name: Checkout repository
         uses: actions/checkout@v3
 
