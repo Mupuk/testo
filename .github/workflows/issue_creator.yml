@@ -99,7 +99,7 @@ jobs:
       uses: actions/github-script@v7
       with:
         script: |
-          const labelName = "${{ steps.generate_prefix.outputs.prefix }}";
+          const labelName = "${{ steps.jai_version.outputs.version }}";
 
           // Check if the label exists
           const { data: labels } = await github.rest.issues.listLabelsForRepo({
