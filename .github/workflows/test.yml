@@ -1,4 +1,4 @@
-name: Custom Command Workflow
+name: Custom Command Workflows
 
 on:
   push:
