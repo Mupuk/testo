@@ -52,20 +52,17 @@ jobs:
       id: jai_version
       with:
         script: |
-
           let jaiVersionOutput = '';
-          
-          const options = {};
-          options.listeners = {
-            stdout: (data: Buffer) => {
-              jaiVersionOutput += data.toString();
-            },
-            stderr: (data: Buffer) => {
-              jaiVersionOutput += data.toString();
+          const options = {
+            listeners: {
+              stdout: (data) => {
+                jaiVersionOutput += data.toString();
+              }
             }
           };
 
-          await exec.exec('jai -version', options);
+          await exec.exec('jai', ['-version'], options);
+
           console.log(jaiVersionOutput);
 
           const versionMatch = jaiVersionOutput.match(/beta \d+\.\d+\.\d+/);
