@@ -60,6 +60,7 @@ jobs:
 
           const options = {};
           options.silent = false;
+          options.ignoreReturnCode = true;
           options.listeners = {
             stdout: (data) => {
               myOutput += data.toString();
