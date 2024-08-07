@@ -101,6 +101,8 @@ jobs:
         script: |
           const labelName = "${{ steps.jai_version.outputs.version }}";
 
+          console.log(new Date().toISOString());
+          
           // Check if the label exists
           const { data: labels } = await github.rest.issues.listLabelsForRepo({
             owner: context.repo.owner,
