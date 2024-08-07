@@ -71,7 +71,7 @@ jobs:
           
           // Replace 'your-executable' with the command you want to run
           await exec.exec('ping', ['google.com'], options);
-          // console.log(myOutput);
+          console.log(myOutput);
 
           const versionMatch = jaiVersionOutput.match(/beta \d+\.\d+\.\d+/);
           const version = versionMatch ? versionMatch[0] : 'Version not found';
