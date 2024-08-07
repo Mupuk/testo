@@ -62,7 +62,7 @@ jobs:
       id: jai_version
       with:
         script: |
-          let jaiVersionOutput = '${{ steps.jai_version_output.outputs.version }}';
+          let jaiVersionOutput = 'Version: beta 0.1.092, built on 4 August 2024.';
           
           /*
           const options = {};
