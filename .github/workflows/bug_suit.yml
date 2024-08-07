@@ -11,10 +11,9 @@ jobs:
     runs-on: [self-hosted, windows]
 
     steps:
-      # - shell: cmd
       - name: Checkout repository
         uses: actions/checkout@v3
 
       - name: Run custom command on Windows
         run: |
-          jai .\bug_suit.jai
+          jai bug_suit.jai
