@@ -27,6 +27,8 @@ jobs:
             creator: 'github-actions'
           });
 
+          console.log(issues);
+
           const datePrefix = new Date().toISOString().split('T')[0];
           let maxId = 0;
           
@@ -50,9 +52,8 @@ jobs:
       id: jai_version
       with:
         script: |
-          const { execSync } = require('child_process');
 
-          let jaiVersionOutput = execSync('jai -version').toString();
+          let jaiVersionOutput = exec.exec('jai -version').toString();
 
           console.log(jaiVersionOutput);
 
