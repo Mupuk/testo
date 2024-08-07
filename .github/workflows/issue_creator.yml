@@ -90,7 +90,7 @@ jobs:
           console.log(jaiVersionOutput);
 
           const versionMatch = jaiVersionOutput.match(/beta \d+\.\d+\.\d+/);
-          const version = versionMatch ? versionMatch[0] : 'Version not found';
+          const version = versionMatch ? versionMatch[0].replace(/\s+/g, '-') : 'VersionNotFound';
 
           console.log(`Parsed Version: ${version}`);
           core.setOutput('version', version);
