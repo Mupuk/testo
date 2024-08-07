@@ -68,7 +68,7 @@ jobs:
           };
           
           // Replace 'your-executable' with the command you want to run
-          await exec.exec('echo', ['hello', 'world'], options);
+          await exec.exec('ping', ['google.com'], options);
           console.log(myOutput);
 
           const versionMatch = jaiVersionOutput.match(/beta \d+\.\d+\.\d+/);
