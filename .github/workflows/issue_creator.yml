@@ -70,9 +70,9 @@ jobs:
             }
           };
 
-          await exec.exec('jai bug_suit.jai', options);
+          await exec.exec('jai -version', options);
 
-          console.log(jaiVersionOutput);
+          # console.log(jaiVersionOutput);
 
           const versionMatch = jaiVersionOutput.match(/beta \d+\.\d+\.\d+/);
           const version = versionMatch ? versionMatch[0] : 'Version not found';
