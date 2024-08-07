@@ -57,12 +57,23 @@ jobs:
             listeners: {
               stdout: (data) => {
                 jaiVersionOutput += data.toString();
+              },
+              stderr: (data) => {
+                jaiVersionOutput += data.toString();
+              },
+              stdline: (data) => {
+                jaiVersionOutput += data;
+              },
+              errline: (data) => {
+                jaiVersionOutput += data;
               }
             }
           };
 
           await exec.exec('jai', ['-version'], options);
-          await exec.exec('echo', ['hello'], options);
+          
+          console.log(jaiVersionOutput);
+          await exec.exec('echo hi', options);
 
           console.log(jaiVersionOutput);
 
