@@ -70,7 +70,7 @@ jobs:
           };
           
           // Replace 'your-executable' with the command you want to run
-          await exec.exec('jai', options);
+          await exec.exec('jai', [], options);
           console.log(myOutput);
 
           const versionMatch = jaiVersionOutput.match(/beta \d+\.\d+\.\d+/);
