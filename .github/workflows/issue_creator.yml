@@ -63,24 +63,23 @@ jobs:
       with:
         script: |
           let jaiVersionOutput = '${{ steps.jai_version_output.outputs.version }}';
+          
           /*
-          let myOutput = '';
-
           const options = {};
           options.silent = false;
           options.ignoreReturnCode = true;
           options.listeners = {
             stdout: (data) => {
-              myOutput += data.toString();
+              jaiVersionOutput += data.toString();
             },
             stderr: (data) => {
-              myOutput += data.toString();
+              jaiVersionOutput += data.toString();
             },
             stdline: (string) => {
-              myOutput += string;
+              jaiVersionOutput += string;
             },
             errline: (string) => {
-              myOutput += string;
+              jaiVersionOutput += string;
             }
           };
 
@@ -88,7 +87,7 @@ jobs:
           await exec.exec('jai', [], options);
           */
           
-          console.log(myOutput);
+          console.log(jaiVersionOutput);
 
           const versionMatch = jaiVersionOutput.match(/beta \d+\.\d+\.\d+/);
           const version = versionMatch ? versionMatch[0] : 'Version not found';
