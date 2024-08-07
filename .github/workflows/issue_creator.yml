@@ -11,8 +11,8 @@ on:
 jobs:
   create_issue:
     runs-on: [self-hosted, windows]
-    # permissions:
-    #       issues: write
+    permissions:
+          issues: write
     steps:
     - name: Checkout repository
       uses: actions/checkout@v2
