@@ -56,7 +56,6 @@ jobs:
           let jaiVersionOutput = '';
 
           let myOutput = '';
-          let myError = '';
 
           const options = {};
           options.silent = false;
@@ -66,10 +65,16 @@ jobs:
               myOutput += data.toString();
             },
             stderr: (data) => {
-              myError += data.toString();
+              myOutput += data.toString();
+            },
+            stdline: (string) => {
+              myOutput += string;
+            },
+            errline: (string) => {
+              myOutput += string;
             }
           };
-          
+
           // Replace 'your-executable' with the command you want to run
           await exec.exec('jai', [], options);
           console.log(myOutput);
