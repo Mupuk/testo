@@ -23,7 +23,7 @@ jobs:
           const issueTitle = 'New Issue Created via GitHub Actions';
           const issueBody = 'This is an issue automatically created by GitHub Actions.';
 
-          await github.issues.create({
+          await github.rest.issues.create({
             owner: context.repo.owner,
             repo: context.repo.repo,
             title: issueTitle,
