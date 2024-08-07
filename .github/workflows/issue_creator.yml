@@ -1,6 +1,7 @@
 name: Create Issue on PR Merge
 
 on:
+  workflow_dispatch: # Manual trigger
   pull_request:
     types: [closed]
 
@@ -23,22 +24,20 @@ jobs:
             const prBody = context.payload.pull_request.body;
 
             const issueTitle = `[BUG] PR #${prNumber} - ${prTitle}`;
-            const issueBody = `
-### Issue created from PR #${prNumber} - ${prTitle}
-
-**PR Description:**
-
-${prBody}
-
-| Test Name | Status |
-| --- | --- |
-| jai compiler_bugs/EC1_polymorph_1.jai | SUCCESS |
-| jai compiler_bugs/#if_1.jai | SUCCESS |
-| jai compiler_bugs/!EC1_#import_program_param_1.jai | SUCCESS |
-| jai compiler_bugs/#insert_1.jai | SUCCESS |
-| jai compiler_bugs/#insert_2.jai | SUCCESS |
-| jai compiler_bugs/#insert_inside_enum_2.jai | SUCCESS |
-`;
+            const issueBody = `###Issue created from PR #${prNumber} - ${prTitle}
+            **PR Description:**
+            
+            ${prBody}
+            
+            | Test Name | Status |
+            | --- | --- |
+            | jai compiler_bugs/EC1_polymorph_1.jai | SUCCESS |
+            | jai compiler_bugs/#if_1.jai | SUCCESS |
+            | jai compiler_bugs/!EC1_#import_program_param_1.jai | SUCCESS |
+            | jai compiler_bugs/#insert_1.jai | SUCCESS |
+            | jai compiler_bugs/#insert_2.jai | SUCCESS |
+            | jai compiler_bugs/#insert_inside_enum_2.jai | SUCCESS |
+            `;
 
             const { data: issue } = await github.issues.create({
               owner: context.repo.owner,
