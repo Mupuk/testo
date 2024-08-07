@@ -11,39 +11,57 @@ on:
 jobs:
   create_issue:
     runs-on: [self-hosted, windows]
-    # permissions:
-    #       issues: write
+    
     steps:
     - name: Checkout repository
-      uses: actions/checkout@v2
+      uses: actions/checkout@v4
+    
+    - name: Generate unique prefix for the new issue
+      id: generate_prefix
+      uses: actions/github-script@v7
+      with:
+        script: |
+          const issues = await github.paginate(github.rest.issues.listForRepo, {
+            owner: context.repo.owner,
+            repo: context.repo.repo,
+            creator: 'github-actions'
+          });
+
+          const datePrefix = new Date().toISOString().split('T')[0];
+          let maxId = 0;
+          
+          issues.forEach(issue => {
+            const match = issue.title.match(/(\d{4}-\d{2}-\d{2})-(\d{5})/);
+            if (match) {
+              const id = parseInt(match[2], 10);
+              if (id > maxId) {
+                maxId = id;
+              }
+            }
+          });
+
+          const prefix = `${datePrefix}-${String(maxId + 1).padStart(5, '0')}`;
+          
+          core.setOutput('prefix', prefix);
 
     - name: Create a new issue
       uses: actions/github-script@v7
       with:
-        # github-token: ${{ secrets.GITHUB_TOKEN }}
         script: |
+          const prefix = "${{ steps.generate_id.outputs.prefix }}";
+          const date = new Date().toISOString().split('T')[0];
           const prNumber = context.payload.pull_request.number;
           const prTitle = context.payload.pull_request.title;
           const prBody = context.payload.pull_request.body;
+          const currentJaiVersion = "beta-1-090";
 
-          const issueTitle = `[BUG] PR #${prNumber} - ${prTitle}`;
+          const issueTitle = `${prefix}-${prTitle}`;
           const issueBody = `
-          ### Issue created from PR #${prNumber} - ${prTitle}
+          **Status:**
           
-          **PR Description:**
-          
-          ${prBody}
-          
-          **Test Results:**
-          
-          | Test Name | Status |
-          | --- | --- |
-          | jai compiler_bugs/EC1_polymorph_1.jai | SUCCESS |
-          | jai compiler_bugs/#if_1.jai | SUCCESS |
-          | jai compiler_bugs/!EC1_#import_program_param_1.jai | SUCCESS |
-          | jai compiler_bugs/#insert_1.jai | SUCCESS |
-          | jai compiler_bugs/#insert_2.jai | SUCCESS |
-          | jai compiler_bugs/#insert_inside_enum_2.jai | SUCCESS |
+          | Test Name | Status | Emailed In | First Encounter | First Encounter Version | Last Encountered | Last Encountered Version | Fix Date | Fix Date Version |
+          | :---: | :---: | :---: | :---: | :---: | :---: | :---: | :---: | :---: |
+          | EC1_polymorph_1.jai | Open | ❌ | ${date} | ${currentJaiVersion} | ${date} | ${currentJaiVersion} |  |  |
           `;
 
           const { data: issue } = await github.rest.issues.create({
