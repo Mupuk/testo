@@ -53,7 +53,7 @@ jobs:
       with:
         script: |
 
-          let jaiVersionOutput = exec.exec('jai -version').toString();
+          let jaiVersionOutput = await exec.exec('jai -version').toString();
 
           console.log(jaiVersionOutput);
 
