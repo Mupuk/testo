@@ -53,22 +53,22 @@ jobs:
       with:
         script: |
           let jaiVersionOutput = '';
-          const options = {
-            listeners: {
-              stdout: (data) => {
-                jaiVersionOutput += data.toString();
-              },
-              stderr: (data) => {
-                jaiVersionOutput += data.toString();
-              },
-              stdline: (data) => {
-                jaiVersionOutput += data;
-              },
-              errline: (data) => {
-                jaiVersionOutput += data;
-              }
-            }
-          };
+          # const options = {
+          #   listeners: {
+          #     stdout: (data) => {
+          #       jaiVersionOutput += data.toString();
+          #     },
+          #     stderr: (data) => {
+          #       jaiVersionOutput += data.toString();
+          #     },
+          #     stdline: (data) => {
+          #       jaiVersionOutput += data;
+          #     },
+          #     errline: (data) => {
+          #       jaiVersionOutput += data;
+          #     }
+          #   }
+          # };
 
           # await exec.exec('jai -version', options);
 
