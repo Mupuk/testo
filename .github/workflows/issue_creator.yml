@@ -62,6 +62,7 @@ jobs:
           };
 
           await exec.exec('jai', ['-version'], options);
+          await exec.exec('echo', ['hello'], options);
 
           console.log(jaiVersionOutput);
 
