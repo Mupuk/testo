@@ -53,26 +53,6 @@ jobs:
       with:
         script: |
           let jaiVersionOutput = '';
-          # const options = {
-          #   listeners: {
-          #     stdout: (data) => {
-          #       jaiVersionOutput += data.toString();
-          #     },
-          #     stderr: (data) => {
-          #       jaiVersionOutput += data.toString();
-          #     },
-          #     stdline: (data) => {
-          #       jaiVersionOutput += data;
-          #     },
-          #     errline: (data) => {
-          #       jaiVersionOutput += data;
-          #     }
-          #   }
-          # };
-
-          # await exec.exec('jai -version', options);
-
-          # console.log(jaiVersionOutput);
 
           const versionMatch = jaiVersionOutput.match(/beta \d+\.\d+\.\d+/);
           const version = versionMatch ? versionMatch[0] : 'Version not found';
