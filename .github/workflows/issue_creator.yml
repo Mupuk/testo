@@ -53,8 +53,9 @@ jobs:
       with:
         script: |
 
-          let jaiVersionOutput = await exec.exec('jai -version').toString();
-
+          let jaiVersionOutput = await exec.exec('jai -version');
+          console.log(jaiVersionOutput);
+          jaiVersionOutput = jaiVersionOutput.toString();
           console.log(jaiVersionOutput);
 
           const versionMatch = jaiVersionOutput.match(/beta \d+\.\d+\.\d+/);
