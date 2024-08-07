@@ -24,10 +24,14 @@ jobs:
             const prBody = context.payload.pull_request.body;
 
             const issueTitle = `[BUG] PR #${prNumber} - ${prTitle}`;
-            const issueBody = `###Issue created from PR #${prNumber} - ${prTitle}
+            const issueBody = `
+            ### Issue created from PR #${prNumber} - ${prTitle}
+            
             **PR Description:**
             
             ${prBody}
+            
+            **Test Results:**
             
             | Test Name | Status |
             | --- | --- |
@@ -39,7 +43,7 @@ jobs:
             | jai compiler_bugs/#insert_inside_enum_2.jai | SUCCESS |
             `;
 
-            const { data: issue } = await github.issues.create({
+            const { data: issue } = await github.rest.issues.create({
               owner: context.repo.owner,
               repo: context.repo.repo,
               title: issueTitle,
