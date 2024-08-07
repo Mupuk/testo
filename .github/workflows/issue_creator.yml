@@ -147,5 +147,12 @@ jobs:
             body: issueBody
           });
 
+          console.log(issue);
 
-          core.setOutput("issue_url", issue.html_url);
+          await github.rest.issues.addLabels({
+            owner: context.repo.owner,
+            repo: context.repo.repo,
+            issue_number: issue.number,
+            labels: [ currentJaiVersion ]
+          });
+          
