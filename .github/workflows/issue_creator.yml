@@ -17,7 +17,7 @@ jobs:
       uses: actions/github-script@v6
       with:
         script: |
-          const {github, context} = require('@actions/github');
+          const {githubb, context} = require('@actions/github');
 
           const issueTitle = 'New Issue Created via GitHub Actions';
           const issueBody = 'This is an issue automatically created by GitHub Actions.';
