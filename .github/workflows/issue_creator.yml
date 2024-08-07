@@ -70,7 +70,7 @@ jobs:
             }
           };
 
-          await exec.exec('jai -version', options);
+          # await exec.exec('jai -version', options);
 
           # console.log(jaiVersionOutput);
 
