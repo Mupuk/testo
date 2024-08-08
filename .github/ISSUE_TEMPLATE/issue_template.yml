@@ -1,10 +1,6 @@
-name: Bug Report
-description: File a bug report.
+name: Bug Report - Single File
+description: Report your bug here if its a small one(one file), otherwise please create a PR [here](https://github.dev/Mupu/testo).
 title: "[Bug]: "
-labels: ["bug", "triage"]
-projects: ["octo-org/1", "octo-org/44"]
-assignees:
-  - octocat
 body:
   - type: checkboxes
     id: general
@@ -13,21 +9,38 @@ body:
       options:
         - label: I've looked for similar bugs
           required: true
+         - label: This bug fits into a single file
+          required: true
         - label: I've already reported the bug to Jon
         - label: I will create a PR for this bug
     validations:
       required: true
 
   - type: dropdown
-    id: version
+    id: type
     attributes:
-      label: Version
-      description: What version of Jai are you running?
+      label: Bug Type
+      description: What type of bug is this?
       options:
-        - beta 0.1.092
-        - beta 0.1.091
-        - beta 0.1.090
-      default: 0
+        - Runtime (leaks, weird behaviour etc)
+        - Compiletime (smth doesn't compile altough it should, etc)
+        - Compiler Crash (outside compile-time execution crash)
+    validations:
+      required: true
+
+  - type: dropdown
+    id: type
+    attributes:
+      label: Categorization
+      description: What category does this bug belong to the most / What feature triggered the bug?
+      options:
+        - #if
+        - #insert
+        - leak
+        - std:process
+        - std:autorun
+    validations:
+      required: true
 
   - type: textarea
     id: description
@@ -45,5 +58,7 @@ body:
     id: bug_snippet
     attributes:
       label: Short Code Snipped
-      placeholder: Please only fill this out, if it's a single-file bug. Otherwise leave it empty.
+      placeholder: Please put your code to reproduce the bug here.
       render: c
+    validations:
+      required: true
