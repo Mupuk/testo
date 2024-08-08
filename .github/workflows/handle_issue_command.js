@@ -56,7 +56,8 @@ const handleEmailedIn = async ({ github, context }) => {
 
   // Update comment
   await github.rest.issues.update({
-    ...context.issue,
+    ...context.repo,
+    issue_number: context.issue.number,
     body: result
   });
 
