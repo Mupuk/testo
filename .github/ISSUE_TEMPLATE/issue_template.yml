@@ -69,14 +69,14 @@ body:
       value: |
         Thanks for taking the time to fill out this bug report!
         Pull Request Template
-        Description
-        <!--- Describe your changes in detail -->
-        Type of Change
-        <!--- Place a 'x' in all the boxes that apply: -->
-        - [ ] Bug fix (non-breaking change which fixes an issue)
-        - [ ] New feature (non-breaking change which adds functionality)
-        - [ ] Breaking change (fix or feature that would cause existing functionality to change)
-        - [ ] Documentation update
+        # Description
+        # <!--- Describe your changes in detail -->
+        # Type of Change
+        # <!--- Place a 'x' in all the boxes that apply: -->
+        # - [ ] Bug fix (non-breaking change which fixes an issue)
+        # - [ ] New feature (non-breaking change which adds functionality)
+        # - [ ] Breaking change (fix or feature that would cause existing functionality to change)
+        # - [ ] Documentation update
 
   #       ## Related Issue
   #       <!--- This project only accepts pull requests related to open issues -->
