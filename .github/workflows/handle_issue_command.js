@@ -50,8 +50,7 @@ const handleEmailedIn = async ({ github, context }) => {
 
 }
 
-const handleJonSaid = async ({ github, context, core }) => {
-  const comment = core.getInput('comment', { required: true });
+const handleJonSaid = async ({ github, context, core, comment }) => {
   console.log(comment);
   const { data: issue } = await github.rest.issues.get({
     owner: context.repo.owner,
