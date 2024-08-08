@@ -51,9 +51,10 @@ const handleEmailedIn = async ({ github, context }) => {
 }
 
 const handleJonSaid = async ({ github, context, comment }) => {
-  console.log(comment);
-  const jon_said = "\n\n Jon said:\n" + comment.body.split(/!JonSaid\s?/i)[1];
-  console.log('js', jon_said);
+  const jon_said_body = comment.body.split(/!JonSaid\s?/i)[1];
+  if (jon_said_body.length <= 25) return;
+
+  const jon_said = "\n\n Jon said:\n" + jon_said_body;
 
   // Get old issue body
   const { data: issue } = await github.rest.issues.get({
@@ -61,10 +62,8 @@ const handleJonSaid = async ({ github, context, comment }) => {
     repo: context.repo.repo,
     issue_number: context.issue.number
   });
-  console.log('ib', issue.body);
 
   const result = issue.body + jon_said;
-  console.log('res', result);
 
   // Update comment
   await github.rest.issues.update({
