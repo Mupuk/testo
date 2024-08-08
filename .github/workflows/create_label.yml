@@ -5,7 +5,7 @@ on:
   workflow_call:
 
 jobs:
-  create_issue:
+  create_compiler_label:
     runs-on: [self-hosted, windows]
     
     steps:
