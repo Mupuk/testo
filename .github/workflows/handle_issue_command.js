@@ -4,7 +4,6 @@ function parseIssueBody(issueBody) {
   let pipeLines = lines.filter(line => line.startsWith('|'));
   // Discard the first two lines (header and table)
   pipeLines = pipeLines.slice(2);
-  console.log('7', pipeLines);
 
   // Extract the row that contains the variable values
   const regex = /\|?(.*?)\|/gm;
@@ -22,13 +21,10 @@ const handleEmailedIn = async ({ github, context }) => {
   });
 
   let parsedFields = parseIssueBody(issue.body);
-  console.log("Res");
-  console.log(parsedFields);
 
   parsedFields[2] = '✅'; // Emailed In
 
   let modifiedRow = '|' + parsedFields.join('|') + '|';
-  console.log('3', modifiedRow);
 
   // Reassamble updated post
   let lines = issue.body.split('\n');
@@ -42,17 +38,14 @@ const handleEmailedIn = async ({ github, context }) => {
     }
   }
 
-  console.log("1", lines[headerIndex + 2]);
   lines.splice(headerIndex + 2, 1, modifiedRow);
   const result = lines.join('\n');
-  console.log("2", result);
 
   // Get all comments on the issue
   const { data: comments } = await github.rest.issues.listComments({
     ...context.repo,
     issue_number: context.issue.number
   });
-  console.log('comments', comments);
 
   // Update comment
   await github.rest.issues.update({

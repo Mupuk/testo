@@ -14,7 +14,7 @@ const createLabel = async ({github, context, labelName}) => {
   let berlinTime = new Intl.DateTimeFormat('en-CA', options).format(new Date());
   // Extract the date part (YYYY-MM-DD)
   let berlinDate = berlinTime.split(',')[0];
-  console.log(berlinTime);
+
   // TEMP
   
   // Check if the label exists
@@ -36,7 +36,6 @@ const createLabel = async ({github, context, labelName}) => {
 }
 
 const createCurrentVersionLabel = async ({github, context}) => {
-  console.log('Current Working Directory:', process.cwd());
   const get_jai_version = require('./jai_version.js');
   const jai_version = await get_jai_version();
   await createLabel({github, context, labelName: jai_version});

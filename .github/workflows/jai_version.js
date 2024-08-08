@@ -24,11 +24,9 @@ module.exports = async () => {
   await exec.exec('jai', [], options);
   */
   
-  console.log(jaiVersionOutput);
 
   const versionMatch = jaiVersionOutput.match(/beta \d+\.\d+\.\d+/);
   const version = versionMatch ? versionMatch[0].replace(/\s+/g, '-') : 'VersionNotFound';
 
-  console.log(`Parsed Version: ${version}`);
   return version;
 }

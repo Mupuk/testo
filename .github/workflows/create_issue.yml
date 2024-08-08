@@ -92,7 +92,7 @@ jobs:
             issue_number: issue.number,
             labels: [ currentJaiVersion ]
           });
-          console.log(context.issue.number);
+
           github.rest.issues.createComment({
             issue_number: context.issue.number,
             owner: context.repo.owner,
