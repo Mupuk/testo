@@ -20,9 +20,9 @@ jobs:
       uses: actions/github-script@v7
       with:
         script: |
-          console.log("${{ steps.jai_version.outputs.version }}");
-          console.log("${{ steps.jai_version_workflow.outputs.jai_version.version }}");
-          console.log("${{ steps.jai_version_workflow.outputs.version }}");
+          console.log("${{ needs.jai_version.outputs.version }}");
+          console.log("${{ needs.jai_version_workflow.outputs.jai_version.version }}");
+          console.log("${{ needs.jai_version_workflow.outputs.version }}");
           /*
           const labelName = "${{ steps.jai_version.outputs.version }}";
 
