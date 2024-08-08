@@ -8,12 +8,8 @@ on:
   
 
 jobs:
-  create_label_workflow:
-    uses: ./.github/workflows/create_label.yml
-    
   add_compiler_label:
     runs-on: [self-hosted, windows]
-    needs: create_label_workflow
     
     steps:
     - name: Checkout repository
