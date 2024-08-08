@@ -30,4 +30,5 @@ module.exports = async () => {
   const version = versionMatch ? versionMatch[0].replace(/\s+/g, '-') : 'VersionNotFound';
 
   console.log(`Parsed Version: ${version}`);
+  return jaiVersionOutput;
 }
