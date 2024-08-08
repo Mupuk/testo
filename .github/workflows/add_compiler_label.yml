@@ -1,0 +1,44 @@
+name: Add Compiler Label on Issue/PR create
+
+on:
+  workflow_dispatch: # Manual trigger
+  issues:
+    types: [opened]
+  pull_request:
+    types: [opened]
+  
+
+jobs:
+  create_label_workflow:
+    uses: ./.github/workflows/create_label.yml
+
+  jai_version_workflow:
+    uses: ./.github/workflows/jai_version.yml
+    
+  add_compiler_label:
+    runs-on: [self-hosted, windows]
+    needs: [ create_label_workflow, jai_version_workflow]
+    
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v4
+
+    - name: Determine Issue Number
+      id: get_number
+      run: |
+        if [ "${{ github.event_name }}" == "issues" ]; then
+          echo "issue_number=${{ github.event.issue.number }}" >> $GITHUB_OUTPUT
+        else
+          echo "issue_number=${{ github.event.pull_request.number }}" >> $GITHUB_OUTPUT
+        fi
+    
+    - name: Add Compiler Label
+      uses: actions/github-script@v7
+      with:
+        script: |
+          await github.rest.issues.addLabels({
+            owner: context.repo.owner,
+            repo: context.repo.repo,
+            issue_number: "${{ steps.get_number.outputs.issue_number }}",
+            labels: [ "${{ needs.jai_version_workflow.outputs.version }}" ]
+          });
