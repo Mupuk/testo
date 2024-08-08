@@ -12,8 +12,6 @@ jobs:
     runs-on: [self-hosted, windows]
     
     steps:
-    - name: Checkout repository
-      uses: actions/checkout@v4
   
     # JS Version doesnt seem to work due a jai bug not showing the output in subprocesses or smth
     - name: Run Jai -version and capture output
