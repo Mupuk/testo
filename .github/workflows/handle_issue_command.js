@@ -20,8 +20,6 @@ const handleEmailedIn = async ({ github, context }) => {
     issue_number: context.issue.number
   });
 
-  console.log(issue);
-
   let parsedFields = parseIssueBody(issue.body);
 
   parsedFields[2] = '✅'; // Emailed In
@@ -43,12 +41,6 @@ const handleEmailedIn = async ({ github, context }) => {
   lines.splice(headerIndex + 2, 1, modifiedRow);
   const result = lines.join('\n');
 
-  // Get all comments on the issue
-  const { data: comments } = await github.rest.issues.listComments({
-    ...context.repo,
-    issue_number: context.issue.number
-  });
-
   // Update comment
   await github.rest.issues.update({
     ...context.repo,
@@ -58,6 +50,17 @@ const handleEmailedIn = async ({ github, context }) => {
 
 }
 
+const handleJonSaid = async ({ github, context }) => {
+  const comment = core.getInput('comment', { required: true });
+  console.log(comment);
+  const { data: issue } = await github.rest.issues.get({
+    owner: context.repo.owner,
+    repo: context.repo.repo,
+    issue_number: context.issue.number
+  });
+}
+
 module.exports = {
   handleEmailedIn,
+  handleJonSaid
 };
