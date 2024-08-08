@@ -1,4 +1,4 @@
-module.exports = async ({github, context, core}) => {
+module.exports = async (() => {
   // currently this is a bug in jai so we hardcode it       
   let jaiVersionOutput = 'Version: beta 0.1.092, built on 4 August 2024.';
   /*
