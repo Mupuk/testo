@@ -4,6 +4,32 @@ title: "[Bug]: "
 body:
   
 
+  - type: dropdown
+    id: type
+    attributes:
+      label: Categorization
+      description: What category does this bug belong to the most / What feature triggered the bug?
+      options:
+        - if
+        - insert
+        - leak
+        - std:process
+        - std:autorun
+    validations:
+      required: true
+
+  - type: textarea
+    id: description
+    attributes:
+      label: Bug Description
+      placeholder: Please fill this out if it is a more complicated bug.
+
+  - type: textarea
+    id: workaround
+    attributes:
+      label: Workaround
+      placeholder: If you have a workaround, please share it here.
+
   - type: textarea
     id: bug_snippet
     attributes:
