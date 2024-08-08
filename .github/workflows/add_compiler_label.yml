@@ -24,8 +24,8 @@ jobs:
       with:
         script: |
           // get current jai version
-          const get_jai_version = require('./.github/workflows/jai_version.js');
-          const jai_version = await get_jai_version();
+          const { createCurrentVersionLabel } = require('./.github/workflows/create_label.js');
+          const jai_version = await createCurrentVersionLabel();
           
           const issue_number = context.payload.issue
             ? context.payload.issue.number
