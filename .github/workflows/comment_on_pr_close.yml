@@ -1,16 +1,16 @@
 name: Comment On PR Close
 
 on:
-  issues:
-    types: [opened]
+  # issues:
+  #   types: [opened]
   pull_request:
-    types: [opened]
+    types: [closed]
   
 
 jobs:
   add_compiler_label:
     runs-on: [self-hosted, windows]
-    
+    if: github.event.pull_request.merged == true
     steps:
     - name: Checkout repository
       uses: actions/checkout@v4
@@ -20,7 +20,8 @@ jobs:
       with:
         script: |
           console.log( "${{ github.event_name }}" );
+          console.log( "${{ github.event.pull_request.merged }}" );
           
           // get current jai version
           const { createCurrentVersionLabel } = require('./.github/workflows/create_label.js');
-          const jai_version = await createCurrentVersionLabel({github, context});
+          // const jai_version = await createCurrentVersionLabel({github, context});
