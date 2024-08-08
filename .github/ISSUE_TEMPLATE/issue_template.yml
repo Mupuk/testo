@@ -15,6 +15,8 @@ body:
           required: true
         - label: I've already reported the bug to Jon
         - label: I will create a PR for this bug
+    validations:
+      required: true
 
   - type: dropdown
     id: version
@@ -33,5 +35,5 @@ body:
     id: bug_snippet
     attributes:
       label: Short Code Snipped
-      description: Please only fill this out, if it's a single-file bug. Otherwise leave it empty.
+      placeholder: Please only fill this out, if it's a single-file bug. Otherwise leave it empty.
       render: c
