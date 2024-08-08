@@ -4,7 +4,7 @@
 # [x] Add label on Issue/PR create
 # [x] Jai Version Task
 # [x] refactor to share js files
-# [ ] mention issue from PR
+# [x] mention issue from PR
 # [ ] Update issue status on !Emailed
 # [ ] issue name (clasification only) from PR name or classification dropdown?
 # [ ] create message that further discussion are supposed to be held on issue
@@ -47,39 +47,6 @@ jobs:
     steps:
     - name: Checkout repository
       uses: actions/checkout@v4
-    
-    - name: Generate unique prefix for the new issue
-      uses: actions/github-script@v7
-      id: generate_prefix
-      if: github.event_name == 'pull_request'
-      with:
-        script: |
-          const issues = await github.paginate(github.rest.issues.listForRepo, {
-            owner: context.repo.owner,
-            repo: context.repo.repo,
-            creator: 'github-actions'
-          });
-
-          console.log(issues);
-
-          const datePrefix = new Date().toISOString().split('T')[0];
-          let maxId = 0;
-          
-          issues.forEach(issue => {
-            const match = issue.title.match(/(\d{4}-\d{2}-\d{2})-(\d{5})/);
-            console.log(issue);
-            if (match) {
-              const id = parseInt(match[2], 10);
-              if (id > maxId) {
-                maxId = id;
-              }
-            }
-          });
-
-          const prefix = `${datePrefix}-${String(maxId + 1).padStart(5, '0')}`;
-          console.log(prefix);
-          core.setOutput('prefix', prefix);
-
 
     - name: Create a new issue
       uses: actions/github-script@v7
@@ -104,6 +71,7 @@ jobs:
           | EC1_polymorph_1.jai | Open | ❌ | ${date} | ${currentJaiVersion} | ${date} | ${currentJaiVersion} |  |  |
           `;
 
+          // Create Issue
           const { data: issue } = await github.rest.issues.create({
             owner: context.repo.owner,
             repo: context.repo.repo,
@@ -111,12 +79,13 @@ jobs:
             body: issueBody
           });
 
-          console.log(issue);
+
 
           // Since recursive workflows are not triggered when using GITHUB_TOKEN 
           // we do it manually again.
           // https://github.com/peter-evans/create-pull-request/blob/main/docs/concepts-guidelines.md#triggering-further-workflow-runs
-          
+
+          // Add Current Compiler Label
           await github.rest.issues.addLabels({
             owner: context.repo.owner,
             repo: context.repo.repo,
@@ -124,5 +93,11 @@ jobs:
             labels: [ currentJaiVersion ]
           });
 
+          github.rest.issues.createComment({
+            issue_number: issue.number,
+            owner: context.repo.owner,
+            repo: context.repo.repo,
+            body: `👋 Thanks for the contribution, please continue further discussion on this matter [here](${issue.html_url})!`
+          })
 
           
