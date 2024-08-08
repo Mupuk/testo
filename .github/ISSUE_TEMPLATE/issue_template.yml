@@ -7,9 +7,9 @@ assignees:
   - octocat
 body:
   - type: checkboxes
-    id: info
+    id: general
     attributes:
-      label: Info
+      label: General
       options:
         - label: I've looked for similar bugs
           required: true
@@ -28,8 +28,18 @@ body:
         - beta 0.1.091
         - beta 0.1.090
       default: 0
-    validations:
-      required: true
+
+  - type: textarea
+    id: description
+    attributes:
+      label: Bug Description
+      placeholder: Please fill this out if it is a more complicated bug.
+
+  - type: textarea
+    id: workaround
+    attributes:
+      label: Workaround
+      placeholder: If you have a workaround, please share it here.
 
   - type: textarea
     id: bug_snippet
