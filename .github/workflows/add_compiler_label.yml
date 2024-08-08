@@ -35,5 +35,5 @@ jobs:
             owner: context.repo.owner,
             repo: context.repo.repo,
             issue_number: issue_number,
-            labels: [ "${jai_version}" ]
+            labels: [ '${jai_version}' ]
           });
