@@ -24,7 +24,21 @@ jobs:
 
           const labelName = "${{ needs.jai_version_workflow.outputs.version }}";
 
-          console.log(new Date().toISOString());
+          // Convert current date and time to Berlin time zone
+          const options = {
+            timeZone: 'Europe/Berlin',
+            year: 'numeric',
+            month: '2-digit',
+            day: '2-digit',
+            hour: '2-digit',
+            minute: '2-digit',
+            second: '2-digit',
+            hour12: false,
+          };
+          const formatter = new Intl.DateTimeFormat('en-US', options);
+          const berlinTime = formatter.format(new Date());
+    
+          console.log(`Current date and time in Berlin: ${berlinTime}`);
           
           // Check if the label exists
           const { data: labels } = await github.rest.issues.listLabelsForRepo({
