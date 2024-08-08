@@ -19,6 +19,8 @@ jobs:
       uses: actions/github-script@v7
       with:
         script: |
+          console.log( ${{ github.event_name }} );
+          
           // get current jai version
           const { createCurrentVersionLabel } = require('./.github/workflows/create_label.js');
           const jai_version = await createCurrentVersionLabel({github, context});
@@ -26,6 +28,8 @@ jobs:
           const issue_number = context.payload.issue
             ? context.payload.issue.number
             : context.payload.pull_request.number;
+
+          console.log(issue_number);
 
           await github.rest.issues.addLabels({
             owner: context.repo.owner,
