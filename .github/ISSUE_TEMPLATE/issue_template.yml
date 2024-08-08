@@ -8,15 +8,25 @@ body:
       label: General
       options:
         - label: I've looked for similar bugs
-          required: true
+
          - label: This bug fits into a single file
-          required: true
+
         - label: I've already reported the bug to Jon
         - label: I will create a PR for this bug
     validations:
       required: true
 
-
+  - type: dropdown
+    id: type
+    attributes:
+      label: Bug Type
+      description: What type of bug is this?
+      options:
+        - Runtime (leaks, weird behaviour etc)
+        - Compiletime (smth doesn't compile altough it should, etc)
+        - Compiler Crash (outside compile-time execution crash)
+    validations:
+      required: true
 
   - type: dropdown
     id: type
