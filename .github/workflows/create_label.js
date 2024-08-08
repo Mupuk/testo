@@ -30,7 +30,7 @@ module.exports = async ({github, context, labelName}) => {
     await github.rest.issues.createLabel({
       owner: context.repo.owner,
       repo: context.repo.repo,
-      name: jai_version,
+      name: labelName,
     });
   }
 }
