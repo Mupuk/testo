@@ -1,7 +1,6 @@
 name: Add Compiler Label on Issue/PR create
 
 on:
-  workflow_dispatch: # Manual trigger
   issues:
     types: [opened]
   pull_request:
