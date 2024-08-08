@@ -9,8 +9,8 @@ jobs:
     uses: ./.github/workflows/jai_version.yml
 
   create_compiler_label:
-    needs: jai_version_workflow
     runs-on: [self-hosted, windows]
+    needs: jai_version_workflow
     
     steps:
     - name: Checkout repository
@@ -20,9 +20,9 @@ jobs:
       uses: actions/github-script@v7
       with:
         script: |
-          console.log("${{ needs.jai_version.outputs.version }}");
-          console.log("${{ needs.jai_version_workflow.outputs.jai_version.version }}");
           console.log("${{ needs.jai_version_workflow.outputs.version }}");
+          console.log("${{ needs.jai_version_workflow.outputs.jai_version.version }}");
+
           /*
           const labelName = "${{ steps.jai_version.outputs.version }}";
 
