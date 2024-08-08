@@ -34,8 +34,8 @@ body:
       label: Categorization
       description: What category does this bug belong to the most / What feature triggered the bug?
       options:
-        - "#if"
-        - "#insert"
+        - if
+        - insert
         - leak
         - std:process
         - std:autorun
