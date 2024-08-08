@@ -3,7 +3,8 @@ name: Handle Issue Comment
 on:
   issue_comment:
     types: [created, edited]
-  
+
+# CHECK THAT COMMENT IS ON A ISSUE FROM BOT!
 
 jobs:
   handle_issue_comment:
@@ -38,9 +39,9 @@ jobs:
           function parseIssueBody(issueBody) {
             // Split the input text into lines
             const lines = issueBody.split('\n');
+            let pipeLines = lines.filter(line => line.startsWith('|'));
             // Discard the first two lines (header and table)
-            const remainingLines = lines.slice(2);
-            const pipeLines = remainingLines.filter(line => line.startsWith('|'));
+            pipeLines = pipeLines.slice(2);
 
             // Extract the row that contains the variable values
             const regex = /([^\|]*)/gm;
