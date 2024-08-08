@@ -4,7 +4,7 @@ function parseIssueBody(issueBody) {
   let pipeLines = lines.filter(line => line.startsWith('|'));
   // Discard the first two lines (header and table)
   pipeLines = pipeLines.slice(2);
-  console.log(pipeLines);
+  console.log('7', pipeLines);
 
   // Extract the row that contains the variable values
   const regex = /\|?(.*?)\|/gm;

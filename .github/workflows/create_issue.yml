@@ -68,7 +68,7 @@ jobs:
           
           | Test Name | Status | Emailed In | First Encounter | First Encounter Version | Last Encountered | Last Encountered Version | Fix Date | Fix Date Version |
           | :---: | :---: | :---: | :---: | :---: | :---: | :---: | :---: | :---: |
-          | EC1_polymorph_1.jai | Open | ❌ | ${date} | ${currentJaiVersion} | ${date} | ${currentJaiVersion} |  |  |
+          | EC1_polymorph_1.jai | Open | ❌ | ${date} | ${currentJaiVersion} | ${date} | ${currentJaiVersion} | - | - |
           `;
 
           // Create Issue
