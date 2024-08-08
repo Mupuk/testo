@@ -3,7 +3,7 @@
 # [~] Create Label on Issue, PR, and (??test suit??) if not exist
 # [x] Add label on Issue/PR create
 # [x] Jai Version Task
-# [ ] refactor to share js files
+# [x] refactor to share js files
 # [ ] Update issue status on !Emailed
 # [ ] issue name (clasification only) from PR name or classification dropdown?
 # [ ] mention issue from PR
@@ -40,16 +40,9 @@ on:
   pull_request:
     types: [closed]
 
-jobs:
-  create_label_workflow:
-    uses: ./.github/workflows/create_label.yml
-
-  jai_version_workflow:
-    uses: ./.github/workflows/jai_version.yml
-    
+jobs:  
   create_issue:
     runs-on: [self-hosted, windows]
-    needs: [ create_label_workflow, jai_version_workflow]
     
     steps:
     - name: Checkout repository
@@ -93,7 +86,9 @@ jobs:
       if: github.event_name == 'pull_request'
       with:
         script: |
-          const currentJaiVersion = "${{ needs.jai_version_workflow.outputs.version }}";
+          const get_jai_version = require('./.github/workflows/jai_version.js');
+          
+          const currentJaiVersion = await get_jai_version();
           const prefix = "${{ steps.generate_prefix.outputs.prefix }}";
           const date = new Date().toISOString().split('T')[0];
           const prNumber = context.payload.pull_request.number;
@@ -117,6 +112,8 @@ jobs:
           });
 
           console.log(issue);
+
+          // Label will be added by other workflow
 
 
           
