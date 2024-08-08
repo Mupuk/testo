@@ -9,17 +9,17 @@ Closes:
 
 ### Bug Type
 #### What type of bug is this? Delete the others.
-Runtime (leaks, weird behaviour etc)
-Compiletime (smth doesn't compile altough it should, etc)
-Compiler Crash (outside compile-time execution crash)
+- Runtime (leaks, weird behaviour etc)
+- Compiletime (smth doesn't compile altough it should, etc)
+- Compiler Crash (outside compile-time execution crash)
 
 ### Categorization
 #### What category does this bug belong to the most / What feature triggered the bug? Delete the others.
-if
-insert
-leak
-std:process
-std:autorun
+- if
+- insert
+- leak
+- std:process
+- std:autorun
 
 ### Bug Description
 #### Please fill this out if it is a more complicated bug.
