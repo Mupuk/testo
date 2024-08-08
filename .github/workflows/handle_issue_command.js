@@ -50,7 +50,7 @@ const handleEmailedIn = async ({ github, context }) => {
 
 }
 
-const handleJonSaid = async ({ github, context }) => {
+const handleJonSaid = async ({ github, context, core }) => {
   const comment = core.getInput('comment', { required: true });
   console.log(comment);
   const { data: issue } = await github.rest.issues.get({
