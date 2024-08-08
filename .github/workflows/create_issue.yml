@@ -6,7 +6,7 @@
 # [x] refactor to share js files
 # [x] mention issue from PR
 # [x] create message that further discussion are supposed to be held on issue
-# [ ] Update issue status on !Emailed
+# [x] Update issue status on !Emailed
 # [ ] parse !jonsaid
 # [ ] issue name (clasification only) from PR name or classification dropdown?
 # [ ] parse description
@@ -56,13 +56,12 @@ jobs:
           const get_jai_version = require('./.github/workflows/jai_version.js');
           
           const currentJaiVersion = await get_jai_version();
-          const prefix = "${{ steps.generate_prefix.outputs.prefix }}";
           const date = new Date().toISOString().split('T')[0];
           const prNumber = context.payload.pull_request.number;
           const prTitle = context.payload.pull_request.title;
           const prBody = context.payload.pull_request.body;
 
-          const issueTitle = `${prefix}-${prTitle}`;
+          const issueTitle = `${prTitle}`;
           const issueBody = `
           **Status:**
           

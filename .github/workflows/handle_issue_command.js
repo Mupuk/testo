@@ -20,6 +20,8 @@ const handleEmailedIn = async ({ github, context }) => {
     issue_number: context.issue.number
   });
 
+  console.log(issue);
+
   let parsedFields = parseIssueBody(issue.body);
 
   parsedFields[2] = '✅'; // Emailed In
