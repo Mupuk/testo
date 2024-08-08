@@ -1,15 +1,3 @@
-module.exports = {
-  createLabel,
-  createCurrentVersionLabel
-};
-
-const createCurrentVersionLabel = async ({github, context}) => {
-  const get_jai_version = require('./.github/workflows/jai_version.js');
-  const jai_version = await get_jai_version();
-  await createLabel({github, context, labelName: jai_version});
-  return jai_version;
-}
-
 const createLabel = async ({github, context, labelName}) => {
   // TEMP
   // Specify the Berlin time zone and desired format
@@ -46,3 +34,15 @@ const createLabel = async ({github, context, labelName}) => {
     });
   }
 }
+
+const createCurrentVersionLabel = async ({github, context}) => {
+  const get_jai_version = require('./.github/workflows/jai_version.js');
+  const jai_version = await get_jai_version();
+  await createLabel({github, context, labelName: jai_version});
+  return jai_version;
+}
+
+module.exports = {
+  createLabel,
+  createCurrentVersionLabel
+};
