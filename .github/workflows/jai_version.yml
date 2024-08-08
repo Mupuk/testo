@@ -5,14 +5,13 @@ on:
   workflow_call:
    outputs:
       version:
-        value: ${{ jobs.get_jai_version.steps.jai_version.version }}
+        value: ${{ jobs.get_jai_version.steps.jai_version.outputs.version }}
 
 jobs:
   get_jai_version:
     runs-on: [self-hosted, windows]
     
     steps:
-  
     # JS Version doesnt seem to work due a jai bug not showing the output in subprocesses or smth
     - name: Run Jai -version and capture output
       id: jai_version_output
