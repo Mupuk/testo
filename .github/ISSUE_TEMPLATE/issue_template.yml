@@ -6,6 +6,38 @@ projects: ["octo-org/1", "octo-org/44"]
 assignees:
   - octocat
 body:
+  - type: checkboxes
+    id: info
+    attributes:
+      label: Info
+      options:
+        - label: I've looked for similar bugs
+          required: true
+        - label: I've already reported the bug to Jon
+        - label: I will create a PR for this bug
+
+  - type: dropdown
+    id: version
+    attributes:
+      label: Version
+      description: What version of Jai are you running?
+      options:
+        - beta 0.1.092
+        - beta 0.1.091
+        - beta 0.1.090
+      default: 0
+    validations:
+      required: true
+
+  - type: textarea
+    id: bug_snippet
+    attributes:
+      label: Short Code Snipped
+      description: Please only fill this out, if it's a single-file bug. Otherwise leave it empty.
+      render: c
+
+
+
   - type: markdown
     attributes:
       value: |
