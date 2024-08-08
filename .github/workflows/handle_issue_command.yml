@@ -48,20 +48,7 @@ jobs:
             const regex = /\|?(.*?)\|/gm;
             const fields = [...pipeLines[0].matchAll(regex)].map(match => match[1].trim());
 
-            // Define variable names
-            const [testName, status, emailedIn, firstEncounter, firstEncounterVersion, lastEncountered, lastEncounteredVersion, fixDate, fixDateVersion] = fields;
-
-            return {
-                testName,
-                status,
-                emailedIn,
-                firstEncounter,
-                firstEncounterVersion,
-                lastEncountered,
-                lastEncounteredVersion,
-                fixDate,
-                fixDateVersion
-            };
+            return fields
           }
           
           const { data: issue } = await github.rest.issues.get({
@@ -74,19 +61,20 @@ jobs:
           console.log("Res");
           console.log(parsedFields);
 
+          let modifiedRow = '|' + parsedFields.join('|') + '|';
+
           // Reassamble updated post
           let lines = issue.body.split('\n');
-
-          let firstPipeIndex = -1;
+          
+          // find data row
+          let headerIndex = -1;
           lines.forEach((line, index) => {
-            if (firstPipeIndex === -1 && line.startsWith('|'))
-              firstPipeIndex = index;
-
-            if (index === firstPipeIndex + 2) { // actual data row
-              console.log(line);
-              line = `| ${parsedFields.testName} |`;
-
+            if (line.startsWith('|')) {
+              headerIndex = index;
+              break;
             }
           });
+          console.log(lines[headerIndex + 2]);
+          lines.splice(headerIndex + 2, 1, modifiedRow);
 
           console.log(lines);
