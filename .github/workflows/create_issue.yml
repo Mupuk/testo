@@ -7,7 +7,7 @@
 # [x] mention issue from PR
 # [x] create message that further discussion are supposed to be held on issue
 # [x] Update issue status on !Emailed
-# [ ] parse !jonsaid
+# [x] parse !jonsaid
 # [ ] issue name (clasification only) from PR name or classification dropdown?
 # [ ] parse description
 # [ ] parse and add not emailed tag
