@@ -45,7 +45,7 @@ jobs:
             console.log(pipeLines);
 
             // Extract the row that contains the variable values
-            const regex = /([^\|]*)/gm;
+            const regex = /\|?(.*?)\|/gm;
             const fields = [...pipeLines[0].matchAll(regex)].map(String);
             console.log(fields);
 
