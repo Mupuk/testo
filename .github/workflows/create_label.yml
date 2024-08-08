@@ -5,12 +5,8 @@ on:
   workflow_call:
 
 jobs:
-  # jai_version_workflow:
-  #   uses: ./.github/workflows/jai_version.yml
-
   create_compiler_label:
     runs-on: [self-hosted, windows]
-    # needs: jai_version_workflow
     
     steps:
     - name: Checkout repository
