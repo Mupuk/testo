@@ -22,6 +22,6 @@ jobs:
 
            // create label
           const createLabel = require('./.github/workflows/create_label.js');
-          await createLabel({context, github, jai_version});
+          await createLabel({github, context, jai_version});
 
           
