@@ -26,8 +26,7 @@ jobs:
           });
           core.setOutput('comment', comment);
 
-          const body = issue.body;
-          const containsEmailedIn = /!EmailedIn/i.test(body); // Case-insensitive check for !EmailedIn
+          const containsEmailedIn = /!EmailedIn/i.test(comment.body); // Case-insensitive check for !EmailedIn
           core.setOutput('emailedIn', containsEmailedIn);
           console.log(containsEmailedIn);
           console.log(comment);
