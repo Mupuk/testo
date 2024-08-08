@@ -21,8 +21,15 @@ on:
     types: [closed]
 
 jobs:
+  create_label_workflow:
+    uses: ./.github/workflows/create_label.yml
+
+  jai_version_workflow:
+    uses: ./.github/workflows/jai_version.yml
+    
   create_issue:
     runs-on: [self-hosted, windows]
+    needs: [ create_label_workflow, jai_version_workflow]
     
     steps:
     - name: Checkout repository
@@ -60,90 +67,18 @@ jobs:
           console.log(prefix);
           core.setOutput('prefix', prefix);
 
-    # JS Version doesnt seem to work due a jai bug not showing the output in subprocesses or smth
-    - name: Run Jai -version and capture output
-      id: jai_version_output
-      run: |
-        $output = jai -version
-        echo $output
-        echo "version=$output" >> $GITHUB_OUTPUT
-        
-          
-    - name: Run jai -version and parse output
-      uses: actions/github-script@v7
-      id: jai_version
-      with:
-        script: |
-          let jaiVersionOutput = 'Version: beta 0.1.092, built on 4 August 2024.';
-          
-          /*
-          const options = {};
-          options.silent = false;
-          options.ignoreReturnCode = true;
-          options.listeners = {
-            stdout: (data) => {
-              jaiVersionOutput += data.toString();
-            },
-            stderr: (data) => {
-              jaiVersionOutput += data.toString();
-            },
-            stdline: (string) => {
-              jaiVersionOutput += string;
-            },
-            errline: (string) => {
-              jaiVersionOutput += string;
-            }
-          };
-
-          // Replace 'your-executable' with the command you want to run
-          await exec.exec('jai', [], options);
-          */
-          
-          console.log(jaiVersionOutput);
-
-          const versionMatch = jaiVersionOutput.match(/beta \d+\.\d+\.\d+/);
-          const version = versionMatch ? versionMatch[0].replace(/\s+/g, '-') : 'VersionNotFound';
-
-          console.log(`Parsed Version: ${version}`);
-          core.setOutput('version', version);
-
-    - name: Create new Compiler Version Label if not exist
-      uses: actions/github-script@v7
-      with:
-        script: |
-          const labelName = "${{ steps.jai_version.outputs.version }}";
-
-          console.log(new Date().toISOString());
-          
-          // Check if the label exists
-          const { data: labels } = await github.rest.issues.listLabelsForRepo({
-            owner: context.repo.owner,
-            repo: context.repo.repo,
-          });
-
-          const labelExists = labels.some(label => label.name === labelName);
-
-          // If the label doesn't exist, create it
-          if (!labelExists) {
-            await github.rest.issues.createLabel({
-              owner: context.repo.owner,
-              repo: context.repo.repo,
-              name: labelName,
-            });
-          }
-
 
     - name: Create a new issue
       uses: actions/github-script@v7
       if: github.event_name == 'pull_request'
       with:
         script: |
+          const currentJaiVersion = "${{ needs.jai_version_workflow.outputs.version }}";
           const prefix = "${{ steps.generate_prefix.outputs.prefix }}";
           const date = new Date().toISOString().split('T')[0];
           const prNumber = context.payload.pull_request.number;
           const prTitle = context.payload.pull_request.title;
           const prBody = context.payload.pull_request.body;
-          const currentJaiVersion = "${{ steps.jai_version.outputs.version }}";
 
           const issueTitle = `${prefix}-${prTitle}`;
           const issueBody = `
