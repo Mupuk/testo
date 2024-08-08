@@ -8,6 +8,7 @@ body:
       label: General
       options:
 
+        - label: "I've already reported the bug to Jon"
         - label: "I will create a PR for this bug"
     validations:
       required: true
