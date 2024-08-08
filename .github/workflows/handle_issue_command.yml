@@ -22,7 +22,7 @@ jobs:
           const allowedUsers = ['github-actions[bot]'];
           const issueCreator = context.payload.issue.user.login;
 
-          if (allowedUsers.includes(issueCreator) || issueCreator === githubActionsBot) {
+          if (allowedUsers.includes(issueCreator)) {
             return true;
           } else {
             return false;
