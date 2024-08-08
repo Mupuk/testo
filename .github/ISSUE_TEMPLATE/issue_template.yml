@@ -64,8 +64,10 @@ body:
           required: true
    - type: markdown
     attributes:
+  - type: markdown
+    attributes:
       value: |
-    
+        Thanks for taking the time to fill out this bug report!
         # Pull Request Template
 
         ## Description
