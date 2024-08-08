@@ -2,7 +2,21 @@ name: Bug Report - Single File
 description: Report your bug here if its a small one(one file), otherwise please create a PR [here](https://github.dev/Mupu/testo).
 title: "[Bug]: "
 body:
-  
+  - type: checkboxes
+    id: general
+    attributes:
+      label: General
+      options:
+        - label: I've looked for similar bugs
+          required: true
+         - label: This bug fits into a single file
+          required: true
+        - label: I've already reported the bug to Jon
+        - label: I will create a PR for this bug
+    validations:
+      required: true
+
+
 
   - type: dropdown
     id: type
