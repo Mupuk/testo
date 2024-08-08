@@ -21,10 +21,8 @@ jobs:
       with:
         script: |
           console.log("${{ needs.jai_version_workflow.outputs.version }}");
-          console.log("${{ needs.jai_version_workflow.outputs.jai_version.version }}");
 
-          /*
-          const labelName = "${{ steps.jai_version.outputs.version }}";
+          const labelName = "${{ needs.jai_version_workflow.outputs.version }}";
 
           console.log(new Date().toISOString());
           
@@ -44,4 +42,3 @@ jobs:
               name: labelName,
             });
           }
-          */
