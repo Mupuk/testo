@@ -39,10 +39,10 @@ const handleEmailedIn = async ({ github, context }) => {
     }
   }
 
-  console.log(lines[headerIndex + 2]);
+  console.log("1", lines[headerIndex + 2]);
   lines.splice(headerIndex + 2, 1, modifiedRow);
 
-  console.log(lines.join('\n'));
+  console.log("2", lines.join('\n'));
 }
 
 module.exports = {
