@@ -1,5 +1,5 @@
 name: Bug Report - Single File
-description: Report your bug here if its a small one(one file), otherwise please create a PR [here](https://github.dev/Mupu/testo).
+description: Report your bug here if its a small one(one file), otherwise please create a PR.
 title: "[Bug]: "
 body:
   - type: checkboxes
