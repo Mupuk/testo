@@ -38,6 +38,7 @@ jobs:
           let berlinTime = new Intl.DateTimeFormat('en-CA', options).format(new Date());
           // Extract the date part (YYYY-MM-DD)
           let berlinDate = berlinTime.split(',')[0];
+          console.log(berlinTime);
           
           // Check if the label exists
           const { data: labels } = await github.rest.issues.listLabelsForRepo({
