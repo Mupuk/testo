@@ -3,16 +3,17 @@
 # [~] Create Label on Issue, PR, and (??test suit??) if not exist
 # [x] Add label on Issue/PR create
 # [x] Jai Version Task
-# [ ] PR and issue template (issue: i will make pr checkbox)
+# [ ] refactor to share js files
 # [ ] Update issue status on !Emailed
 # [ ] issue name (clasification only) from PR name or classification dropdown?
 # [ ] mention issue from PR
 # [ ] create message that further discussion are supposed to be held on issue
 # [ ] parse description
+# [ ] parse !jonsaid
 # [ ] parse and add not emailed tag
 # [ ] jai dropdown and parsing of older version
 # [ ] parse code snipped if single file
-# [ ] parse !jonsaid
+# [ ] PR and issue template (issue: i will make pr checkbox)
 
 # [x] Auto run Testsuit on push
 # [ ] (Auto run testsuit on approval of PR)
