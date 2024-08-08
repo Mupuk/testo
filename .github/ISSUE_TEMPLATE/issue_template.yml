@@ -1,5 +1,5 @@
 name: Bug Report - Single File
-description: Report your bug here if its a small one(one file), otherwise please create a PR 
+description: Report your bug here if its a small one(one file), otherwise please create a PR [here](https://github.dev/Mupu/testo).
 title: "[Bug]: "
 body:
   - type: checkboxes
@@ -16,31 +16,7 @@ body:
     validations:
       required: true
 
-  - type: dropdown
-    id: type
-    attributes:
-      label: Bug Type
-      description: What type of bug is this?
-      options:
-        - Runtime (leaks, weird behaviour etc)
-        - Compiletime (smth doesn't compile altough it should, etc)
-        - Compiler Crash (outside compile-time execution crash)
-    validations:
-      required: true
 
-  - type: dropdown
-    id: type
-    attributes:
-      label: Categorization
-      description: What category does this bug belong to the most / What feature triggered the bug?
-      options:
-        - if
-        - insert
-        - leak
-        - std:process
-        - std:autorun
-    validations:
-      required: true
 
   - type: textarea
     id: description
