@@ -21,9 +21,11 @@ const handleEmailedIn = async ({ github, context }) => {
     issue_number: context.issue.number
   });
 
-  const parsedFields = parseIssueBody(issue.body);
+  let parsedFields = parseIssueBody(issue.body);
   console.log("Res");
   console.log(parsedFields);
+  
+  parsedFields[2] = '✅'; // Emailed In
 
   let modifiedRow = '|' + parsedFields.join('|') + '|';
   console.log('3', modifiedRow);
