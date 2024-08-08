@@ -16,10 +16,6 @@ jobs:
     - name: Checkout repository
       uses: actions/checkout@v4
 
-    - name: Get Jai Version
-      id: jai_version_workflow
-      uses: Mupu/testo/.github/workflows/jai_version.yml@master
-
     - name: Create Compiler Label if it does not exist
       uses: actions/github-script@v7
       with:
