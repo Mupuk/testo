@@ -8,13 +8,13 @@
 Closes: 
 
 ### Bug Type
-## What type of bug is this? Delete the others.
+#### What type of bug is this? Delete the others.
 Runtime (leaks, weird behaviour etc)
 Compiletime (smth doesn't compile altough it should, etc)
 Compiler Crash (outside compile-time execution crash)
 
 ### Categorization
-## What category does this bug belong to the most / What feature triggered the bug? Delete the others.
+#### What category does this bug belong to the most / What feature triggered the bug? Delete the others.
 if
 insert
 leak
@@ -22,17 +22,17 @@ std:process
 std:autorun
 
 ### Bug Description
-## Please fill this out if it is a more complicated bug.
+#### Please fill this out if it is a more complicated bug.
 
 
 
 ### Workaround
-## If you have a workaround, please share it here.
+#### If you have a workaround, please share it here.
 
 das
 
 ### Short Code Snipped
-## Please put your code to reproduce the bug here. Only use it if it is a short bug(one file).
+#### Please put your code to reproduce the bug here. Only use it if it is a short bug(one file).
 
 ```c
 
