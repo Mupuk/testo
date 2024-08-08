@@ -24,10 +24,12 @@ jobs:
             issue_number: context.issue.number
           });
           core.setOutput('issue', issue);
+          console.log(issue.body);
           
           const body = issue.body;
           const containsEmailedIn = /!EmailedIn/i.test(body); // Case-insensitive check for !EmailedIn
           core.setOutput('emailedIn', containsEmailedIn);
+          console.log(containsEmailedIn);
           
     
     - name: Handle !emailed
