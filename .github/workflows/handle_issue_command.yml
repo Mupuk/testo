@@ -62,4 +62,4 @@ jobs:
       with:
         script: |
           const { handleJonSaid } = require('./.github/workflows/handle_issue_command.js');
-          await handleJonSaid({github, context, core});
+          await handleJonSaid({github, context, core, comment: ${{ steps.extract_commands.outputs.comment }} });
