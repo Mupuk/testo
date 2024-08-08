@@ -18,18 +18,19 @@ jobs:
       uses: actions/github-script@v7
       with:
         script: |
-          const { data: issue } = await github.rest.issues.get({
+          const commentId = context.payload.comment.id;
+          const { data: comment } = await github.rest.issues.getComment({
             owner: context.repo.owner,
             repo: context.repo.repo,
-            issue_number: context.issue.number
+            comment_id: commentId
           });
-          core.setOutput('issue', issue);
-          console.log(issue.body);
-          
+          core.setOutput('comment', comment);
+
           const body = issue.body;
           const containsEmailedIn = /!EmailedIn/i.test(body); // Case-insensitive check for !EmailedIn
           core.setOutput('emailedIn', containsEmailedIn);
           console.log(containsEmailedIn);
+          console.log(comment);
           
     
     - name: Handle !emailed
@@ -61,7 +62,11 @@ jobs:
             };
           }
           
-          const issue = ${{ steps.extract_commands.outputs.issue }};
+          const { data: issue } = await github.rest.issues.get({
+            owner: context.repo.owner,
+            repo: context.repo.repo,
+            issue_number: context.issue.number
+          });
           console.log(issue.body);
 
           const parsedFields = parseIssueBody(issue.body);
