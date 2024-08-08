@@ -1,6 +1,6 @@
 # [ ] Create Label on Issue, PR, and test suit if not exist
 # [ ] Add label on Issue/PR create
-# [ ] Jai Version Task
+# [x] Jai Version Task
 # [ ] Update issue status on !Emailed
 # issue name woher?
 # 
@@ -98,10 +98,5 @@ jobs:
 
           console.log(issue);
 
-          await github.rest.issues.addLabels({
-            owner: context.repo.owner,
-            repo: context.repo.repo,
-            issue_number: issue.number,
-            labels: [ currentJaiVersion ]
-          });
+
           
