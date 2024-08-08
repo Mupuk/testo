@@ -55,10 +55,8 @@ const handleEmailedIn = async ({ github, context }) => {
   console.log('comments', comments);
 
   // Update comment
-  await github.rest.issues.updateComment({
-    owner: context.repo.owner,
-    repo: context.repo.repo,
-    comment_id: comments[0].id,
+  await github.rest.issues.update({
+    ...context.issue,
     body: result
   });
 
