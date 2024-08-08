@@ -14,6 +14,20 @@ jobs:
     - name: Checkout repository
       uses: actions/checkout@v4
 
+    - name: Check if issue was created by an allowed user
+      id: check_issue
+      uses: actions/github-script@v7
+      with:
+        script: |
+          const allowedUsers = ['github-actions[bot]'];
+          const issueCreator = context.payload.issue.user.login;
+
+          if (allowedUsers.includes(issueCreator) || issueCreator === githubActionsBot) {
+            return true;
+          } else {
+            return false;
+          }
+
     - name: Extract Command
       id: extract_commands
       uses: actions/github-script@v7
@@ -32,7 +46,7 @@ jobs:
           
     
     - name: Handle !emailed
-      if: ${{ steps.extract_commands.outputs.emailedIn }} == true
+      if: ${{ steps.extract_commands.outputs.emailedIn == 'true' && steps.check_issue.outputs.result == 'true' }}
       uses: actions/github-script@v7
       with:
         script: |
