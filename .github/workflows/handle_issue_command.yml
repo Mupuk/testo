@@ -68,12 +68,13 @@ jobs:
           
           // find data row
           let headerIndex = -1;
-          lines.forEach((line, index) => {
+          for (const [index, element] of lines.entries()) {
             if (line.startsWith('|')) {
               headerIndex = index;
               break;
             }
-          });
+          }
+            
           console.log(lines[headerIndex + 2]);
           lines.splice(headerIndex + 2, 1, modifiedRow);
 
