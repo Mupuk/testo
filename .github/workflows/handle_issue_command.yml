@@ -61,5 +61,5 @@ jobs:
       uses: actions/github-script@v7
       with:
         script: |
-          const { handleEmailedIn } = require('./.github/workflows/handle_issue_command.js');
-          await handleEmailedIn({github, context});
+          const { handleJonSaid } = require('./.github/workflows/handle_issue_command.js');
+          await handleJonSaid({github, context});
