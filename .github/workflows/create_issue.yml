@@ -113,7 +113,16 @@ jobs:
 
           console.log(issue);
 
-          // Label will be added by other workflow
+          // Since recursive workflows are not triggered when using GITHUB_TOKEN 
+          // we do it manually again.
+          // https://github.com/peter-evans/create-pull-request/blob/main/docs/concepts-guidelines.md#triggering-further-workflow-runs
+          
+          await github.rest.issues.addLabels({
+            owner: context.repo.owner,
+            repo: context.repo.repo,
+            issue_number: issue.number,
+            labels: [ currentJaiVersion ]
+          });
 
 
           
