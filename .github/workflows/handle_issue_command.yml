@@ -38,12 +38,15 @@ jobs:
       with:
         script: |
           function parseIssueBody(issueBody) {
-            // Extract the row that contains the variable values
-            const regex = /\|\s*(.*?)\s*\|/g;
-            const matches = [...issueBody.matchAll(regex)];
+            // Split the input text into lines
+            const lines = inputText.split('\n');
+            // Discard the first two lines (header and table)
+            const remainingLines = lines.slice(2);
+            const pipeLines = remainingLines.filter(line => line.startsWith('|'));
 
-            // Remove the first two matches (table header and separator)
-            const fields = matches.slice(2).map(match => match[1].trim());
+            // Extract the row that contains the variable values
+            const regex = /([^\|]*)/gm;
+            const matches = [...pipeLines.matchAll(regex)];
 
             // Define variable names
             const [testName, status, emailedIn, firstEncounter, firstEncounterVersion, lastEncountered, lastEncounteredVersion, fixDate, fixDateVersion] = fields;
