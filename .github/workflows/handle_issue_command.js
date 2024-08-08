@@ -26,6 +26,7 @@ const handleEmailedIn = async ({ github, context }) => {
   console.log(parsedFields);
 
   let modifiedRow = '|' + parsedFields.join('|') + '|';
+  console.log('3', modifiedRow);
 
   // Reassamble updated post
   let lines = issue.body.split('\n');
