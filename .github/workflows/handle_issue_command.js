@@ -8,7 +8,7 @@ function parseIssueBody(issueBody) {
 
   // Extract the row that contains the variable values
   const regex = /\|?(.*?)\|/gm;
-  const fields = [...pipeLines[0].matchAll(regex)].map(match => match[1].trim());
+  const fields = [...pipeLines[0].matchAll(regex)].map(match => match[1]);
 
   return fields
 }
