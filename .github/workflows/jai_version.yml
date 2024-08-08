@@ -10,6 +10,8 @@ on:
 jobs:
   get_jai_version:
     runs-on: [self-hosted, windows]
+    outputs:
+      version: ${{ steps.jai_version.outputs.version }}
     
     steps:
     # JS Version doesnt seem to work due a jai bug not showing the output in subprocesses or smth
