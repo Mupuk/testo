@@ -4,9 +4,9 @@
 # [x] Add label on Issue/PR create
 # [x] Jai Version Task
 # [x] refactor to share js files
+# [ ] mention issue from PR
 # [ ] Update issue status on !Emailed
 # [ ] issue name (clasification only) from PR name or classification dropdown?
-# [ ] mention issue from PR
 # [ ] create message that further discussion are supposed to be held on issue
 # [ ] parse description
 # [ ] parse !jonsaid
@@ -16,7 +16,6 @@
 # [ ] PR and issue template (issue: i will make pr checkbox)
 
 # [x] Auto run Testsuit on push
-# [ ] (Auto run testsuit on approval of PR)
 # [ ] create test result json
 # [ ] run for past 3-5 jai versions
 # [ ] Update issue on test results
@@ -29,6 +28,7 @@
 #         or reopen compiler version (!= last encounter, maybe change that?)
 #     [ ] column ordering?
 #     [ ] recently fixed section (last 2 compiler versions?)
+# [ ] (Auto run testsuit on approval of PR)
 
 name: Create Issue on PR Merge
 
