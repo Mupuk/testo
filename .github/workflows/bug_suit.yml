@@ -1,4 +1,4 @@
-name: Custom Command Workflows
+name: Run Test Suit
 
 on:
   # push:
@@ -7,7 +7,7 @@ on:
   workflow_dispatch: # Manual trigger
 
 jobs:
-  run-on-windows:
+  run_test_suit:
     runs-on: [self-hosted, windows]
 
     steps:
