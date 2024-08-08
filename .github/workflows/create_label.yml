@@ -13,7 +13,7 @@ jobs:
       uses: actions/checkout@v4
 
     - name: Get Jai Version
-      id: jai_version
+      id: jai_version_workflow
       uses: ./.github/workflows/jai_version.yml
 
     - name: Create Compiler Label if it does not exist
@@ -21,7 +21,8 @@ jobs:
       with:
         script: |
           console.log("${{ steps.jai_version.outputs.version }}");
-          console.log("${{ steps.jai_version.outputs.jai_version.version }}");
+          console.log("${{ steps.jai_version_workflow.outputs.jai_version.version }}");
+          console.log("${{ steps.jai_version_workflow.outputs.version }}");
           
           const labelName = "${{ steps.jai_version.outputs.version }}";
 
