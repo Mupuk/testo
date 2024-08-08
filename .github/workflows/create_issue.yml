@@ -5,11 +5,11 @@
 # [x] Jai Version Task
 # [x] refactor to share js files
 # [x] mention issue from PR
+# [x] create message that further discussion are supposed to be held on issue
 # [ ] Update issue status on !Emailed
-# [ ] issue name (clasification only) from PR name or classification dropdown?
-# [ ] create message that further discussion are supposed to be held on issue
-# [ ] parse description
 # [ ] parse !jonsaid
+# [ ] issue name (clasification only) from PR name or classification dropdown?
+# [ ] parse description
 # [ ] parse and add not emailed tag
 # [ ] jai dropdown and parsing of older version
 # [ ] parse code snipped if single file
@@ -97,7 +97,7 @@ jobs:
             issue_number: context.issue.number,
             owner: context.repo.owner,
             repo: context.repo.repo,
-            body: `👋 Thanks for the contribution, please continue further discussion on this matter [here](${issue.html_url})!`
+            body: `👋 Thanks for the contribution, please continue further discussion on this matter here: #${issue.html_url}!`
           })
 
           
