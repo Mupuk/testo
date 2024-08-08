@@ -39,7 +39,7 @@ jobs:
         script: |
           function parseIssueBody(issueBody) {
             // Split the input text into lines
-            const lines = inputText.split('\n');
+            const lines = issueBody.split('\n');
             // Discard the first two lines (header and table)
             const remainingLines = lines.slice(2);
             const pipeLines = remainingLines.filter(line => line.startsWith('|'));
