@@ -5,7 +5,11 @@ on:
   workflow_call:
 
 jobs:
+  jai_version_workflow:
+    uses: ./.github/workflows/jai_version.yml
+
   create_compiler_label:
+    needs: jai_version_workflow
     runs-on: [self-hosted, windows]
     
     steps:
