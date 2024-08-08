@@ -52,7 +52,7 @@ const handleEmailedIn = async ({ github, context }) => {
 
 const handleJonSaid = async ({ github, context, comment }) => {
   console.log(comment);
-  const jon_said = "\n\n" + comment.body.split(/!JonSaid/i);
+  const jon_said = "\n\n Jon said:\n" + comment.body.split(/!JonSaid\s?/i)[1];
   console.log('js', jon_said);
 
   // Get old issue body
