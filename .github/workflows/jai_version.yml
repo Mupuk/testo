@@ -3,6 +3,9 @@ name: Get Jai Version
 on:
   workflow_dispatch: # Manual trigger
   workflow_call:
+   outputs:
+      version:
+        value: ${{ jobs.get_jai_version.steps.jai_version.version }}
 
 jobs:
   get_jai_version:
