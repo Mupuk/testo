@@ -28,8 +28,6 @@ jobs:
 
           const containsEmailedIn = /!EmailedIn/i.test(comment.body); // Case-insensitive check for !EmailedIn
           core.setOutput('emailedIn', containsEmailedIn);
-          console.log(containsEmailedIn);
-          console.log(comment);
           
     
     - name: Handle !emailed
@@ -47,6 +45,7 @@ jobs:
             // Extract the row that contains the variable values
             const regex = /([^\|]*)/gm;
             const fields = [...pipeLines[0].matchAll(regex)];
+            console.log(fields);
 
             // Define variable names
             const [testName, status, emailedIn, firstEncounter, firstEncounterVersion, lastEncountered, lastEncounteredVersion, fixDate, fixDateVersion] = fields;
@@ -69,7 +68,7 @@ jobs:
             repo: context.repo.repo,
             issue_number: context.issue.number
           });
-          console.log(issue.body);
 
           const parsedFields = parseIssueBody(issue.body);
+          console.log("Res");
           console.log(parsedFields);
