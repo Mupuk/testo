@@ -5,7 +5,7 @@ on:
   workflow_call:
    outputs:
       version:
-        value: ${{ jobs.get_jai_version.steps.jai_version.outputs.version }}
+        value: ${{ jobs.get_jai_version.outputs.version }}
 
 jobs:
   get_jai_version:
