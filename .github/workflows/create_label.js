@@ -1,4 +1,4 @@
-module.exports = async ({github, labelName}) => {
+module.exports = async ({github, context, labelName}) => {
   // TEMP
   // Specify the Berlin time zone and desired format
   let options = {
