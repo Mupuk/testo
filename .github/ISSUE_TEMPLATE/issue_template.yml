@@ -47,18 +47,21 @@ body:
     attributes:
       label: Bug Description
       placeholder: Please fill this out if it is a more complicated bug.
+      description: Please fill this out if it is a more complicated bug.
 
   - type: textarea
     id: workaround
     attributes:
       label: Workaround
       placeholder: If you have a workaround, please share it here.
+      description: If you have a workaround, please share it here.
 
   - type: textarea
     id: bug_snippet
     attributes:
       label: Short Code Snipped
       placeholder: Please put your code to reproduce the bug here.
+      description: Please put your code to reproduce the bug here.
       render: c
     validations:
       required: true
