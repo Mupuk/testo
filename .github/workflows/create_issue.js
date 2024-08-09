@@ -51,7 +51,7 @@ function parsePrBody(text) {
 
 const createIssue = async ({github, context}) => {
   const { jaiVersion: get_jai_version, format, prTemplate } = require('./utils.js');
-  const currentVersion = get_jai_version();
+  const currentVersion = await get_jai_version();
   
   const currentJaiVersion = await get_jai_version();
   const date = new Date().toISOString().split('T')[0];
@@ -64,6 +64,7 @@ const createIssue = async ({github, context}) => {
   parsed_body.firstEncounterVersion = currentVersion; //could get reset by test to an even later version
   parsed_body.lastEncounter = date;
   parsed_body.lastEncounterVersion = currentVersion;
+  console.log(parsed_body);
 
   const issueTitle = `${prTitle}`;
   const issueBody = format(issueTrackerTemplate, parsed_body);
