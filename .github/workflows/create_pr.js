@@ -127,10 +127,11 @@ const createPr = async ({github, context}) => {
   // Create a pull request
   const { data: pr } = await github.rest.pulls.create({
     ...context.repo,
-    title: prTitle,
+    // title: prTitle,
     head: branchName,
     base: baseBranch,
-    body: prBody
+    body: prBody,
+    issue: context.issue.number
   });
 
 

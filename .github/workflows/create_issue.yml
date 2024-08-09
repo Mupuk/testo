@@ -16,7 +16,7 @@
 # [~] jai dropdown and parsing of older version
 # [x] automated PR for single file 
 # [x] JonSaid add date
-# [ ] close PR update to parse the things
+# [x] close PR update to parse the things
 # [ ] rethink needed fields in depth
 # [ ] make issue/pr mention use link instead of message?
 # [ ] issue name (clasification only) from PR name or classification dropdown?
@@ -44,7 +44,7 @@ on:
   #   branches:
   #     - master
   pull_request:
-    types: [closed, edited]
+    types: [closed, edited] # uncomment pr merge below
 
 jobs:  
   create_issue:
