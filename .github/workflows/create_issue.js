@@ -52,20 +52,6 @@ function parsePrBody(text) {
 const createIssue = async ({github, context}) => {
   const { jaiVersion: get_jai_version, format, prTemplate } = require('./utils.js');
   const currentVersion = get_jai_version();
-  // Specify the Berlin time zone and desired format
-  let options = {
-    timeZone: 'Europe/Berlin',
-    year: 'numeric',
-    month: '2-digit',
-    day: '2-digit',
-    // hour: '2-digit',
-    // minute: '2-digit',
-    // second: '2-digit'
-  };
-  // Format the date and time
-  let time = new Intl.DateTimeFormat('en-CA', options).format(new Date());
-  // Extract the date part (YYYY-MM-DD)
-  let date = time.split(',')[0];
   
   const currentJaiVersion = await get_jai_version();
   const date = new Date().toISOString().split('T')[0];
