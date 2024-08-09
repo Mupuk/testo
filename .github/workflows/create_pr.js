@@ -159,7 +159,7 @@ const createPr = async ({github, context}) => {
     ...context.repo,
     issue_number: context.issue.number,
     state: 'closed',
-    state_reason: `👋 Thanks for the contribution, please continue further discussion on this matter here: #${pr.html_url}!`
+    state_reason: 'completed'
   })
 
   // get current jai version
