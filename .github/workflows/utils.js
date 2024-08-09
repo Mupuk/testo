@@ -23,10 +23,8 @@ const jaiVersion = async ({ exec }) => {
   // currently this is a bug in jai so we need the workaround script
   await exec.exec('jai jai_version_workaround.jai', [], options);
 
-  console.log('vv', jaiVersionOutput);
   const versionMatch = jaiVersionOutput.match(/beta.\d+\.\d+\.\d+/);
   const version = versionMatch ? versionMatch[0].replace(/\s+/g, '-') : 'VersionNotFound';
-  console.log('vvvvv', version);
   return version;
 }
 

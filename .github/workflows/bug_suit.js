@@ -1,7 +1,6 @@
 const decrementVersionString = (version) =>  {
   const versionRegex = /(beta-)(\d+).(\d+).(\d+)/
   const versionSplit = version.match(versionRegex);
-  console.log('split', versionSplit);
 
   // Decrement version
   let carry = 0;
@@ -19,7 +18,7 @@ const decrementVersionString = (version) =>  {
   if (newMajor < 0) {
     newMajor = 0;
   }
-  return `${versionSplit[1]}${newMajor}.${newMinor}.${newMicro}`
+  return `${versionSplit[1]}${newMajor}.${newMinor}.${newMicro.toString().padStart(3, '0')}`
 }
 
 const bugSuit = async ({github, context, exec, io}) => {
