@@ -22,21 +22,19 @@ const decrementVersionString = (version) =>  {
 }
 
 const bugSuit = async ({github, context, exec, io}) => {
+  const path = require('path');
   const { OS } = process.env;
   console.log('os', OS);
-
-  const test = await io.which('jai')
-  console.log('which', test);
 
   const { jaiVersion: get_jai_version } = require('./utils.js');
   let currentVersion = await get_jai_version({ exec });
   console.log('current version', currentVersion);
 
-  let compiler_path = 'jai'; // we start with the current one
+  let compiler_path = await io.which('jai'); // we start with the current one
   await exec.exec(`${compiler_path} bug_suit.jai`);
 
   currentVersion = decrementVersionString(currentVersion);
-  compiler_path = 'c:/' + `jai-${currentVersion}/bin/jai`;
+  compiler_path = path.resolve(compiler_path, `../../jai-${currentVersion}/bin`) + path.sep + 'jai';
   console.log('comppath', compiler_path)
   await exec.exec(`${compiler_path} bug_suit.jai`);
 
