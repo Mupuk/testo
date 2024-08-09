@@ -31,41 +31,6 @@ const jaiVersion = async () => {
   return version;
 }
 
-
-function parseIssueBody(text) {
-  const sections = text.split('### ').slice(1); // Split into sections by headings
-  const parsedData = [];
-
-  sections.forEach(section => {
-    const lines = section.trim().split('\n');
-    const heading = lines.shift().trim(); // First line is the heading
-    const content = lines.join('\n').trim(); // Remaining lines are the content
-
-    if (heading === 'General') {
-      // Parse checkboxes
-      const checkboxes = lines
-        .filter(line => line.trim().length > 0)
-        .map(line => {
-          const isChecked = line.toLowerCase().includes('[x]');
-          return {
-            label: line.replace(/- \[.\]\s*/, '').trim(),
-            checked: isChecked
-          };
-        });
-      parsedData.push(checkboxes);
-    } else if (heading === 'Short Code Snippet') {
-      // Extract text inside ```c``` block
-      const codeBlockMatch = content.match(/```c([\s\S]*?)```/);
-      parsedData.push(codeBlockMatch ? codeBlockMatch[1].trim() : '');
-    } else {
-      // Parse other sections
-      parsedData.push(content);
-    }
-  });
-
-  return parsedData;
-}
-
 // format a string that replaces '{xxx}' with object properties of name 'xxx'
 //
 // Example:
@@ -121,6 +86,5 @@ Closes: #{issue_number}
 module.exports = {
   jaiVersion,
   prTemplate: pull_request_template,
-  format,
-  parseIssueBody
+  format
 }

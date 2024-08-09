@@ -1,4 +1,4 @@
-function parseIssueBody(issueBody) {
+function parseIssueCommentBody(issueBody) {
   // Split the input text into lines
   const lines = issueBody.split('\n');
   let pipeLines = lines.filter(line => line.startsWith('|'));
@@ -20,7 +20,7 @@ const handleEmailedIn = async ({ github, context }) => {
     issue_number: context.issue.number
   });
 
-  let parsedFields = parseIssueBody(issue.body);
+  let parsedFields = parseIssueCommentBody(issue.body);
 
   parsedFields[2] = '✅'; // Emailed In
 

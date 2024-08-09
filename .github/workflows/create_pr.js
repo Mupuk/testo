@@ -1,5 +1,39 @@
+function parseIssueBody(text) {
+  const sections = text.split('### ').slice(1); // Split into sections by headings
+  const parsedData = [];
+
+  sections.forEach(section => {
+    const lines = section.trim().split('\n');
+    const heading = lines.shift().trim(); // First line is the heading
+    const content = lines.join('\n').trim(); // Remaining lines are the content
+
+    if (heading === 'General') {
+      // Parse checkboxes
+      const checkboxes = lines
+        .filter(line => line.trim().length > 0)
+        .map(line => {
+          const isChecked = line.toLowerCase().includes('[x]');
+          return {
+            label: line.replace(/- \[.\]\s*/, '').trim(),
+            checked: isChecked
+          };
+        });
+      parsedData.push(checkboxes);
+    } else if (heading === 'Short Code Snippet') {
+      // Extract text inside ```c``` block
+      const codeBlockMatch = content.match(/```c([\s\S]*?)```/);
+      parsedData.push(codeBlockMatch ? codeBlockMatch[1].trim() : '');
+    } else {
+      // Parse other sections
+      parsedData.push(content);
+    }
+  });
+
+  return parsedData;
+}
+
 const createPr = async ({github, context}) => {
-  const { format, parseIssueBody, prTemplate: pull_request_template } = require('./utils.js');
+  const { format, prTemplate: pull_request_template } = require('./utils.js');
 
   // Get issue
   const { data: issue } = await github.rest.issues.get({
