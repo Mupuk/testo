@@ -22,7 +22,7 @@ const handleEmailedIn = async ({ github, context }) => {
 
   let parsedFields = parseIssueCommentBody(issue.body);
 
-  parsedFields[2] = '✅'; // Emailed In
+  parsedFields[1] = '✅'; // Emailed In
 
   let modifiedRow = '|' + parsedFields.join('|') + '|';
 
