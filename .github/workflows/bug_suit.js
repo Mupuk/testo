@@ -36,7 +36,7 @@ const bugSuit = async ({github, context, exec, io}) => {
   console.log('current version', currentVersion);
 
   // Get old state of test results
-  let old_test_results = {};
+  let old_test_results = [];
   const fs = require('fs');
   try {
     const data = fs.readFileSync('test_results.json', 'utf8');
@@ -44,7 +44,6 @@ const bugSuit = async ({github, context, exec, io}) => {
   } catch (err) {
       console.error("Error reading file:", err);
   }
-  console.log(old_test_results);
 
   let compiler_path = await io.which('jai'); // we start with the current one
   await exec.exec(`${compiler_path} bug_suit.jai`);
@@ -70,6 +69,11 @@ const bugSuit = async ({github, context, exec, io}) => {
       console.error("Error reading file:", err);
   }
   console.log(new_test_results);
+
+  console.log('accu', new_test_results.reduce((acc, item) => {
+    acc[item.v] = item;
+    return acc;
+  }, {}));
 };
 
 module.exports = bugSuit;
