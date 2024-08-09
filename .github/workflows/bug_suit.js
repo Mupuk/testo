@@ -1,5 +1,5 @@
 const createIssue = async ({github, context, exec}) => {
-  await exec.exec('jai bugsuit.jai', [], options);
+  await exec.exec('jai bugsuit.jai');
   
   let content = {};
 
