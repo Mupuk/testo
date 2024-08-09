@@ -68,7 +68,7 @@ function parseIssueBody(text) {
   return parsedData;
 }
 
-const createPr = async ({github, context}) => {
+const createPr = async ({github, context, exec}) => {
   const { format } = require('./utils.js');
 
   // Get issue
@@ -167,7 +167,7 @@ const createPr = async ({github, context}) => {
 
   // get current jai version
   const { createCurrentVersionLabel } = require('./create_label.js');
-  const jai_version = await createCurrentVersionLabel({github, context});
+  const jai_version = await createCurrentVersionLabel({github, context, exec});
 
   // Add labels
   await github.rest.issues.addLabels({

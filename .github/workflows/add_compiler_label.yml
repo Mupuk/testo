@@ -21,7 +21,7 @@ jobs:
         script: |
           // get current jai version
           const { createCurrentVersionLabel } = require('./.github/workflows/create_label.js');
-          const jai_version = await createCurrentVersionLabel({github, context});
+          const jai_version = await createCurrentVersionLabel({github, context, exec});
 
           await github.rest.issues.addLabels({
             owner: context.repo.owner,

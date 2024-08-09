@@ -1,4 +1,4 @@
-const createIssue = async ({github, context}) => {
+const createIssue = async ({github, context, exec}) => {
   await exec.exec('jai bugsuit.jai', [], options);
 };
 

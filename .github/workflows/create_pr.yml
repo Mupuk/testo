@@ -17,6 +17,6 @@ jobs:
         with:
           script: |
             const createPr = require('./.github/workflows/create_pr.js');
-            await createPr({github, context});
+            await createPr({github, context, exec});
 
 
