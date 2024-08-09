@@ -71,11 +71,18 @@ const bugSuit = async ({github, context, exec, io}) => {
       console.error("Error reading file:", err);
   }
 
-  // make test results available via version
+  // make test results available via version, and results via name
   const oldVersionsObject = old_test_results.reduce((acc, item) => {
     acc[item.version] = item;
+    // also reduce the results
+    acc[item.version].results = item.results.reduce((acc, item) => {
+      acc[item.file] = item;
+      return acc;
+    }, {});
+
     return acc;
   }, {});
+
   const newVersionsObject = new_test_results.reduce((acc, item) => {
     acc[item.version] = item;
     // also reduce the results
@@ -89,6 +96,48 @@ const bugSuit = async ({github, context, exec, io}) => {
 
   console.log(oldVersionsObject);
   console.log(newVersionsObject);
+
+  // // dif with old state to get new tests. We take one older version, because the comparison version
+  //   // has to exist. A new one doesnt exist in old log. Also we dont take the oldest, because
+  //   // it could have been replaced by the latest one. Only leaves the middle as option.
+  //   const new_test_names = Object.values(neww[ver].results).filter(obj1 => 
+  //     !Object.values(old[ver].results).some(obj2 => obj1.file === obj2.file)
+  //   );
+  // const new_test = new_test_names.length > 0
+  
+  // // dif with older versions on current state to check for updates
+  
+  // console.log('new test', new_test);
+  // console.log('new test names ', new_test_names);
+
+  const oriver = 'beta-0.1.092';
+  const ver = decrementVersionString(oriver, 1);
+  console.log(JSON.stringify(old[ver], null, 2));
+  console.log(JSON.stringify(neww[ver], null, 2));
+
+    // dif with old state to get new tests. We take one older version, because the comparison version
+    // has to exist. A new one doesnt exist in old log. Also we dont take the oldest, because
+    // it could have been replaced by the latest one. Only leaves the middle as option.
+  const new_test_names = Object.values(neww[ver].results).filter(obj1 => 
+      !Object.values(old[ver].results).some(obj2 => obj1.file === obj2.file)
+    );
+  const new_test = new_test_names.length > 0
+
+
+  // if new test we have to check all version for first encounter. Otherwise just current and
+  // one before
+  const changed_test_names = Object.values(neww[oriver].results).filter(obj1 => 
+      obj1.file in neww[ver].results && !isDeepEqual(obj1, neww[ver].results[obj1.file])
+    )
+    
+    console.log('new test', new_test);
+  console.log('new test names ', new_test_names);
+  console.log('old test names ', changed_test_names);
+    
+    changed_test_names.forEach(newele => {
+        const oldele = neww[ver].results[newele.file];
+        // update issue
+    });
 };
 
 module.exports = bugSuit;

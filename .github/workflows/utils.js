@@ -45,6 +45,9 @@ function format(template, params) {
 }
 
 const isDeepEqual = (object1, object2) => {
+  const isObject = (object) => {
+    return object != null && typeof object === "object";
+  };
   const objKeys1 = Object.keys(object1);
   const objKeys2 = Object.keys(object2);
 
@@ -63,10 +66,6 @@ const isDeepEqual = (object1, object2) => {
     }
   }
   return true;
-};
-
-const isObject = (object) => {
-  return object != null && typeof object === "object";
 };
 
 module.exports = {
