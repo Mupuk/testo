@@ -24,6 +24,7 @@ jobs:
             console.log(issue);
 
             const regex = /\[SB\]: (.{5,})/gm;
-            const title_text = [...issue.title.matchAll(regex)][0];
-            console.log(title_text);
-            console.log(title_text[1]);
+            const title_text = [...issue.title.matchAll(regex)];
+            console.log(1, title_text);
+            console.log(2, title_text[0]);
+            console.log(3, title_text[1]);
