@@ -1,6 +1,6 @@
-name: Bug Report - Single File
-description: Report your bug here if its a small one(one file), otherwise please create a PR.
-title: "[Bug]: "
+name: Bug Report - Single File (Automated PR)
+description: Report your bug here if its a small one(one file).
+title: "[SB]: "
 body:
   - type: checkboxes
     id: general

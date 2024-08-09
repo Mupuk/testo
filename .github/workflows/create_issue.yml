@@ -8,12 +8,17 @@
 # [x] create message that further discussion are supposed to be held on issue
 # [x] Update issue status on !Emailed
 # [x] parse !jonsaid
+# [x] PR and issue template (issue: i will make pr checkbox)
+# [x] parse description
+# [x] parse and add not emailed tag (also remove it on emiledin)
+# [x] parse code snipped if single file
+# [x] parse code description if single file
+# [~] jai dropdown and parsing of older version
+# [ ] automated PR for single file 
+# [ ] JonSaid add date
+# [ ] update tracker template
+# [ ] rethink needed fields in depth
 # [ ] issue name (clasification only) from PR name or classification dropdown?
-# [ ] parse description
-# [ ] parse and add not emailed tag
-# [ ] jai dropdown and parsing of older version
-# [ ] parse code snipped if single file
-# [ ] PR and issue template (issue: i will make pr checkbox)
 
 # [x] Auto run Testsuit on push
 # [ ] create test result json
