@@ -63,11 +63,9 @@ const createIssue = async ({github, context}) => {
   parsed_body.firstEncounterVersion = currentVersion; //could get reset by test to an even later version
   parsed_body.lastEncounter = date;
   parsed_body.lastEncounterVersion = currentVersion;
-  console.log(parsed_body);
 
   const issueTitle = `${prTitle}`;
   const issueBody = format(issueTrackerTemplate, parsed_body);
-  console.log(issueBody);
 
   // Create Tracking Issue
   const { data: issue } = await github.rest.issues.create({

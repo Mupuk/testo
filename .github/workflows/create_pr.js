@@ -76,7 +76,6 @@ const createPr = async ({github, context, exec}) => {
     ...context.repo,
     issue_number: context.issue.number
   });
-  // console.log(issue);
 
   // Get title text
   const regex = /(?:\[SB\]): (.{5,})/gmi;
