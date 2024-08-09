@@ -148,6 +148,15 @@ const createPr = async ({github, context}) => {
     body: prBody
   });
 
+
+  await github.rest.issues.createComment({
+    issue_number: context.issue.number,
+    owner: context.repo.owner,
+    repo: context.repo.repo,
+    body: `👋 Thanks for the contribution, please continue further discussion on this matter here: #${pr.html_url}!`
+  })
+
+
   // get current jai version
   const { createCurrentVersionLabel } = require('./create_label.js');
   const jai_version = await createCurrentVersionLabel({github, context});

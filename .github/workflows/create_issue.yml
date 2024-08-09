@@ -14,8 +14,9 @@
 # [x] parse code snipped if single file
 # [x] parse code description if single file
 # [~] jai dropdown and parsing of older version
-# [ ] automated PR for single file 
+# [x] automated PR for single file 
 # [ ] JonSaid add date
+# [ ] make issue/pr mention use link instead of message?
 # [ ] update tracker template
 # [ ] rethink needed fields in depth
 # [ ] issue name (clasification only) from PR name or classification dropdown?
@@ -97,7 +98,7 @@ jobs:
             labels: [ currentJaiVersion ]
           });
 
-          github.rest.issues.createComment({
+          await github.rest.issues.createComment({
             issue_number: context.issue.number,
             owner: context.repo.owner,
             repo: context.repo.repo,
