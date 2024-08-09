@@ -35,11 +35,11 @@ const createIssue = async ({github, context, exec, io}) => {
   await exec.exec(`${compiler_path} bug_suit.jai`);
 
   currentVersion = decrementVersionString(currentVersion);
-  compiler_path = 'c:/' + '/bin/jai';
+  compiler_path = 'c:/' + `jai-${currentVersion}/bin/jai`;
   await exec.exec(`${compiler_path} bug_suit.jai`);
 
   currentVersion = decrementVersionString(currentVersion);
-  compiler_path = 'c:/' + '/bin/jai';
+  compiler_path = 'c:/' + `jai-${currentVersion}/bin/jai`;
   await exec.exec(`${compiler_path} bug_suit.jai`);
 
 
