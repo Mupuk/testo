@@ -36,6 +36,7 @@ const createIssue = async ({github, context, exec, io}) => {
 
   currentVersion = decrementVersionString(currentVersion);
   compiler_path = 'c:/' + `jai-${currentVersion}/bin/jai`;
+  console.log(compiler_path)
   await exec.exec(`${compiler_path} bug_suit.jai`);
 
   currentVersion = decrementVersionString(currentVersion);
