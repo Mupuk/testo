@@ -130,7 +130,7 @@ const createPr = async ({github, context}) => {
     // title: prTitle,
     head: branchName,
     base: baseBranch,
-    body: prBody,
+    // body: prBody,
     issue: context.issue.number
   });
 
