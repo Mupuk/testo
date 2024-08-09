@@ -16,8 +16,6 @@ jobs:
 
       - name: Run Bug Suit
         uses: actions/github-script@v7
-        env:
-          OS: "${{ runner.os }}"
         with:
           script: |
             const bugSuit = require('./.github/workflows/bug_suit.js');

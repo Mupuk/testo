@@ -23,8 +23,6 @@ const decrementVersionString = (version) =>  {
 
 const bugSuit = async ({github, context, exec, io}) => {
   const path = require('path');
-  const { OS } = process.env;
-  console.log('os', OS);
 
   const { jaiVersion: get_jai_version } = require('./utils.js');
   let currentVersion = await get_jai_version({ exec });
@@ -53,6 +51,7 @@ const bugSuit = async ({github, context, exec, io}) => {
   } catch (err) {
       console.error("Error reading file:", err);
   }
+  console.log(content);
 };
 
 module.exports = bugSuit;
