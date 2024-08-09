@@ -33,7 +33,8 @@ const bugSuit = async ({ github, context, exec, io }) => {
 
   // Jai Version
   const { isDeepEqual, jaiVersion: get_jai_version } = require('./utils.js');
-  let currentVersion = await get_jai_version({ exec });
+  const oriCurrentVersion = await get_jai_version({ exec });
+  let currentVersion = oriCurrentVersion
 
   // Get old state of test results
   let old_test_results = [];
@@ -97,7 +98,7 @@ const bugSuit = async ({ github, context, exec, io }) => {
   console.log('new test res', new_test_results);
   console.log('newVersionsObject', newVersionsObject);
 
-  const ver = decrementVersionString(currentVersion, 1);
+  const ver = decrementVersionString(oriCurrentVersion, 1);
   console.log(ver);
   console.log(oldVersionsObject[ver]);
   console.log(newVersionsObject[ver]);
