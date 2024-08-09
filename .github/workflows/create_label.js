@@ -18,7 +18,7 @@ const createLabel = async ({github, context, labelName}) => {
 }
 
 const createCurrentVersionLabel = async ({github, context}) => {
-  const get_jai_version = require('./jai_version.js');
+  const { jaiVersion: get_jai_version } = require('./.github/workflows/utils.js');
   const jai_version = await get_jai_version();
   await createLabel({github, context, labelName: jai_version});
   return jai_version;

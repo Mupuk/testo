@@ -22,7 +22,7 @@ jobs:
       id: jai_version
       with:
         script: |
-          const get_jai_version = require('./.github/workflows/jai_version.js');
+          const { jaiVersion: get_jai_version } = require('./.github/workflows/utils.js');
           const jai_version = await get_jai_version();
 
           console.log(`Parsed Version: ${jai_version}`);

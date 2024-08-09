@@ -17,7 +17,7 @@ jobs:
       with:
         script: |
           // get current jai version
-          const get_jai_version = require('./.github/workflows/jai_version.js');
+          const { jaiVersion: get_jai_version } = require('./.github/workflows/utils.js');
           const jai_version = await get_jai_version();
 
            // create label
