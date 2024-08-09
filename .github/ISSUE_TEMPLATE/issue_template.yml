@@ -12,7 +12,6 @@ body:
         - label: "This bug fits into a single file"
           required: true
         - label: "I've already reported the bug to Jon"
-        - label: "I will create a PR for this bug"
     validations:
       required: true
 
