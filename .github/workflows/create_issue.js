@@ -37,7 +37,7 @@ function parsePrBody(text) {
   const reg_code = /(?<=^### Short Code[\s\S]*####[\s\S]*$\s[\s\S]*```c\s)([\s\S]*?)\s```/im
 
   let parsedData = {
-    already_reported: text.match(reg_emailed_in)?.[1].toLowerCase() === 'x'  ? '✅' : '❌',
+    already_reported: (text.match(reg_emailed_in)?.[1] || '').toLowerCase() === 'x'  ? '✅' : '❌',
     issue_number: '',
     bug_type: text.match(reg_bug_type)?.[1] || '',
     categories: text.match(reg_category)?.[1] || '',
