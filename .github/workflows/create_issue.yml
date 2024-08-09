@@ -56,7 +56,7 @@ jobs:
 
     - name: Create a new issue
       uses: actions/github-script@v7
-      if: github.event.pull_request.merged == true
+      # if: github.event.pull_request.merged == true
       with:
         script: |
           const createIssue = require('./.github/workflows/create_issue.js');

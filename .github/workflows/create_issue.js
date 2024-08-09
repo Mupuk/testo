@@ -81,6 +81,7 @@ const createIssue = async ({github, context}) => {
 
   const issueTitle = `${prTitle}`;
   const issueBody = format(issueTrackerTemplate, parsed_body);
+  console.log(issueBody);
 
   // Create Tracking Issue
   const { data: issue } = await github.rest.issues.create({
