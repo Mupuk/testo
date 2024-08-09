@@ -63,7 +63,7 @@ const bugSuit = async ({ github, context, exec, io }) => {
 
 
   // Get new test results
-  let new_test_results = {};
+  let new_test_results = [];
   try {
     const data = fs.readFileSync('test_results.json', 'utf8');
     new_test_results = JSON.parse(data);
@@ -94,8 +94,10 @@ const bugSuit = async ({ github, context, exec, io }) => {
     return acc;
   }, {});
 
-  const oriver = currentVersion;
-  const ver = decrementVersionString(oriver, 1);
+  console.log('new test res', new_test_results);
+  console.log('newVersionsObject', newVersionsObject);
+
+  const ver = decrementVersionString(currentVersion, 1);
   console.log(JSON.stringify(oldVersionsObject[ver], null, 2));
   console.log(JSON.stringify(newVersionsObject[ver], null, 2));
 
@@ -110,7 +112,7 @@ const bugSuit = async ({ github, context, exec, io }) => {
 
   // if new test we have to check all version for first encounter. Otherwise just current and
   // one before
-  const changed_test_names = Object.values(newVersionsObject[oriver].results).filter(obj1 =>
+  const changed_test_names = Object.values(newVersionsObject[currentVersion].results).filter(obj1 =>
     obj1.file in newVersionsObject[ver].results && !isDeepEqual(obj1, newVersionsObject[ver].results[obj1.file])
   )
 
