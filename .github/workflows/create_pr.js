@@ -32,12 +32,63 @@ function parseIssueBody(text) {
   return parsedData;
 }
 
+// format a string that replaces '{xxx}' with object properties of name 'xxx'
+//
+// Example:
+// 
+// const template = 'Hello, {name}! Welcome to {place}.';
+// const params = {
+//   name: 'Alice',
+//   place: 'Wonderland'
+// };
+//
+// const result = format(template, params);
+// console.log(result); // Outputs: "Hello, Alice! Welcome to Wonderland."
+function format(template, params) {
+  return template.replace(/\{(.*?)}/g, (match, p1) => params[p1.trim()] || '');
+}
+
+const pull_request_template = `
+## General
+
+- [x] I've looked for similar bugs
+- [x] This bug fits into a single file
+- [{already_reported}] I've already reported the bug to Jon
+
+## Related Issues
+Closes: #{issue_number}
+
+## Bug Type
+#### What type of bug is this? Delete the others.
+- {bug_type}
+
+## Categorization
+#### What category does this bug belong to the most / What feature triggered the bug? Delete the others.
+- {categories}
+
+## Bug Description
+#### Please fill this out if it is a more complicated bug.
+
+{description}
+
+## Workaround
+#### If you have a workaround, please share it here.
+
+{workaround}
+
+## Short Code Snipped
+#### Please put your code to reproduce the bug here. Only use it if it is a short bug(one file).
+
+\`\`\`c
+{code}
+\`\`\`
+`
+
 
 const createPr = async ({github, context}) => {
   // Get issue
   const { data: issue } = await github.rest.issues.get({
-    owner: context.repo.owner,
-    repo: context.repo.repo,
+    ...context.repo,
     issue_number: context.issue.number
   });
   // console.log(issue);
@@ -49,8 +100,54 @@ const createPr = async ({github, context}) => {
   if (title_text === undefined) return;
 
   console.log(title_text);
-  const parsed = parseIssueBody(issue.body);
-  console.log(parsed);
+  const parsed_body = parseIssueBody(issue.body);
+  console.log(parsed_body);
+
+  const params = {
+    already_reported: parsed_body[0][2].checked,
+    issue_number: context.issue.number,
+    bug_type: parsed_body[1],
+    categories: parsed_body[2],
+    description: parsed_body[3],
+    workaround: parsed_body[4],
+    code: parsed_body[5]
+  }
+
+  const branchName = `issue-${issueNumber}`;
+  const baseBranch = 'master';
+  const prTitle = issue.title;
+  const fileName = 'main.py';
+  const prBody = format(pull_request_template, params);
+
+  // Create a new branch from the base branch
+  const { data: { commit } } = await github.rest.repos.getBranch({
+    ...context.repo,
+    branch: baseBranch
+  });
+
+  await github.rest.git.createRef({
+    ...context.repo,
+    ref: `refs/heads/${branchName}`,
+    sha: commit.sha
+  });
+
+  await github.rest.repos.createOrUpdateFileContents({
+    ...context.repo,
+    path: fileName,
+    message: 'Add test',
+    content: parsed_body[5].toString('base64'),
+    branch: branchName
+  });
+
+  // Create a pull request
+  const { data: pr } = await github.rest.pulls.create({
+    ...context.repo,
+    title: prTitle,
+    head: branchName,
+    base: baseBranch,
+    body: prBody
+  });
+
 }
 
 module.exports = createPr;
