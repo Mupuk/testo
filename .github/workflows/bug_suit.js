@@ -100,14 +100,14 @@ const bugSuit = async ({ github, context, exec, io }) => {
 
   const ver = decrementVersionString(oriCurrentVersion, 1);
   console.log(ver);
-  console.log(oldVersionsObject[ver]);
-  console.log(newVersionsObject[ver]);
+  console.log('old', oldVersionsObject[ver]);
+  console.log('new', newVersionsObject[ver]);
 
   // dif with old state to get new tests. We take one older version, because the comparison version
   // has to exist. A new one doesnt exist in old log. Also we dont take the oldest, because
   // it could have been replaced by the latest one. Only leaves the middle as option.
   const new_test_names = Object.values(newVersionsObject[ver].results).filter(obj1 =>
-    !Object.values(oldVersionsObject[ver].results).some(obj2 => obj1.file === obj2.file)
+    !oldVersionsObject[ver] || !Object.values(oldVersionsObject[ver].results).some(obj2 => obj1.file === obj2.file)
   );
   const new_test = new_test_names.length > 0
 
