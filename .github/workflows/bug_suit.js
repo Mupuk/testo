@@ -34,7 +34,8 @@ const bugSuit = async ({github, context, exec, io}) => {
   await exec.exec(`${compiler_path} bug_suit.jai`);
 
   currentVersion = decrementVersionString(currentVersion);
-  compiler_path = path.resolve(compiler_path, `../../jai-${currentVersion}/bin`) + path.sep + 'jai';
+  let extension = path.extname(compiler_path);
+  compiler_path = path.resolve(compiler_path, `../../jai-${currentVersion}/bin`) + `${path.sep}jai${extension}`;
   console.log('comppath', compiler_path)
   await exec.exec(`${compiler_path} bug_suit.jai`);
 
