@@ -12,12 +12,11 @@ Description:
 {description}
 
 
-<details>
-<summary>Buggy Code</summary>
-\`\`\`
+Buggy Code:
+\`\`\`c
 {code}
 \`\`\`
-</details>
+
 
 Workarounds:
 \`\`\`c
