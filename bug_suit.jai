@@ -69,7 +69,6 @@ Test_Result_Set :: struct {
   test_list: [..] string;
   test_list.allocator = temp;
   visit_files("compiler_bugs", false, *test_list, visitor, visit_directories=true);
-  print("%\n", test_list);
 
   log("\n\n");
 
@@ -156,7 +155,7 @@ Test_Result_Set :: struct {
     {
       if compile_process_result.exit_code == 0
       {
-        print("   Runing:     '%' ... ", program);
+        print("   Running:     '%' ... ", program);
         process_result, 
         output_string, 
         error_string, 
@@ -227,7 +226,6 @@ Test_Result_Set :: struct {
   version := compiler_get_version_info(*versionInfo);
   found:, version = split_from_left(version, ",",, temp);
   version = replace(version, " ", "-",, temp);
-  print("Version: %\n", versionInfo);
 
   parse_version :: (version_string: string) -> Version_Info {
     found, left, right := split_from_left(version_string, "-",, temp);
@@ -248,13 +246,8 @@ Test_Result_Set :: struct {
     return 0;
   }
 
-  test := parse_version(version);
-  print("Version: %\n", test);
-
   // Create and initialize object
   success, test_result_sets := json_parse_file("test_results.json", [..] Test_Result_Set);
-
-  print("Old test results: %\n", test_result_sets);
 
   current_result_set := Test_Result_Set.{
     version = version,
