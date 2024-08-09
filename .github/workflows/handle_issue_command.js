@@ -69,7 +69,7 @@ const handleJonSaid = async ({ github, context, comment }) => {
   const jon_said_body = comment.body.split(/!JonSaid\s?/i)[1];
   if (jon_said_body.length <= 25) return;
 
-  const jon_said = `\n\n ${date}\nJon said:\n\`\`\`\n` + jon_said_body + "\n```";
+  const jon_said = `\n\n${date}\nJon said:\n\`\`\`\n` + jon_said_body + "\n```";
 
   // Get old issue body
   const { data: issue } = await github.rest.issues.get({
