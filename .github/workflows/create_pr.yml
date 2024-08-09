@@ -23,7 +23,7 @@ jobs:
             });
             // console.log(issue);
 
-            const regex = /(?i:\[SB\]): (.{10,})/gm;
+            const regex = /(?:\[SB\]): (.{10,})/gmi;
             const title_text = [...issue.title.matchAll(regex)];
             console.log(1, title_text);
             console.log(2, title_text[0]);
