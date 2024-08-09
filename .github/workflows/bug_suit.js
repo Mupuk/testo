@@ -34,7 +34,6 @@ const bugSuit = async ({github, context, exec, io}) => {
   // Jai Version
   const { isDeepEqual, jaiVersion: get_jai_version } = require('./utils.js');
   let currentVersion = await get_jai_version({ exec });
-  console.log('current version', currentVersion);
 
   // Get old state of test results
   let old_test_results = [];
@@ -45,16 +44,20 @@ const bugSuit = async ({github, context, exec, io}) => {
       console.error("Error reading file:", err);
   }
 
+  console.log('Running for version:', currentVersion);
   const options = {silent: true};
   let compiler_path = await io.which('jai'); // we start with the current one
   const extension = path.extname(compiler_path);
   await exec.exec(`${compiler_path} bug_suit.jai`, [], options);
 
+  
   currentVersion = decrementVersionString(currentVersion);
+  console.log('Running for version:', currentVersion);
   compiler_path = path.resolve(compiler_path, '..', '..', '..', `jai-${currentVersion}/bin`) + `${path.sep}jai${extension}`;
   await exec.exec(`${compiler_path} bug_suit.jai`, [], options);
 
   currentVersion = decrementVersionString(currentVersion);
+  console.log('Running for version:', currentVersion);
   compiler_path = path.resolve(compiler_path, '..', '..', '..', `jai-${currentVersion}/bin`) + `${path.sep}jai${extension}`;
   await exec.exec(`${compiler_path} bug_suit.jai`, [], options);
 
@@ -75,11 +78,17 @@ const bugSuit = async ({github, context, exec, io}) => {
   }, {});
   const newVersionsObject = new_test_results.reduce((acc, item) => {
     acc[item.version] = item;
+    // also reduce the results
+    acc[item.version].results = old_test_results.reduce((acc, item) => {
+      acc[item.file] = item;
+      return acc;
+    }, {});
+
     return acc;
   }, {});
 
   console.log(oldVersionsObject);
-  console.log(newVersionsObject);
+  console.log(newVersionsObject.results);
 };
 
 module.exports = bugSuit;
