@@ -150,12 +150,17 @@ const createPr = async ({github, context}) => {
 
 
   await github.rest.issues.createComment({
+    ...context.repo,
     issue_number: context.issue.number,
-    owner: context.repo.owner,
-    repo: context.repo.repo,
     body: `👋 Thanks for the contribution, please continue further discussion on this matter here: #${pr.html_url}!`
   })
 
+  await github.rest.issues.update({
+    ...context.repo,
+    issue_number: context.issue.number,
+    state: 'closed',
+    state_reason: `👋 Thanks for the contribution, please continue further discussion on this matter here: #${pr.html_url}!`
+  })
 
   // get current jai version
   const { createCurrentVersionLabel } = require('./create_label.js');
@@ -163,8 +168,7 @@ const createPr = async ({github, context}) => {
 
   // Add labels
   await github.rest.issues.addLabels({
-    owner: context.repo.owner,
-    repo: context.repo.repo,
+    ...context.repo,
     issue_number: context.issue.number,
     labels: [ jai_version ]
   });
