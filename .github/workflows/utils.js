@@ -1,4 +1,5 @@
 const jaiVersion = async ({ exec }) => {      
+  console.log('exec', exec);
   let jaiVersionOutput = '';
 
   const options = {};

@@ -60,5 +60,5 @@ jobs:
       with:
         script: |
           const createIssue = require('./.github/workflows/create_issue.js');
-          await createIssue({github, context});
+          await createIssue({github, context, exec});
           

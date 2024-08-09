@@ -22,7 +22,7 @@ const decrementVersionString = (version) =>  {
   return `${versionSplit[1]}${newMajor}.${newMinor}.${newMicro}`
 }
 
-const createIssue = async ({github, context, exec, io}) => {
+const bugSuit = async ({github, context, exec, io}) => {
   const { OS } = process.env;
   console.log(OS);
 
@@ -61,4 +61,4 @@ const createIssue = async ({github, context, exec, io}) => {
   console.log(content);
 };
 
-module.exports = createIssue;
+module.exports = bugSuit;
