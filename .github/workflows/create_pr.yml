@@ -27,4 +27,4 @@ jobs:
             const title_text = [...issue.title.matchAll(regex)];
             console.log(1, title_text);
             console.log(2, title_text[0]);
-            console.log(3, title_text[0][1]);
+            console.log(3, (title_text[0] || '')[1]);
