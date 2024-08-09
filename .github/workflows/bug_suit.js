@@ -79,7 +79,7 @@ const bugSuit = async ({github, context, exec, io}) => {
   const newVersionsObject = new_test_results.reduce((acc, item) => {
     acc[item.version] = item;
     // also reduce the results
-    acc[item.version].results = old_test_results.reduce((acc, item) => {
+    acc[item.version].results = item.results.reduce((acc, item) => {
       acc[item.file] = item;
       return acc;
     }, {});
