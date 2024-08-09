@@ -1,15 +1,13 @@
 const jaiVersion = async ({ exec }) => {
 
-
-  fs.readFile('jai_version_workaround.jai', 'utf8', (err, data) => {
-    if (err) {
-        console.error("Error reading file:", err);
-        process.exit(1); // Exit with error code if file reading fails
-    } else {
-        console.log("File content:");
-        console.log(data);
-    }
-  });
+  const fs = require('fs');
+  try {
+    const data = await fs.readFile('jai_version_workaround.jai', 'utf8');
+    console.log("File content:");
+    console.log(data);
+  } catch (err) {
+      console.error("Error reading file:", err);
+  }
 
        
   let jaiVersionOutput = '';
