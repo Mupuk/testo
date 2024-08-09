@@ -46,7 +46,7 @@ const bugSuit = async ({ github, context, exec, io }) => {
   }
 
   console.log('Running for version:', currentVersion);
-  const options = { silent: true };
+  const options = { silent: false };
   let compiler_path = await io.which('jai'); // we start with the current one
   const extension = path.extname(compiler_path);
   await exec.exec(`${compiler_path} bug_suit.jai`, [], options);
