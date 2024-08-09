@@ -51,10 +51,25 @@ const handleEmailedIn = async ({ github, context }) => {
 }
 
 const handleJonSaid = async ({ github, context, comment }) => {
+  // Specify the Berlin time zone and desired format
+  let options = {
+    timeZone: 'Europe/Berlin',
+    year: 'numeric',
+    month: '2-digit',
+    day: '2-digit',
+    // hour: '2-digit',
+    // minute: '2-digit',
+    // second: '2-digit'
+  };
+  // Format the date and time
+  let time = new Intl.DateTimeFormat('en-CA', options).format(new Date());
+  // Extract the date part (YYYY-MM-DD)
+  let date = time.split(',')[0];
+
   const jon_said_body = comment.body.split(/!JonSaid\s?/i)[1];
   if (jon_said_body.length <= 25) return;
 
-  const jon_said = "\n\n Jon said:\n```\n" + jon_said_body + "\n```";
+  const jon_said = `\n\n ${date}\nJon said:\n\`\`\`\n` + jon_said_body + "\n```";
 
   // Get old issue body
   const { data: issue } = await github.rest.issues.get({

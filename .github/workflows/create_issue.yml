@@ -15,7 +15,7 @@
 # [x] parse code description if single file
 # [~] jai dropdown and parsing of older version
 # [x] automated PR for single file 
-# [ ] JonSaid add date
+# [x] JonSaid add date
 # [ ] make issue/pr mention use link instead of message?
 # [ ] update tracker template
 # [ ] rethink needed fields in depth
