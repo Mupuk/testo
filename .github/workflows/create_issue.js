@@ -1,3 +1,30 @@
+const issueTrackerTemplate = `
+**Status:**
+
+| Status | Emailed In | First Encounter | First Encounter Version | Last Encountered | Last Encountered Version | Fix Date | Fix Version |
+| :---: | :---: | :---: | :---: | :---: | :---: | :---: | :---: |
+| Open | {already_reported} | {firstEncounter} | {firstEncounterVersion} | {lastEncounter} | {lastEncounterVersion} | - | - |
+
+Bug Type:
+{bug_type}
+
+Description:
+{description}
+
+
+<details>
+<summary>Buggy Code</summary>
+\`\`\`
+{code}
+\`\`\`
+</details>
+
+Workarounds:
+\`\`\`c
+{workaround}
+\`\`\`
+`;
+
 function parsePrBody(text) {
   // match all checkbox values from the 3. checkbox onwards
   const reg_emailed_in = /(?<=(?:- \[[ X]\] .*\s){2})- \[([ X])\] /igm;
@@ -10,7 +37,7 @@ function parsePrBody(text) {
   const reg_code = /(?<=^### Short Code[\s\S]*####[\s\S]*$\s[\s\S]*```c\s)([\s\S]*?)\s```/im
 
   let parsedData = {
-    already_reported: text.match(reg_emailed_in)?.[1] || '',
+    already_reported: text.match(reg_emailed_in)?.[1].toLowerCase() === 'x'  ? '✅' : '❌',
     issue_number: '',
     bug_type: text.match(reg_bug_type)?.[1] || '',
     categories: text.match(reg_category)?.[1] || '',
@@ -24,6 +51,21 @@ function parsePrBody(text) {
 
 const createIssue = async ({github, context}) => {
   const { jaiVersion: get_jai_version, format, prTemplate } = require('./utils.js');
+  const currentVersion = get_jai_version();
+  // Specify the Berlin time zone and desired format
+  let options = {
+    timeZone: 'Europe/Berlin',
+    year: 'numeric',
+    month: '2-digit',
+    day: '2-digit',
+    // hour: '2-digit',
+    // minute: '2-digit',
+    // second: '2-digit'
+  };
+  // Format the date and time
+  let time = new Intl.DateTimeFormat('en-CA', options).format(new Date());
+  // Extract the date part (YYYY-MM-DD)
+  let date = time.split(',')[0];
   
   const currentJaiVersion = await get_jai_version();
   const date = new Date().toISOString().split('T')[0];
@@ -32,9 +74,13 @@ const createIssue = async ({github, context}) => {
   const prBody = context.payload.pull_request.body;
 
   const parsed_body = parsePrBody(prBody);
+  parsed_body.firstEncounter = date;// this is just thre first reported date, even if bug itself is older
+  parsed_body.firstEncounterVersion = currentVersion; //could get reset by test to an even later version
+  parsed_body.lastEncounter = date;
+  parsed_body.lastEncounterVersion = currentVersion;
 
   const issueTitle = `${prTitle}`;
-  const issueBody = format(prTemplate, parsed_body);
+  const issueBody = format(issueTrackerTemplate, parsed_body);
 
   // Create Tracking Issue
   const { data: issue } = await github.rest.issues.create({
