@@ -99,9 +99,7 @@ const createPr = async ({github, context}) => {
   const title_text = match[1]; // maybe undefined
   if (title_text === undefined) return;
 
-  console.log(title_text);
   const parsed_body = parseIssueBody(issue.body);
-  console.log(parsed_body);
 
   const params = {
     already_reported: parsed_body[0][2].checked ? 'X' : ' ',
@@ -116,7 +114,7 @@ const createPr = async ({github, context}) => {
   const branchName = `issue-${context.issue.number}`;
   const baseBranch = 'master';
   const prTitle = issue.title;
-  const fileName = 'main.py';
+  const fileName = `deleteme-${context.issue.number}.jai`;
   const prBody = format(pull_request_template, params);
 
   // Create a new branch from the base branch
@@ -131,6 +129,8 @@ const createPr = async ({github, context}) => {
     sha: commit.sha
   });
 
+  console.log(parsed_body[5]);
+  console.log(parsed_body[5].toString('base64'));
   await github.rest.repos.createOrUpdateFileContents({
     ...context.repo,
     path: fileName,
