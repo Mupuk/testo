@@ -27,14 +27,14 @@
 # [ ] Update issue on test results
 #     [ ] change state, dates, labels
 #     [ ] how to map name to issue number? maybe we DO need an id
-# [ ] Update readme on test results
+# [ ] Update summary on test results
 #     [ ] link issue number
 #     [ ] foldable source code if single file, otherwise link
 #     [ ] add 'new' section, if reported at compilerversion (could still bebroken backwards) 
 #         or reopen compiler version (!= last encounter, maybe change that?)
 #     [ ] column ordering?
 #     [ ] recently fixed section (last 2 compiler versions?)
-# [ ] (Auto run testsuit on approval of PR)
+# [ ] Auto run testsuit on approval of PR to check it actually crashes?
 
 name: Create Issue on PR Merge
 

@@ -3,6 +3,8 @@ name: Add Compiler Label on Issue/PR create
 on:
   pull_request:
     types: [opened]
+  issues:
+    types: [opened, edited]
   
 
 jobs:
