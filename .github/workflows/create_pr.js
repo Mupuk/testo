@@ -115,6 +115,8 @@ const createPr = async ({github, context}) => {
   const baseBranch = 'master';
   const prTitle = issue.title;
   const fileName = `deleteme-${context.issue.number}.jai`;
+  const fileContent = Buffer.from(parsed_body[5]).toString('base64');
+
   const prBody = format(pull_request_template, params);
 
   // Create a new branch from the base branch
@@ -129,13 +131,11 @@ const createPr = async ({github, context}) => {
     sha: commit.sha
   });
 
-  console.log(parsed_body[5]);
-  console.log(parsed_body[5].toString('base64'));
   await github.rest.repos.createOrUpdateFileContents({
     ...context.repo,
     path: fileName,
     message: 'Add test',
-    content: parsed_body[5].toString('base64'),
+    content: fileContent,
     branch: branchName
   });
 
