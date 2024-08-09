@@ -113,7 +113,7 @@ const createPr = async ({github, context}) => {
     code: parsed_body[5]
   }
 
-  const branchName = `issue-${issueNumber}`;
+  const branchName = `issue-${context.issue.number}`;
   const baseBranch = 'master';
   const prTitle = issue.title;
   const fileName = 'main.py';
