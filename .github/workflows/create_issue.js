@@ -1,4 +1,4 @@
-const createIssue = async ({github, context, labelName}) => {
+const createIssue = async ({github, context}) => {
   const { jaiVersion: get_jai_version } = require('./utils.js');
   
   const currentJaiVersion = await get_jai_version();
