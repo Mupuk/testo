@@ -98,8 +98,9 @@ const bugSuit = async ({ github, context, exec, io }) => {
   console.log('newVersionsObject', newVersionsObject);
 
   const ver = decrementVersionString(currentVersion, 1);
-  console.log(JSON.stringify(oldVersionsObject[ver], null, 2));
-  console.log(JSON.stringify(newVersionsObject[ver], null, 2));
+  console.log(ver);
+  console.log(oldVersionsObject[ver]);
+  console.log(newVersionsObject[ver]);
 
   // dif with old state to get new tests. We take one older version, because the comparison version
   // has to exist. A new one doesnt exist in old log. Also we dont take the oldest, because
