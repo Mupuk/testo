@@ -2,7 +2,7 @@ const jaiVersion = async ({ exec }) => {
 
   const fs = require('fs');
   try {
-    const data = await fs.readFile('jai_version_workaround.jai', 'utf8');
+    const data = fs.readFileSync('jai_version_workaround.jai', 'utf8');
     console.log("File content:");
     console.log(data);
   } catch (err) {
