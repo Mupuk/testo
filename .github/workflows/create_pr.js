@@ -104,7 +104,7 @@ const createPr = async ({github, context}) => {
   console.log(parsed_body);
 
   const params = {
-    already_reported: parsed_body[0][2].checked,
+    already_reported: parsed_body[0][2].checked ? 'X' : ' ',
     issue_number: context.issue.number,
     bug_type: parsed_body[1],
     categories: parsed_body[2],
