@@ -152,6 +152,7 @@ const createPr = async ({github, context}) => {
   //   body: `👋 Thanks for the contribution, please continue further discussion on this matter here: ${pr.html_url}!`
   // })
 
+  // Not sure if we should close or lock it
   await github.rest.issues.lock({
     ...context.repo,
     issue_number: context.issue.number,
