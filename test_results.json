@@ -1,0 +1,486 @@
+[
+	{
+		"version": "beta-0.1.090",
+		"succeeded_count": 5,
+		"failed_count": 12,
+		"total_count": 17,
+		"results": [
+			{
+				"file": "",
+				"passed_test": true,
+				"expected_error_code": 1,
+				"compilation_succeeded": true,
+				"compilation_exit_code": 1,
+				"did_run": false,
+				"run_succeeded": false,
+				"run_exit_code": 0
+			},{
+				"file": "",
+				"passed_test": true,
+				"expected_error_code": 1,
+				"compilation_succeeded": true,
+				"compilation_exit_code": 1,
+				"did_run": false,
+				"run_succeeded": false,
+				"run_exit_code": 0
+			},{
+				"file": "",
+				"passed_test": true,
+				"expected_error_code": 1,
+				"compilation_succeeded": true,
+				"compilation_exit_code": 1,
+				"did_run": false,
+				"run_succeeded": false,
+				"run_exit_code": 0
+			},{
+				"file": "",
+				"passed_test": true,
+				"expected_error_code": 1,
+				"compilation_succeeded": true,
+				"compilation_exit_code": 1,
+				"did_run": false,
+				"run_succeeded": false,
+				"run_exit_code": 0
+			},{
+				"file": "",
+				"passed_test": true,
+				"expected_error_code": 1,
+				"compilation_succeeded": true,
+				"compilation_exit_code": 1,
+				"did_run": false,
+				"run_succeeded": false,
+				"run_exit_code": 0
+			},{
+				"file": "",
+				"passed_test": false,
+				"expected_error_code": 0,
+				"compilation_succeeded": false,
+				"compilation_exit_code": 1,
+				"did_run": false,
+				"run_succeeded": false,
+				"run_exit_code": 0
+			},{
+				"file": "",
+				"passed_test": false,
+				"expected_error_code": 0,
+				"compilation_succeeded": false,
+				"compilation_exit_code": 1,
+				"did_run": false,
+				"run_succeeded": false,
+				"run_exit_code": 0
+			},{
+				"file": "",
+				"passed_test": false,
+				"expected_error_code": 0,
+				"compilation_succeeded": false,
+				"compilation_exit_code": 1,
+				"did_run": false,
+				"run_succeeded": false,
+				"run_exit_code": 0
+			},{
+				"file": "",
+				"passed_test": false,
+				"expected_error_code": 0,
+				"compilation_succeeded": false,
+				"compilation_exit_code": 1,
+				"did_run": false,
+				"run_succeeded": false,
+				"run_exit_code": 0
+			},{
+				"file": "",
+				"passed_test": false,
+				"expected_error_code": 0,
+				"compilation_succeeded": false,
+				"compilation_exit_code": 1,
+				"did_run": false,
+				"run_succeeded": false,
+				"run_exit_code": 0
+			},{
+				"file": "",
+				"passed_test": false,
+				"expected_error_code": 0,
+				"compilation_succeeded": false,
+				"compilation_exit_code": 1,
+				"did_run": false,
+				"run_succeeded": false,
+				"run_exit_code": 0
+			},{
+				"file": "",
+				"passed_test": false,
+				"expected_error_code": 1,
+				"compilation_succeeded": false,
+				"compilation_exit_code": 0,
+				"did_run": false,
+				"run_succeeded": false,
+				"run_exit_code": 0
+			},{
+				"file": "",
+				"passed_test": false,
+				"expected_error_code": 1,
+				"compilation_succeeded": false,
+				"compilation_exit_code": 0,
+				"did_run": false,
+				"run_succeeded": false,
+				"run_exit_code": 0
+			},{
+				"file": "",
+				"passed_test": false,
+				"expected_error_code": 1,
+				"compilation_succeeded": false,
+				"compilation_exit_code": 0,
+				"did_run": false,
+				"run_succeeded": false,
+				"run_exit_code": 0
+			},{
+				"file": "",
+				"passed_test": false,
+				"expected_error_code": 1,
+				"compilation_succeeded": false,
+				"compilation_exit_code": 3,
+				"did_run": false,
+				"run_succeeded": false,
+				"run_exit_code": 0
+			},{
+				"file": "",
+				"passed_test": false,
+				"expected_error_code": 0,
+				"compilation_succeeded": false,
+				"compilation_exit_code": 1,
+				"did_run": false,
+				"run_succeeded": false,
+				"run_exit_code": 0
+			},{
+				"file": "",
+				"passed_test": false,
+				"expected_error_code": 0,
+				"compilation_succeeded": false,
+				"compilation_exit_code": 0,
+				"did_run": true,
+				"run_succeeded": false,
+				"run_exit_code": 1
+			}
+		]
+	},{
+		"version": "beta-0.1.091",
+		"succeeded_count": 5,
+		"failed_count": 12,
+		"total_count": 17,
+		"results": [
+			{
+				"file": "",
+				"passed_test": true,
+				"expected_error_code": 1,
+				"compilation_succeeded": true,
+				"compilation_exit_code": 1,
+				"did_run": false,
+				"run_succeeded": false,
+				"run_exit_code": 0
+			},{
+				"file": "",
+				"passed_test": true,
+				"expected_error_code": 1,
+				"compilation_succeeded": true,
+				"compilation_exit_code": 1,
+				"did_run": false,
+				"run_succeeded": false,
+				"run_exit_code": 0
+			},{
+				"file": "",
+				"passed_test": true,
+				"expected_error_code": 1,
+				"compilation_succeeded": true,
+				"compilation_exit_code": 1,
+				"did_run": false,
+				"run_succeeded": false,
+				"run_exit_code": 0
+			},{
+				"file": "",
+				"passed_test": true,
+				"expected_error_code": 1,
+				"compilation_succeeded": true,
+				"compilation_exit_code": 1,
+				"did_run": false,
+				"run_succeeded": false,
+				"run_exit_code": 0
+			},{
+				"file": "",
+				"passed_test": true,
+				"expected_error_code": 1,
+				"compilation_succeeded": true,
+				"compilation_exit_code": 1,
+				"did_run": false,
+				"run_succeeded": false,
+				"run_exit_code": 0
+			},{
+				"file": "",
+				"passed_test": false,
+				"expected_error_code": 0,
+				"compilation_succeeded": false,
+				"compilation_exit_code": 1,
+				"did_run": false,
+				"run_succeeded": false,
+				"run_exit_code": 0
+			},{
+				"file": "",
+				"passed_test": false,
+				"expected_error_code": 0,
+				"compilation_succeeded": false,
+				"compilation_exit_code": 1,
+				"did_run": false,
+				"run_succeeded": false,
+				"run_exit_code": 0
+			},{
+				"file": "",
+				"passed_test": false,
+				"expected_error_code": 0,
+				"compilation_succeeded": false,
+				"compilation_exit_code": 1,
+				"did_run": false,
+				"run_succeeded": false,
+				"run_exit_code": 0
+			},{
+				"file": "",
+				"passed_test": false,
+				"expected_error_code": 0,
+				"compilation_succeeded": false,
+				"compilation_exit_code": 1,
+				"did_run": false,
+				"run_succeeded": false,
+				"run_exit_code": 0
+			},{
+				"file": "",
+				"passed_test": false,
+				"expected_error_code": 0,
+				"compilation_succeeded": false,
+				"compilation_exit_code": 1,
+				"did_run": false,
+				"run_succeeded": false,
+				"run_exit_code": 0
+			},{
+				"file": "",
+				"passed_test": false,
+				"expected_error_code": 0,
+				"compilation_succeeded": false,
+				"compilation_exit_code": 1,
+				"did_run": false,
+				"run_succeeded": false,
+				"run_exit_code": 0
+			},{
+				"file": "",
+				"passed_test": false,
+				"expected_error_code": 1,
+				"compilation_succeeded": false,
+				"compilation_exit_code": 0,
+				"did_run": false,
+				"run_succeeded": false,
+				"run_exit_code": 0
+			},{
+				"file": "",
+				"passed_test": false,
+				"expected_error_code": 1,
+				"compilation_succeeded": false,
+				"compilation_exit_code": 0,
+				"did_run": false,
+				"run_succeeded": false,
+				"run_exit_code": 0
+			},{
+				"file": "",
+				"passed_test": false,
+				"expected_error_code": 1,
+				"compilation_succeeded": false,
+				"compilation_exit_code": 0,
+				"did_run": false,
+				"run_succeeded": false,
+				"run_exit_code": 0
+			},{
+				"file": "",
+				"passed_test": false,
+				"expected_error_code": 1,
+				"compilation_succeeded": false,
+				"compilation_exit_code": 3,
+				"did_run": false,
+				"run_succeeded": false,
+				"run_exit_code": 0
+			},{
+				"file": "",
+				"passed_test": false,
+				"expected_error_code": 0,
+				"compilation_succeeded": false,
+				"compilation_exit_code": 1,
+				"did_run": false,
+				"run_succeeded": false,
+				"run_exit_code": 0
+			},{
+				"file": "",
+				"passed_test": false,
+				"expected_error_code": 0,
+				"compilation_succeeded": false,
+				"compilation_exit_code": 0,
+				"did_run": true,
+				"run_succeeded": false,
+				"run_exit_code": 1
+			}
+		]
+	},{
+		"version": "beta-0.1.092",
+		"succeeded_count": 5,
+		"failed_count": 12,
+		"total_count": 17,
+		"results": [
+			{
+				"file": "compiler_bugs/!EC1_#if_1.jai",
+				"passed_test": true,
+				"expected_error_code": 1,
+				"compilation_succeeded": true,
+				"compilation_exit_code": 1,
+				"did_run": false,
+				"run_succeeded": false,
+				"run_exit_code": 0
+			},{
+				"file": "compiler_bugs/!EC1_#import_program_param_1.jai",
+				"passed_test": true,
+				"expected_error_code": 1,
+				"compilation_succeeded": true,
+				"compilation_exit_code": 1,
+				"did_run": false,
+				"run_succeeded": false,
+				"run_exit_code": 0
+			},{
+				"file": "compiler_bugs/!EC1_#insert_1.jai",
+				"passed_test": true,
+				"expected_error_code": 1,
+				"compilation_succeeded": true,
+				"compilation_exit_code": 1,
+				"did_run": false,
+				"run_succeeded": false,
+				"run_exit_code": 0
+			},{
+				"file": "compiler_bugs/!EC1_#insert_2.jai",
+				"passed_test": true,
+				"expected_error_code": 1,
+				"compilation_succeeded": true,
+				"compilation_exit_code": 1,
+				"did_run": false,
+				"run_succeeded": false,
+				"run_exit_code": 0
+			},{
+				"file": "compiler_bugs/!EC1_#insert_inside_enum_2.jai",
+				"passed_test": true,
+				"expected_error_code": 1,
+				"compilation_succeeded": true,
+				"compilation_exit_code": 1,
+				"did_run": false,
+				"run_succeeded": false,
+				"run_exit_code": 0
+			},{
+				"file": "compiler_bugs/#exists_1.jai",
+				"passed_test": false,
+				"expected_error_code": 0,
+				"compilation_succeeded": false,
+				"compilation_exit_code": 1,
+				"did_run": false,
+				"run_succeeded": false,
+				"run_exit_code": 0
+			},{
+				"file": "compiler_bugs/#exists_on_context.jai",
+				"passed_test": false,
+				"expected_error_code": 0,
+				"compilation_succeeded": false,
+				"compilation_exit_code": 1,
+				"did_run": false,
+				"run_succeeded": false,
+				"run_exit_code": 0
+			},{
+				"file": "compiler_bugs/#import_mapping_1.jai",
+				"passed_test": false,
+				"expected_error_code": 0,
+				"compilation_succeeded": false,
+				"compilation_exit_code": 1,
+				"did_run": false,
+				"run_succeeded": false,
+				"run_exit_code": 0
+			},{
+				"file": "compiler_bugs/#import_module_param_1.jai",
+				"passed_test": false,
+				"expected_error_code": 0,
+				"compilation_succeeded": false,
+				"compilation_exit_code": 1,
+				"did_run": false,
+				"run_succeeded": false,
+				"run_exit_code": 0
+			},{
+				"file": "compiler_bugs/#import_program_param_2.jai",
+				"passed_test": false,
+				"expected_error_code": 0,
+				"compilation_succeeded": false,
+				"compilation_exit_code": 1,
+				"did_run": false,
+				"run_succeeded": false,
+				"run_exit_code": 0
+			},{
+				"file": "compiler_bugs/#insert_inside_enum_1.jai",
+				"passed_test": false,
+				"expected_error_code": 0,
+				"compilation_succeeded": false,
+				"compilation_exit_code": 1,
+				"did_run": false,
+				"run_succeeded": false,
+				"run_exit_code": 0
+			},{
+				"file": "compiler_bugs/EC1_#import_1.jai",
+				"passed_test": false,
+				"expected_error_code": 1,
+				"compilation_succeeded": false,
+				"compilation_exit_code": 0,
+				"did_run": false,
+				"run_succeeded": false,
+				"run_exit_code": 0
+			},{
+				"file": "compiler_bugs/EC1_#import_program_param_3.jai",
+				"passed_test": false,
+				"expected_error_code": 1,
+				"compilation_succeeded": false,
+				"compilation_exit_code": 0,
+				"did_run": false,
+				"run_succeeded": false,
+				"run_exit_code": 0
+			},{
+				"file": "compiler_bugs/EC1_#import_program_param_4.jai",
+				"passed_test": false,
+				"expected_error_code": 1,
+				"compilation_succeeded": false,
+				"compilation_exit_code": 0,
+				"did_run": false,
+				"run_succeeded": false,
+				"run_exit_code": 0
+			},{
+				"file": "compiler_bugs/EC1_polymorph_1.jai",
+				"passed_test": false,
+				"expected_error_code": 1,
+				"compilation_succeeded": false,
+				"compilation_exit_code": 3,
+				"did_run": false,
+				"run_succeeded": false,
+				"run_exit_code": 0
+			},{
+				"file": "compiler_bugs/leak_autorun.jai",
+				"passed_test": false,
+				"expected_error_code": 0,
+				"compilation_succeeded": false,
+				"compilation_exit_code": 1,
+				"did_run": false,
+				"run_succeeded": false,
+				"run_exit_code": 0
+			},{
+				"file": "compiler_bugs/leak_process.jai",
+				"passed_test": false,
+				"expected_error_code": 0,
+				"compilation_succeeded": false,
+				"compilation_exit_code": 0,
+				"did_run": true,
+				"run_succeeded": false,
+				"run_exit_code": 1
+			}
+		]
+	}
+]

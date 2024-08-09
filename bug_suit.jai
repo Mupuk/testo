@@ -5,10 +5,31 @@
 //
 // Files that start with "EC" are expected to fail with the error code specified after "EC"
 
+Test_Result :: struct {
+  file: string;
+  passed_test: bool;
+  expected_error_code: int;
+  compilation_succeeded: bool;
+  compilation_exit_code: int;
+  did_run: bool;
+  run_succeeded: bool;
+  run_exit_code: int;
+};
+
+Test_Result_Set :: struct {
+  version: string;
+  succeeded_count: int;
+  failed_count: int;
+  total_count: int;
+  results: [..] Test_Result;
+};
+
 
 #run 
 {
   #assert OS == .WINDOWS; // @todo platform specific
+
+  jai_path := get_path_of_running_executable();
 
   // Don't output anything
   set_build_options_dc(.{do_output=false, write_added_strings=false});
@@ -41,6 +62,8 @@
   // Stats
   succeeded := 0;
   failed := 0;
+  test_results: [..] Test_Result;
+  array_free(test_results);
 
   // Get all the test file list
   test_list: [..] string;
@@ -53,6 +76,7 @@
   // Run the tests
   for test_list
   {
+    test: Test_Result;
     expected_error_code := 0;
     name := path_filename(it);
 
@@ -73,13 +97,17 @@
       code, success := string_to_int(advance(name, skip_count));
       if success  expected_error_code = code;
     }
+
+    test.expected_error_code = expected_error_code;
+
     // Compile Program
     compile_process_result: Process_Result;  
     {
-      command := tprint("jai %", it);
+      command := tprint("% %", jai_path, it);
+      test.file = copy_string(it,, temp);
       command_split := split(command, " ",, temp);
       // command := split(tprint("echo %", test_list[0]), " ",, temp);
-      print("Compiling: '%' ... ", command);
+      print("Compiling: 'jai %' ... ", it);
 
       compile_process_result=, 
       output_string, 
@@ -91,9 +119,10 @@
                                     timeout_ms = 5000 // avoid infinite loops
                                     ,, temp);
 
+
       if compile_process_result.type == .FAILED_TO_LAUNCH {
           log_error("Could not run command: \"%\"", command);
-          return;
+          continue;
       }
 
       // log("Exit code: % (timeout reached: %)", process_result.exit_code, timeout_reached);
@@ -140,10 +169,14 @@
 
         if process_result.type == .FAILED_TO_LAUNCH {
             log_error("Could not run command: \"%\"", program);
-            return;
+            continue;
         }
 
         // log("Exit code: % (timeout reached: %)", process_result.exit_code, timeout_reached);
+
+        test.did_run = true;
+        test.run_exit_code = process_result.exit_code;
+        test.run_succeeded = process_result.exit_code == 0;
 
         status_text := ifx process_result.exit_code == 0
                       then "SUCCESS" 
@@ -154,20 +187,126 @@
 
         // if there is a executable we just look at its result
         if process_result.exit_code == 0 
+        {
           succeeded += 1;
+          test.passed_test = true;
+        }
         else
+        {
           failed += 1;
+          test.passed_test = false;
+        }
       }
     }
     else
     {
+      test.compilation_exit_code = compile_process_result.exit_code;
+      test.compilation_succeeded = compile_process_result.exit_code == expected_error_code;
+
       // if there is no executable we just look at compile result
       if compile_process_result.exit_code == expected_error_code 
+      {
         succeeded += 1;
+        test.passed_test = true;
+      }
       else
+      {
         failed += 1;
+        test.passed_test = false;
+      }
+    }
+
+    array_add(*test_results, test);
+  }
+
+  //
+  // output test result json
+  //
+
+  versionInfo: Version_Info;
+  version := compiler_get_version_info(*versionInfo);
+  found:, version = split_from_left(version, ",",, temp);
+  version = replace(version, " ", "-",, temp);
+  print("Version: %\n", versionInfo);
+
+  parse_version :: (version_string: string) -> Version_Info {
+    found, left, right := split_from_left(version_string, "-",, temp);
+    assert(found, "Could not parse version string: %", version_string);
+    versions := split(right, ".",, temp);
+    assert(versions.count == 3, "Invalid version string: %", version_string);
+    return .{
+      major = string_to_int(versions[0], 10, s32),
+      minor = string_to_int(versions[1], 10, s32),
+      micro = string_to_int(versions[2], 10, s32)
+    };
+  }
+
+  compare_version :: (a: Version_Info, b: Version_Info) -> int {
+    if a.major != b.major return a.major - b.major;
+    if a.minor != b.minor return a.minor - b.minor;
+    if a.micro != b.micro return a.micro - b.micro;
+    return 0;
+  }
+
+  test := parse_version(version);
+  print("Version: %\n", test);
+
+  // Create and initialize object
+  success, test_result_sets := json_parse_file("test_results.json", [..] Test_Result_Set);
+
+  print("Old test results: %\n", test_result_sets);
+
+  current_result_set := Test_Result_Set.{
+    version = version,
+    succeeded_count = succeeded,
+    failed_count = failed,
+    total_count = test_list.count,
+    results = test_results
+  };
+
+  // replace result set
+  same_version_index := -1;
+  smallest_version_index := -1;
+  for test_result_sets
+  {
+    if it.version == version
+    {
+      same_version_index = it_index;
+      break;
+    }
+
+    other_version := parse_version(it.version);
+    if smallest_version_index == -1 || compare_version(versionInfo, other_version) > 0
+    {
+      smallest_version_index = it_index;
     }
   }
+
+  // if not yet 5 results, add it
+  if test_result_sets.count < 3 
+  {
+    array_add(*test_result_sets, current_result_set);
+  }
+  // version already exists, replace it
+  else if same_version_index != -1
+  {
+    test_result_sets[same_version_index] = current_result_set;
+  }
+  // new version, replace the oldest version
+  else if smallest_version_index != -1
+  {
+    other_version := parse_version(test_result_sets[smallest_version_index].version);
+    assert(compare_version(versionInfo, other_version) > 0, "Version that is supposed to get replaced is not smaller");
+    test_result_sets[smallest_version_index] = current_result_set;
+  }
+  else
+  {
+    assert(false, "Could not find a version to replace");
+  }
+
+  success = json_write_file("test_results.json", test_result_sets);
+  assert(success, "Could not write test_results.json");
+
 
   // Cleanup
   {
@@ -215,11 +354,12 @@
 }
 
 
+#import "Jaison";
 #import "Compiler";
-#import "File"; // :ReplaceOwn
-#import "File_Utilities"; // :ReplaceOwn
+#import "File";
+#import "File_Utilities";
 #import "Process";
 #import "String";
 #import "Print_Color";
 #import "Basic";
-// }
+#import "System";
