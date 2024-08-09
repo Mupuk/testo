@@ -1,23 +1,29 @@
-const decrementVersionString = (version) =>  {
-  const versionRegex = /(beta-)(\d+).(\d+).(\d+)/
+const decrementVersionString = (version, count = 1) =>  {
+  const versionRegex = /(beta.)(\d+).(\d+).(\d+)/
   const versionSplit = version.match(versionRegex);
 
-  // Decrement version
-  let carry = 0;
-  let newMicro = parseInt(versionSplit[4]) - 1;
-  if (newMicro < 0) {
-    carry = 1
-    newMicro = 0;
+  let newMicro = parseInt(versionSplit[4]);
+  let newMinor = parseInt(versionSplit[3]);
+  let newMajor = parseInt(versionSplit[2]);
+  for (let i = 0; i < count; i++) {
+    // Decrement version
+    let carry = 0;
+    newMicro = newMicro - 1;
+    if (newMicro < 0) {
+      carry = 1
+      newMicro = 0;
+    }
+    newMinor = newMinor - carry;
+    if (newMinor < 0) {
+      carry = 1
+      newMinor = 0;
+    }
+    newMajor = newMajor - carry;
+    if (newMajor < 0) {
+      newMajor = 0;
+    }
   }
-  let newMinor = parseInt(versionSplit[3]) - carry;
-  if (newMinor < 0) {
-    carry = 1
-    newMinor = 0;
-  }
-  let newMajor = parseInt(versionSplit[2]) - carry;
-  if (newMajor < 0) {
-    newMajor = 0;
-  }
+
   return `${versionSplit[1]}${newMajor}.${newMinor}.${newMicro.toString().padStart(3, '0')}`
 }
 
@@ -25,7 +31,7 @@ const bugSuit = async ({github, context, exec, io}) => {
   const path = require('path');
 
   // Jai Version
-  const { jaiVersion: get_jai_version } = require('./utils.js');
+  const { isDeepEqual, jaiVersion: get_jai_version } = require('./utils.js');
   let currentVersion = await get_jai_version({ exec });
   console.log('current version', currentVersion);
 
