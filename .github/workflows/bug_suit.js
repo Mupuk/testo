@@ -29,6 +29,7 @@ const decrementVersionString = (version, count = 1) =>  {
 
 const bugSuit = async ({github, context, exec, io}) => {
   const path = require('path');
+  const fs = require('fs');
 
   // Jai Version
   const { isDeepEqual, jaiVersion: get_jai_version } = require('./utils.js');
@@ -37,7 +38,6 @@ const bugSuit = async ({github, context, exec, io}) => {
 
   // Get old state of test results
   let old_test_results = [];
-  const fs = require('fs');
   try {
     const data = fs.readFileSync('test_results.json', 'utf8');
     old_test_results = JSON.parse(data);
@@ -61,7 +61,6 @@ const bugSuit = async ({github, context, exec, io}) => {
 
   // Get new test results
   let new_test_results = {};
-  const fs = require('fs');
   try {
     const data = fs.readFileSync('test_results.json', 'utf8');
     new_test_results = JSON.parse(data);
