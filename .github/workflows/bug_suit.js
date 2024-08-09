@@ -1,7 +1,7 @@
 const decrementVersionString = (version) =>  {
   const versionRegex = /(beta-)(\d+).(\d+).(\d+)/
   const versionSplit = version.match(versionRegex);
-  console.log(versionSplit);
+  console.log('split', versionSplit);
 
   // Decrement version
   let carry = 0;

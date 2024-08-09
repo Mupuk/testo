@@ -2,7 +2,7 @@ const jaiVersion = async ({ exec }) => {
   let jaiVersionOutput = '';
 
   const options = {};
-  options.silent = false;
+  options.silent = true;
   options.ignoreReturnCode = true;
   options.listeners = {
     stdout: (data) => {
@@ -24,7 +24,7 @@ const jaiVersion = async ({ exec }) => {
   await exec.exec('jai jai_version_workaround.jai', [], options);
 
   console.log('vv', jaiVersionOutput);
-  const versionMatch = jaiVersionOutput.match(/beta \d+\.\d+\.\d+/);
+  const versionMatch = jaiVersionOutput.match(/beta.\d+\.\d+\.\d+/);
   const version = versionMatch ? versionMatch[0].replace(/\s+/g, '-') : 'VersionNotFound';
   console.log('vvvvv', version);
   return version;
