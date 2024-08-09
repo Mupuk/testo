@@ -118,13 +118,15 @@ const bugSuit = async ({ github, context, exec, io }) => {
     obj1.file in newVersionsObject[ver].results && !isDeepEqual(obj1, newVersionsObject[ver].results[obj1.file])
   )
 
-  console.log('new test', new_test);
-  console.log('new test names ', new_test_names);
-  console.log('changed test names ', changed_test_names);
+  // console.log('new test', new_test);
+  // console.log('new test names ', new_test_names);
+  // console.log('changed test names ', changed_test_names);
 
   changed_test_names.forEach(newele => {
     const oldele = newVersionsObject[ver].results[newele.file];
     // update issue
+    console.log('old', oldele);
+    console.log('new', newele);
   });
 };
 
