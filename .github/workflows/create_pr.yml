@@ -1,12 +1,11 @@
-name: Create Issue on PR Merge
+name: Create automatic PR from issue
 
 on:
-  workflow_dispatch: # Manual trigger
   issues:
     types: [opened, edited]
 
 jobs:
-  create_issue:
+  create_pr:
     runs-on: [self-hosted, windows]
 
     steps:
