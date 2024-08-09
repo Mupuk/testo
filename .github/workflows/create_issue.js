@@ -52,7 +52,7 @@ const createIssue = async ({github, context}) => {
   const { jaiVersion: get_jai_version, format } = require('./utils.js');
   const currentVersion = await get_jai_version();
   
-  const currentJaiVersion = await get_jai_version();
+  const currentJaiVersion = await get_jai_version({ exec });
   const date = new Date().toISOString().split('T')[0];
   const prNumber = context.payload.pull_request.number;
   const prTitle = context.payload.pull_request.title;

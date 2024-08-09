@@ -1,4 +1,4 @@
-const jaiVersion = async () => {
+const jaiVersion = async ({ exec }) => {
   // currently this is a bug in jai so we hardcode it       
   // let jaiVersionOutput = 'Version: beta 0.1.092, built on 4 August 2024.';
   let jaiVersionOutput = '';
