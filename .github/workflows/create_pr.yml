@@ -24,7 +24,9 @@ jobs:
             // console.log(issue);
 
             const regex = /(?:\[SB\]): (.{10,})/gmi;
-            const title_text = [...issue.title.matchAll(regex)];
+            const match = [...issue.title.matchAll(regex)][0] || [];
+            const title_text = match[1]; // maybe undefined
             console.log(1, title_text);
-            console.log(2, title_text[0]);
-            console.log(3, (title_text[0] || '')[1] || '');
+            console.log(2, match);
+            if (title_text === undefined) return;
+            console.log(3, title_text);
