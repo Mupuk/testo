@@ -76,7 +76,7 @@ Closes: #{issue_number}
 
 {workaround}
 
-## Short Code Snipped
+## Short Code Snippet
 #### Please put your code to reproduce the bug here. Only use it if it is a short bug(one file).
 
 \`\`\`c

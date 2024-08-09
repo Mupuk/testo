@@ -11,14 +11,14 @@
 # [x] PR and issue template (issue: i will make pr checkbox)
 # [x] parse description
 # [x] parse and add not emailed tag (also remove it on emiledin)
-# [x] parse code snipped if single file
+# [x] parse code snippet if single file
 # [x] parse code description if single file
 # [~] jai dropdown and parsing of older version
 # [x] automated PR for single file 
 # [x] JonSaid add date
-# [ ] make issue/pr mention use link instead of message?
-# [ ] update tracker template
+# [ ] close PR update to parse the things
 # [ ] rethink needed fields in depth
+# [ ] make issue/pr mention use link instead of message?
 # [ ] issue name (clasification only) from PR name or classification dropdown?
 
 # [x] Auto run Testsuit on push

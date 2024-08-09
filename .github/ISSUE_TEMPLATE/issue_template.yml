@@ -59,7 +59,7 @@ body:
   - type: textarea
     id: bug_snippet
     attributes:
-      label: Short Code Snipped
+      label: Short Code Snippet
       placeholder: Please put your code to reproduce the bug here.
       description: Please put your code to reproduce the bug here.
       render: c
