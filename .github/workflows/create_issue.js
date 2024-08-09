@@ -1,5 +1,5 @@
 const createIssue = async ({github, context, labelName}) => {
-  const { jaiVersion: get_jai_version } = require('./.github/workflows/utils.js');
+  const { jaiVersion: get_jai_version } = require('./utils.js');
   
   const currentJaiVersion = await get_jai_version();
   const date = new Date().toISOString().split('T')[0];

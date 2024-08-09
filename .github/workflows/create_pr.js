@@ -1,5 +1,5 @@
 const createPr = async ({github, context}) => {
-  const { format, parseIssueBody, prTemplate: pull_request_template } = require('./.github/workflows/utils.js');
+  const { format, parseIssueBody, prTemplate: pull_request_template } = require('./utils.js');
 
   // Get issue
   const { data: issue } = await github.rest.issues.get({
