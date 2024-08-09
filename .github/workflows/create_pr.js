@@ -148,6 +148,20 @@ const createPr = async ({github, context}) => {
     body: prBody
   });
 
+  // Merge the pull request
+  await github.rest.pulls.merge({
+    ...context.repo,
+    pull_number: pr.number,
+    commit_title: `Merging PR #${pr.number} - ${prTitle}`,
+    merge_method: 'squash' // Options: 'merge', 'squash', 'rebase'
+  });
+
+  // Delete the feature branch after merge
+  await github.rest.git.deleteRef({
+    ...context.repo,
+    ref: `heads/${branchName}`
+  });
+
 }
 
 module.exports = createPr;
