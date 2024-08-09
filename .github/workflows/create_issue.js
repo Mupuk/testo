@@ -26,7 +26,7 @@ Workarounds:
 
 function parsePrBody(text) {
   // match all checkbox values from the 3. checkbox onwards
-  const reg_emailed_in = /(?<=(?:- \[[ X]\] .*\s){2})- \[([ X])\] /igm;
+  const reg_emailed_in = /(?<=(?:- \[[ X]\] .*\s){2})- \[([ X])\] /im;
 
   // match ### Bug Type followed by ####, capture all following lines until ###
   const reg_bug_type = /(?<=^### Bug Type[\s\S]*####[\s\S]*$\s)([\s\S]*?)\s###/im;
