@@ -24,9 +24,21 @@ const decrementVersionString = (version) =>  {
 const bugSuit = async ({github, context, exec, io}) => {
   const path = require('path');
 
+  // Jai Version
   const { jaiVersion: get_jai_version } = require('./utils.js');
   let currentVersion = await get_jai_version({ exec });
   console.log('current version', currentVersion);
+
+  // Get old state of test results
+  let old_test_results = {};
+  const fs = require('fs');
+  try {
+    const data = fs.readFileSync('test_results.json', 'utf8');
+    old_test_results = JSON.parse(data);
+  } catch (err) {
+      console.error("Error reading file:", err);
+  }
+  console.log(old_test_results);
 
   let compiler_path = await io.which('jai'); // we start with the current one
   await exec.exec(`${compiler_path} bug_suit.jai`);
@@ -42,16 +54,16 @@ const bugSuit = async ({github, context, exec, io}) => {
   await exec.exec(`${compiler_path} bug_suit.jai`);
 
 
-  
-  let content = {};
+  // Get new test results
+  let new_test_results = {};
   const fs = require('fs');
   try {
     const data = fs.readFileSync('test_results.json', 'utf8');
-    content = JSON.parse(data);
+    new_test_results = JSON.parse(data);
   } catch (err) {
       console.error("Error reading file:", err);
   }
-  console.log(content);
+  console.log(new_test_results);
 };
 
 module.exports = bugSuit;
