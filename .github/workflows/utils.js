@@ -47,44 +47,7 @@ function format(template, params) {
   return template.replace(/\{(.*?)}/g, (match, p1) => params[p1.trim()] || '');
 }
 
-const pull_request_template = `
-## General
-
-- [x] I've looked for similar bugs
-- [x] This bug fits into a single file
-- [{already_reported}] I've already reported the bug to Jon
-
-## Related Issues
-Closes: #{issue_number}
-
-## Bug Type
-#### What type of bug is this? Delete the others.
-- {bug_type}
-
-## Categorization
-#### What category does this bug belong to the most / What feature triggered the bug? Delete the others.
-- {categories}
-
-## Bug Description
-#### Please fill this out if it is a more complicated bug.
-
-{description}
-
-## Workaround
-#### If you have a workaround, please share it here.
-
-{workaround}
-
-## Short Code Snippet
-#### Please put your code to reproduce the bug here. Only use it if it is a short bug(one file).
-
-\`\`\`c
-{code}
-\`\`\`
-`
-
 module.exports = {
   jaiVersion,
-  prTemplate: pull_request_template,
   format
 }

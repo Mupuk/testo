@@ -49,7 +49,7 @@ function parsePrBody(text) {
 }
 
 const createIssue = async ({github, context}) => {
-  const { jaiVersion: get_jai_version, format, prTemplate } = require('./utils.js');
+  const { jaiVersion: get_jai_version, format } = require('./utils.js');
   const currentVersion = await get_jai_version();
   
   const currentJaiVersion = await get_jai_version();
