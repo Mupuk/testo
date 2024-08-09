@@ -67,13 +67,18 @@ const bugSuit = async ({github, context, exec, io}) => {
   } catch (err) {
       console.error("Error reading file:", err);
   }
-  console.log(new_test_results);
 
-  const versionsObject = new_test_results.reduce((acc, item) => {
+  // make test results available via version
+  const oldVersionsObject = old_test_results.reduce((acc, item) => {
     acc[item.version] = item;
     return acc;
   }, {});
-  console.log(versionsObject);
+  const newVersionsObject = new_test_results.reduce((acc, item) => {
+    acc[item.version] = item;
+    return acc;
+  }, {});
+  
+  console.log(oldVersionsObject);
 };
 
 module.exports = bugSuit;
