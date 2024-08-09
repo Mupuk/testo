@@ -77,8 +77,9 @@ const bugSuit = async ({github, context, exec, io}) => {
     acc[item.version] = item;
     return acc;
   }, {});
-  
+
   console.log(oldVersionsObject);
+  console.log(newVersionsObject);
 };
 
 module.exports = bugSuit;
