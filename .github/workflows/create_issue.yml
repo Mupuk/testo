@@ -23,7 +23,7 @@
 
 # [x] Auto run Testsuit on push
 # [x] create test result json
-# [ ] run for past 3-5 jai versions
+# [x] run for past 3-5 jai versions
 # [ ] Update issue on test results
 #     [ ] change state, dates, labels
 #     [ ] how to map name to issue number? maybe we DO need an id
