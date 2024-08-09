@@ -148,18 +148,16 @@ const createPr = async ({github, context}) => {
     body: prBody
   });
 
-  // Merge the pull request
-  await github.rest.pulls.merge({
-    ...context.repo,
-    pull_number: pr.number,
-    commit_title: `Merging PR #${pr.number} - ${prTitle}`,
-    merge_method: 'squash' // Options: 'merge', 'squash', 'rebase'
-  });
+  // get current jai version
+  const { createCurrentVersionLabel } = require('./create_label.js');
+  const jai_version = await createCurrentVersionLabel({github, context});
 
-  // Delete the feature branch after merge
-  await github.rest.git.deleteRef({
-    ...context.repo,
-    ref: `heads/${branchName}`
+  // Add labels
+  await github.rest.issues.addLabels({
+    owner: context.repo.owner,
+    repo: context.repo.repo,
+    issue_number: context.issue.number,
+    labels: [ jai_version ]
   });
 
 }

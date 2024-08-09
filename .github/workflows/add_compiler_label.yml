@@ -1,8 +1,6 @@
 name: Add Compiler Label on Issue/PR create
 
 on:
-  issues:
-    types: [opened]
   pull_request:
     types: [opened]
   
@@ -19,8 +17,6 @@ jobs:
       uses: actions/github-script@v7
       with:
         script: |
-          console.log(context.payload);
-
           // get current jai version
           const { createCurrentVersionLabel } = require('./.github/workflows/create_label.js');
           const jai_version = await createCurrentVersionLabel({github, context});
