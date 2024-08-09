@@ -21,9 +21,9 @@ jobs:
               repo: context.repo.repo,
               issue_number: context.issue.number
             });
-            console.log(issue);
+            // console.log(issue);
 
-            const regex = /\[SB\]: (.{5,})/gm;
+            const regex = /(?i:\[SB\]): (.{10,})/gm;
             const title_text = [...issue.title.matchAll(regex)];
             console.log(1, title_text);
             console.log(2, title_text[0]);
