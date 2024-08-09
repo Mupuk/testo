@@ -47,16 +47,15 @@ const bugSuit = async ({github, context, exec, io}) => {
 
   const options = {silent: true};
   let compiler_path = await io.which('jai'); // we start with the current one
+  const extension = path.extname(compiler_path);
   await exec.exec(`${compiler_path} bug_suit.jai`, [], options);
 
   currentVersion = decrementVersionString(currentVersion);
-  let extension = path.extname(compiler_path);
   compiler_path = path.resolve(compiler_path, '..', '..', '..', `jai-${currentVersion}/bin`) + `${path.sep}jai${extension}`;
-  console.log('comppath', compiler_path)
   await exec.exec(`${compiler_path} bug_suit.jai`, [], options);
 
   currentVersion = decrementVersionString(currentVersion);
-  compiler_path = 'c:/' + `jai-${currentVersion}/bin/jai`;
+  compiler_path = path.resolve(compiler_path, '..', '..', '..', `jai-${currentVersion}/bin`) + `${path.sep}jai${extension}`;
   await exec.exec(`${compiler_path} bug_suit.jai`, [], options);
 
 
@@ -70,10 +69,11 @@ const bugSuit = async ({github, context, exec, io}) => {
   }
   console.log(new_test_results);
 
-  console.log('accu', new_test_results.reduce((acc, item) => {
-    acc[item.v] = item;
+  const versionsObject = new_test_results.reduce((acc, item) => {
+    acc[item.version] = item;
     return acc;
-  }, {}));
+  }, {});
+  console.log(versionsObject);
 };
 
 module.exports = bugSuit;
