@@ -124,22 +124,33 @@ const createPr = async ({github, context}) => {
     branch: branchName
   });
 
+  // not sure if we should convert it to PR or create new PR
+
   // Create a pull request
   const { data: pr } = await github.rest.pulls.create({
     ...context.repo,
-    // title: prTitle,
+    title: prTitle,
     head: branchName,
     base: baseBranch,
-    // body: prBody,
-    issue: context.issue.number
+    body: prBody,
   });
 
+  // // Create a pull request
+  // const { data: pr } = await github.rest.pulls.create({
+  //   ...context.repo,
+  //   // title: prTitle,
+  //   head: branchName,
+  //   base: baseBranch,
+  //   // body: prBody,
+  //   issue: context.issue.number
+  // });
 
-  await github.rest.issues.createComment({
-    ...context.repo,
-    issue_number: context.issue.number,
-    body: `👋 Thanks for the contribution, please continue further discussion on this matter here: ${pr.html_url}!`
-  })
+
+  // await github.rest.issues.createComment({
+  //   ...context.repo,
+  //   issue_number: context.issue.number,
+  //   body: `👋 Thanks for the contribution, please continue further discussion on this matter here: ${pr.html_url}!`
+  // })
 
   await github.rest.issues.lock({
     ...context.repo,
