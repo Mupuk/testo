@@ -29,7 +29,7 @@ const createIssue = async ({github, context, exec, io}) => {
   console.log(test);
 
   const { jaiVersion: get_jai_version } = require('./utils.js');
-  let currentVersion = await get_jai_version();
+  let currentVersion = await get_jai_version({ exec });
 
   let compiler_path = 'jai'; // we start with the current one
   await exec.exec(`${compiler_path} bug_suit.jai`);
