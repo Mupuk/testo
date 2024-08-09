@@ -104,6 +104,11 @@ const createPr = async ({github, context}) => {
     body: `👋 Thanks for the contribution, please continue further discussion on this matter here: ${pr.html_url}!`
   })
 
+  await github.rest.issues.lock({
+    ...context.repo,
+    issue_number: context.issue.number,
+  })
+
   // await github.rest.issues.update({
   //   ...context.repo,
   //   issue_number: context.issue.number,
