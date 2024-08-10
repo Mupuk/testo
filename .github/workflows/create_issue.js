@@ -50,9 +50,8 @@ function parsePrBody(text) {
 
 const createIssue = async ({github, context, exec}) => {
   const { jaiVersion: get_jai_version, format } = require('./utils.js');
-  const currentVersion = await get_jai_version();
+  const currentVersion = await get_jai_version({ exec });
   
-  const currentJaiVersion = await get_jai_version({ exec });
   const date = new Date().toISOString().split('T')[0];
   const prNumber = context.payload.pull_request.number;
   const prTitle = context.payload.pull_request.title;
@@ -84,7 +83,7 @@ const createIssue = async ({github, context, exec}) => {
     owner: context.repo.owner,
     repo: context.repo.repo,
     issue_number: issue.number,
-    labels: [ currentJaiVersion ]
+    labels: [ currentVersion ]
   });
 
   await github.rest.issues.createComment({

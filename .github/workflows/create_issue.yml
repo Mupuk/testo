@@ -18,6 +18,7 @@
 # [x] automated PR for single file 
 # [x] JonSaid add date
 # [x] close PR update to parse the things
+# [ ] issue mention not working after PR create
 # [ ] assign original owner to issue tracker
 # [ ] commit the test_result.json, is there any other way around that? we just 
     # use it to track new issues. Maybe we could check the issues history of the test
