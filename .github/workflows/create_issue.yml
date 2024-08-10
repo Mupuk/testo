@@ -24,9 +24,11 @@
 # [x] Auto run Testsuit on push
 # [x] create test result json
 # [x] run for past 3-5 jai versions
+# [ ] new issure tracker design
 # [ ] Update issue on test results
 #     [ ] change state, dates, labels
 #     [ ] how to map name to issue number? maybe we DO need an id
+# [ ] summary tracker design
 # [ ] Update summary on test results
 #     [ ] link issue number
 #     [ ] foldable source code if single file, otherwise link
