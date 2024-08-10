@@ -18,6 +18,7 @@
 # [x] automated PR for single file 
 # [x] JonSaid add date
 # [x] close PR update to parse the things
+# [ ] assign original owner to issue tracker
 # [ ] rethink needed fields in depth
 # [ ] make issue/pr mention use link instead of message?
 # [ ] issue name (clasification only) from PR name or classification dropdown?
