@@ -1,4 +1,5 @@
 # [ ] cross platform support
+# [ ] add unsure if bug stuff?
 
 # [~] Create Label on Issue, PR, and (??test suit??) if not exist
 # [x] Add label on Issue/PR create
@@ -24,6 +25,7 @@
 # [x] Auto run Testsuit on push
 # [x] create test result json
 # [x] run for past 3-5 jai versions
+# [x] gather all test date, get it inot actions and do comparisons
 # [ ] new issure tracker design
 # [ ] Update issue on test results
 #     [ ] change state, dates, labels
@@ -36,7 +38,7 @@
 #         or reopen compiler version (!= last encounter, maybe change that?)
 #     [ ] column ordering?
 #     [ ] recently fixed section (last 2 compiler versions?)
-# [ ] Auto run testsuit on approval of PR to check it actually crashes?
+# [ ] Auto run testsuit on approval of PR to check it actually crashes
 
 name: Create Issue on PR Merge
 
