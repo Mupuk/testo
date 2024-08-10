@@ -18,6 +18,8 @@
 # [x] automated PR for single file 
 # [x] JonSaid add date
 # [x] close PR update to parse the things
+# [ ] add broken platform info
+# [ ] label colors
 # [ ] issue mention not working after PR create
 # [ ] assign original owner to issue tracker
 # [ ] commit the test_result.json, is there any other way around that? we just 
