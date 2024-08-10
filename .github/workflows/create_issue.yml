@@ -19,6 +19,13 @@
 # [x] JonSaid add date
 # [x] close PR update to parse the things
 # [ ] assign original owner to issue tracker
+# [ ] commit the test_result.json, is there any other way around that? we just 
+    # use it to track new issues. Maybe we could check the issues history of the test
+    # and do the things we need to do, when we see it doesnt have any entries?
+# [ ] rename PR file to new issue number, so we know which file belongs to what issue
+    # make sure it checks if it is a directory. Not sure how well we can handle that case
+    # in confidently doing the right thing. If it is just a single file in the commit we know
+    # that is the bug.
 # [ ] rethink needed fields in depth
 # [ ] make issue/pr mention use link instead of message?
 # [ ] issue name (clasification only) from PR name or classification dropdown?
