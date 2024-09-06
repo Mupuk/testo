@@ -2,8 +2,8 @@ name: Create automatic PR from issue
 
 on:
   workflow_dispatch: # Manual trigger
-  # issues:
-  #   types: [opened, edited]
+  issues:
+    types: [opened, edited] #@todo remove edited
 
 jobs:
   create_pr:

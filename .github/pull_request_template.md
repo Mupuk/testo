@@ -7,11 +7,11 @@
 ### Related Issues
 Closes: 
 
-### Bug Type
-#### What type of bug is this? Delete the others.
-- Runtime (leaks, weird behaviour etc)
-- Compiletime (smth doesn't compile altough it should, etc)
-- Compiler Crash (outside compile-time execution crash)
+### Expected Error Code
+#### What error code is expected to pass the test?
+- 0 (Default)
+- 1 (Error)
+- 3 (Internal Compiler Crash)
 
 ### Categorization
 #### What category does this bug belong to the most / What feature triggered the bug? Delete the others.

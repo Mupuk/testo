@@ -5,9 +5,6 @@ const issueTrackerTemplate = `
 | :---: | :---: | :---: | :---: | :---: | :---: | :---: | :---: |
 | Open | {already_reported} | {firstEncounter} | {firstEncounterVersion} | {lastEncounter} | {lastEncounterVersion} | - | - |
 
-Bug Type:
-{bug_type}
-
 Description:
 {description}
 
@@ -28,8 +25,7 @@ function parsePrBody(text) {
   // match all checkbox values from the 3. checkbox onwards
   const regexEmailedIn = /(?<=(?:- \[[ X]\] .*\s){2})- \[([ X])\] /im;
 
-  // match ### Bug Type followed by ####, capture all following lines until ###
-  const regexBugType = /(?<=^### Bug Type[\s\S]*####[\s\S]*$\s)([\s\S]*?)\s###/im;
+  // match ### Category followed by ####, capture all following lines until ###
   const regexCategory = /(?<=^### Category[\s\S]*####[\s\S]*$\s)([\s\S]*?)\s###/im;
   const regexDescription = /(?<=^### Bug Desc[\s\S]*####[\s\S]*$\s)([\s\S]*?)\s###/im;
   const regexWorkaround = /(?<=^### Workaround[\s\S]*####[\s\S]*$\s)([\s\S]*?)\s###/im;
@@ -38,7 +34,6 @@ function parsePrBody(text) {
   let parsedData = {
     already_reported: (text.match(regexEmailedIn)?.[1] || ' ').toLowerCase() === 'x'  ? '✅' : '❌',
     issue_number: '',
-    bug_type: text.match(regexBugType)?.[1] || '-',
     categories: text.match(regexCategory)?.[1] || '-',
     description: text.match(regexDescription)?.[1] || '-',
     workaround: text.match(regexWorkaround)?.[1] || '-',
@@ -58,7 +53,7 @@ const createTrackingIssueOnPRMerge = async ({github, context, exec}) => {
   const prBody = context.payload.pull_request.body;
 
   const parsedBody = parsePrBody(prBody);
-  parsedBody.firstEncounter = date;// this is just thre first reported date, even if bug itself is older
+  parsedBody.firstEncounter = date;// this is just the first reported date, even if bug itself is older
   parsedBody.firstEncounterVersion = currentVersion; //could get reset by test to an even later version
   parsedBody.lastEncounter = date;
   parsedBody.lastEncounterVersion = currentVersion;

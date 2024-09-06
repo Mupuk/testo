@@ -8,9 +8,9 @@ const pullRequestTemplate = `
 ### Related Issues
 Closes: #{issue_number}
 
-### Bug Type
-#### What type of bug is this? Delete the others.
-- {bug_type}
+### Expected Error Code
+#### What error code is expected to pass the test?
+- {expected_error_code}
 
 ### Categorization
 #### What category does this bug belong to the most / What feature triggered the bug? Delete the others.
@@ -77,18 +77,18 @@ const createPRFromSBIssue = async ({github, context, exec}) => {
     issue_number: context.issue.number
   });
 
-  // Get title text
+  // Check that its a SB
   const regex = /(?:\[SB\]): (.{5,})/gmi;
   const match = [...issue.title.matchAll(regex)][0] || [];
   const titleText = match[1]; // maybe undefined
-  if (titleText === undefined) return;
+  if (titleText === undefined) return; // It's a different issue, ignore
 
   const parsedBody = parseIssueBody(issue.body);
 
   const params = {
     already_reported: parsedBody?.[0]?.[2]?.checked ? 'X' : ' ',
     issue_number: context.issue.number,
-    bug_type: parsedBody[1],
+    expected_error_code: parsedBody[1],
     categories: parsedBody[2],
     description: parsedBody[3],
     workaround: parsedBody[4],
@@ -98,7 +98,7 @@ const createPRFromSBIssue = async ({github, context, exec}) => {
   const branchName = `issue-${context.issue.number}`;
   const baseBranch = 'master';
   const prTitle = issue.title;
-  const fileName = `deleteme-${context.issue.number}.jai`;
+  const fileName = `compiler_bugs/EC${Number.parseInt(parsedBody[1])}_${context.issue.number}.jai`;
   const fileContent = Buffer.from(parsedBody[5]).toString('base64');
 
   const prBody = format(pullRequestTemplate, params);
@@ -151,7 +151,7 @@ const createPRFromSBIssue = async ({github, context, exec}) => {
   //   body: `👋 Thanks for the contribution, please continue further discussion on this matter here: ${pr.html_url}!`
   // })
 
-  // Not sure if we should close or lock it
+  // Not sure if we should close or lock the original issue
   await github.rest.issues.lock({
     ...context.repo,
     issue_number: context.issue.number,
@@ -169,6 +169,7 @@ const createPRFromSBIssue = async ({github, context, exec}) => {
   const jaiVersion = await createCurrentCompilerVersionLabel({github, context, exec});
 
   // Add labels
+  // @todo add other labels for classification
   await github.rest.issues.addLabels({
     ...context.repo,
     issue_number: context.issue.number,
