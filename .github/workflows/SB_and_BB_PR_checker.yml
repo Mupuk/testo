@@ -1,9 +1,9 @@
 name: Run Test Suit
 
 on:
-  pull_request:
-    types: [opened, edited] # uncomment pr merge below
   workflow_dispatch: # Manual trigger
+  # pull_request:
+  #   types: [opened, edited]
 
 jobs:
   run_test_suit:

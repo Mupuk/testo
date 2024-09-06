@@ -275,15 +275,15 @@ Test_Result_Set :: struct {
     }
   }
 
-  // if not yet 5 results, add it
-  if test_result_sets.count < 3 
-  {
-    array_add(*test_result_sets, current_result_set);
-  }
   // version already exists, replace it
-  else if same_version_index != -1
+  if same_version_index != -1
   {
     test_result_sets[same_version_index] = current_result_set;
+  }
+  // if not yet 5 results, add it
+  else if test_result_sets.count < 3 
+  {
+    array_add(*test_result_sets, current_result_set);
   }
   // new version, replace the oldest version
   else if smallest_version_index != -1

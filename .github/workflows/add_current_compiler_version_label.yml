@@ -1,10 +1,11 @@
 name: Add current Compiler Version Label to Issue/PR
 
 on:
-  pull_request:
-    types: [opened]
-  issues:
-    types: [opened, edited]
+  workflow_dispatch: # Manual trigger
+  # pull_request:
+  #   types: [opened]
+  # issues:
+  #   types: [opened, edited]
   
 
 jobs:

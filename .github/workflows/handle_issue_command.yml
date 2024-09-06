@@ -1,8 +1,9 @@
 name: Handle Issue Commands
 
 on:
-  issue_comment:
-    types: [created, edited]
+  workflow_dispatch: # Manual trigger
+  # issue_comment:
+  #   types: [created, edited]
 
 jobs:
   handle_issue_comment:

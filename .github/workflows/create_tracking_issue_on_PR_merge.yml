@@ -57,11 +57,8 @@ name: Create Issue on PR Merge
 
 on:
   workflow_dispatch: # Manual trigger
-  # push:
-  #   branches:
-  #     - master
-  pull_request:
-    types: [closed, edited] # uncomment pr merge below
+  # pull_request:
+  #   types: [closed, edited] # uncomment pr merge below
 
 jobs:  
   create_issue:
