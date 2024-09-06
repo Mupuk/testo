@@ -1,7 +1,7 @@
 # [ ] cross platform support
 # [ ] add unsure if bug stuff?
 
-# [~] Create Label on Issue, PR, and (??test suit??) if not exist
+# [x] Create Label on Issue, PR, and (??test suit??) if not exist
 # [x] Add label on Issue/PR create
 # [x] Jai Version Task
 # [x] refactor to share js files
@@ -18,6 +18,7 @@
 # [x] automated PR for single file 
 # [x] JonSaid add date
 # [x] close PR update to parse the things
+# [ ] SB_and_BB_PR_checker
 # [ ] add broken platform info
 # [ ] label colors
 # [ ] issue mention not working after PR create
@@ -39,7 +40,7 @@
 # [x] create test result json
 # [x] run for past 3-5 jai versions
 # [x] gather all test date, get it inot actions and do comparisons
-# [ ] new issure tracker design
+# [x] new issure tracker design
 # [ ] Update issue on test results
 #     [ ] change state, dates, labels
 #     [ ] how to map name to issue number? maybe we DO need an id
