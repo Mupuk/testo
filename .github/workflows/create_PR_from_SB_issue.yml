@@ -3,7 +3,7 @@ name: Create automatic PR from SB issue
 on:
   workflow_dispatch: # Manual trigger
   issues:
-    types: [opened, edited] #@todo remove edited
+    types: [opened]
 
 jobs:
   create_pr_from_sb_issue:
