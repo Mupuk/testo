@@ -2,8 +2,8 @@ name: Run Test Suit
 
 on:
   workflow_dispatch: # Manual trigger
-  # pull_request:
-  #   types: [opened, edited]
+  pull_request:
+    types: [opened, edited]
 
 jobs:
   run_test_suit:
