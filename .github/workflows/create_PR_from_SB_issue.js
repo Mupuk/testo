@@ -69,7 +69,6 @@ function parseIssueBody(text) {
 }
 
 const createPRFromSBIssue = async ({github, context, exec}) => {
-  const { createLabels } = require('./create_label.js');
   const { format } = require('./utils.js');
 
   // Get issue
@@ -77,8 +76,6 @@ const createPRFromSBIssue = async ({github, context, exec}) => {
     ...context.repo,
     issue_number: context.issue.number
   });
-
-  createLabels({github, context, labelNames: ['blub1', 'blub2', 'blub3']});
 
   // Check that its a SB
   const regex = /\[SB\]:(.+)/gmi;
@@ -168,10 +165,9 @@ const createPRFromSBIssue = async ({github, context, exec}) => {
   //   state_reason: 'completed'
   // })
 
-  // get current jai version
-  // const jaiVersion = await createCurrentCompilerVersionLabel({github, context, exec});
-
+  
   // Create Labels if they dont exist
+  const { createLabels } = require('./create_label.js');
   const categoryLabels = params.categories.split(', ');
   // No clue why it gives me error 422 but still works as expected.
   try {
