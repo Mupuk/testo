@@ -18,6 +18,7 @@ const createLabels = async ({ github, context, labelNames }) => {
 
     // If the label doesn't exist, create it
     if (!labelExists) {
+      console.log("creating: ", labelName);
       await github.rest.issues.createLabel({
         owner: context.repo.owner,
         repo: context.repo.repo,
