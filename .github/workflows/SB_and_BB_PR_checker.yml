@@ -1,4 +1,4 @@
-name: Run Test Suit
+name: Small/Big PR Checker
 
 on:
   workflow_dispatch: # Manual trigger
@@ -6,7 +6,7 @@ on:
     types: [opened, edited]
 
 jobs:
-  run_test_suit:
+  sb_bb_pr_checker:
     runs-on: [self-hosted, windows]
 
     steps:
