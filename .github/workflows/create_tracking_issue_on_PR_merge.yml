@@ -76,6 +76,6 @@ jobs:
       # if: github.event.pull_request.merged == true
       with:
         script: |
-          const create_tracking_issue_on_PR_merge = require('./.github/workflows/create_issue.js');
-          await create_tracking_issue_on_PR_merge({github, context, exec});
+          const createTrackingIssueOnPRMerge = require('./.github/workflows/create_tracking_issue_on_PR_merge.js');
+          await createTrackingIssueOnPRMerge({github, context, exec});
           

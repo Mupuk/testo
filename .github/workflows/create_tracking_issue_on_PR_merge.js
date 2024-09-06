@@ -26,45 +26,45 @@ Workarounds:
 
 function parsePrBody(text) {
   // match all checkbox values from the 3. checkbox onwards
-  const reg_emailed_in = /(?<=(?:- \[[ X]\] .*\s){2})- \[([ X])\] /im;
+  const regexEmailedIn = /(?<=(?:- \[[ X]\] .*\s){2})- \[([ X])\] /im;
 
   // match ### Bug Type followed by ####, capture all following lines until ###
-  const reg_bug_type = /(?<=^### Bug Type[\s\S]*####[\s\S]*$\s)([\s\S]*?)\s###/im;
-  const reg_category = /(?<=^### Category[\s\S]*####[\s\S]*$\s)([\s\S]*?)\s###/im;
-  const reg_description = /(?<=^### Bug Desc[\s\S]*####[\s\S]*$\s)([\s\S]*?)\s###/im;
-  const reg_workaround = /(?<=^### Workaround[\s\S]*####[\s\S]*$\s)([\s\S]*?)\s###/im;
-  const reg_code = /(?<=^### Short Code[\s\S]*####[\s\S]*$\s[\s\S]*```c\s)([\s\S]*?)\s```/im
+  const regexBugType = /(?<=^### Bug Type[\s\S]*####[\s\S]*$\s)([\s\S]*?)\s###/im;
+  const regexCategory = /(?<=^### Category[\s\S]*####[\s\S]*$\s)([\s\S]*?)\s###/im;
+  const regexDescription = /(?<=^### Bug Desc[\s\S]*####[\s\S]*$\s)([\s\S]*?)\s###/im;
+  const regexWorkaround = /(?<=^### Workaround[\s\S]*####[\s\S]*$\s)([\s\S]*?)\s###/im;
+  const regexCode = /(?<=^### Short Code[\s\S]*####[\s\S]*$\s[\s\S]*```c\s)([\s\S]*?)\s```/im
 
   let parsedData = {
-    already_reported: (text.match(reg_emailed_in)?.[1] || ' ').toLowerCase() === 'x'  ? '✅' : '❌',
+    already_reported: (text.match(regexEmailedIn)?.[1] || ' ').toLowerCase() === 'x'  ? '✅' : '❌',
     issue_number: '',
-    bug_type: text.match(reg_bug_type)?.[1] || '-',
-    categories: text.match(reg_category)?.[1] || '-',
-    description: text.match(reg_description)?.[1] || '-',
-    workaround: text.match(reg_workaround)?.[1] || '-',
-    code: text.match(reg_code)?.[1] || '-'
+    bug_type: text.match(regexBugType)?.[1] || '-',
+    categories: text.match(regexCategory)?.[1] || '-',
+    description: text.match(regexDescription)?.[1] || '-',
+    workaround: text.match(regexWorkaround)?.[1] || '-',
+    code: text.match(regexCode)?.[1] || '-'
   }
 
   return parsedData;
 }
 
-const create_tracking_issue_on_PR_merge = async ({github, context, exec}) => {
-  const { jaiVersion: get_jai_version, format } = require('./utils.js');
-  const currentVersion = await get_jai_version({ exec });
+const createTrackingIssueOnPRMerge = async ({github, context, exec}) => {
+  const { jaiVersion: getJaiVersion, format } = require('./utils.js');
+  const currentVersion = await getJaiVersion({ exec });
   
   const date = new Date().toISOString().split('T')[0];
   const prNumber = context.payload.pull_request.number;
   const prTitle = context.payload.pull_request.title;
   const prBody = context.payload.pull_request.body;
 
-  const parsed_body = parsePrBody(prBody);
-  parsed_body.firstEncounter = date;// this is just thre first reported date, even if bug itself is older
-  parsed_body.firstEncounterVersion = currentVersion; //could get reset by test to an even later version
-  parsed_body.lastEncounter = date;
-  parsed_body.lastEncounterVersion = currentVersion;
+  const parsedBody = parsePrBody(prBody);
+  parsedBody.firstEncounter = date;// this is just thre first reported date, even if bug itself is older
+  parsedBody.firstEncounterVersion = currentVersion; //could get reset by test to an even later version
+  parsedBody.lastEncounter = date;
+  parsedBody.lastEncounterVersion = currentVersion;
 
   const issueTitle = `${prTitle}`;
-  const issueBody = format(issueTrackerTemplate, parsed_body);
+  const issueBody = format(issueTrackerTemplate, parsedBody);
 
   // Create Tracking Issue
   const { data: issue } = await github.rest.issues.create({
@@ -94,4 +94,4 @@ const create_tracking_issue_on_PR_merge = async ({github, context, exec}) => {
   })
 }
 
-module.exports = create_tracking_issue_on_PR_merge;
+module.exports = createTrackingIssueOnPRMerge;

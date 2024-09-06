@@ -16,7 +16,7 @@ jobs:
         uses: actions/github-script@v7
         with:
           script: |
-            const create_PR_from_SB_issue = require('./.github/workflows/create_pr.js');
-            await create_PR_from_SB_issue({github, context, exec});
+            const createPRFromSBIssue = require('./.github/workflows/create_PR_from_SB_issue.js');
+            await createPRFromSBIssue({github, context, exec});
 
 

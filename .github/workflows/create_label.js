@@ -17,14 +17,14 @@ const createLabel = async ({github, context, labelName}) => {
   }
 }
 
-const createCurrentVersionLabel = async ({github, context, exec}) => {
-  const { jaiVersion: get_jai_version } = require('./utils.js');
-  const jai_version = await get_jai_version({ exec });
-  await createLabel({github, context, labelName: jai_version});
-  return jai_version;
+const createCurrentCompilerVersionLabel = async ({github, context, exec}) => {
+  const { jaiVersion: getJaiVersion } = require('./utils.js');
+  const jaiVersion = await getJaiVersion({ exec });
+  await createLabel({github, context, labelName: jaiVersion});
+  return jaiVersion;
 }
 
 module.exports = {
   createLabel,
-  createCurrentVersionLabel
+  createCurrentCompilerVersionLabel
 };

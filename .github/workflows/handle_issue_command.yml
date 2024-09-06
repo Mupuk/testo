@@ -1,4 +1,4 @@
-name: Handle Issue Comment
+name: Handle Issue Commands
 
 on:
   issue_comment:

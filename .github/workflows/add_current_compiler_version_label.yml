@@ -1,4 +1,4 @@
-name: Add Compiler Label on Issue/PR create
+name: Add current Compiler Version Label to Issue/PR
 
 on:
   pull_request:
@@ -19,13 +19,14 @@ jobs:
       uses: actions/github-script@v7
       with:
         script: |
-          // get current jai version
-          const { createCurrentVersionLabel } = require('./.github/workflows/create_label.js');
-          const jai_version = await createCurrentVersionLabel({github, context, exec});
+          // create current version label if not exists
+          const { createCurrentCompilerVersionLabel } = require('./.github/workflows/create_label.js');
+          const jaiVersion = await createCurrentCompilerVersionLabel({github, context, exec});
 
+          // add label to issue
           await github.rest.issues.addLabels({
             owner: context.repo.owner,
             repo: context.repo.repo,
             issue_number: context.issue.number,
-            labels: [ jai_version ]
+            labels: [ jaiVersion ]
           });

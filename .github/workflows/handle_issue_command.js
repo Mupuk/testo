@@ -66,10 +66,10 @@ const handleJonSaid = async ({ github, context, comment }) => {
   // Extract the date part (YYYY-MM-DD)
   let date = time.split(',')[0];
 
-  const jon_said_body = comment.body.split(/!JonSaid\s?/i)[1];
-  if (jon_said_body.length <= 25) return;
+  const jonSaidBody = comment.body.split(/!JonSaid\s?/i)[1];
+  if (jonSaidBody.length <= 25) return;
 
-  const jon_said = `\n\n${date}\nJon said:\n\`\`\`\n` + jon_said_body + "\n```";
+  const jonSaid = `\n\n${date}\nJon said:\n\`\`\`\n` + jonSaidBody + "\n```";
 
   // Get old issue body
   const { data: issue } = await github.rest.issues.get({
@@ -78,7 +78,7 @@ const handleJonSaid = async ({ github, context, comment }) => {
     issue_number: context.issue.number
   });
 
-  const result = issue.body + jon_said;
+  const result = issue.body + jonSaid;
 
   // Update comment
   await github.rest.issues.update({

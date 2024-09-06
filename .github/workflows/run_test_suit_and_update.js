@@ -27,53 +27,53 @@ const decrementVersionString = (version, count = 1) => {
   return `${versionSplit[1]}${newMajor}.${newMinor}.${newMicro.toString().padStart(3, '0')}`
 }
 
-const run_test_suit_and_update = async ({ github, context, exec, io }) => {
+const runTestSuitAndUpdate = async ({ github, context, exec, io }) => {
   const path = require('path');
   const fs = require('fs');
 
   // Jai Version
-  const { isDeepEqual, jaiVersion: get_jai_version } = require('./utils.js');
-  const oriCurrentVersion = await get_jai_version({ exec });
+  const { isDeepEqual, jaiVersion: getJaiVersion } = require('./utils.js');
+  const oriCurrentVersion = await getJaiVersion({ exec });
   let currentVersion = oriCurrentVersion
 
   // Get old state of test results
-  let old_test_results = [];
+  let oldTestResults = [];
   try {
     const data = fs.readFileSync('test_results.json', 'utf8');
-    old_test_results = JSON.parse(data);
+    oldTestResults = JSON.parse(data);
   } catch (err) {
     console.error("Error reading file:", err);
   }
 
   console.log('Running for version:', currentVersion);
   const options = { silent: false };
-  let compiler_path = await io.which('jai'); // we start with the current one
-  const extension = path.extname(compiler_path);
-  await exec.exec(`${compiler_path} bug_suit.jai`, [], options);
+  let compilerPath = await io.which('jai'); // we start with the current one
+  const extension = path.extname(compilerPath);
+  await exec.exec(`${compilerPath} bug_suit.jai`, [], options);
 
 
   currentVersion = decrementVersionString(currentVersion);
   console.log('Running for version:', currentVersion);
-  compiler_path = path.resolve(compiler_path, '..', '..', '..', `jai-${currentVersion}/bin`) + `${path.sep}jai${extension}`;
-  await exec.exec(`${compiler_path} bug_suit.jai`, [], options);
+  compilerPath = path.resolve(compilerPath, '..', '..', '..', `jai-${currentVersion}/bin`) + `${path.sep}jai${extension}`;
+  await exec.exec(`${compilerPath} bug_suit.jai`, [], options);
 
   currentVersion = decrementVersionString(currentVersion);
   console.log('Running for version:', currentVersion);
-  compiler_path = path.resolve(compiler_path, '..', '..', '..', `jai-${currentVersion}/bin`) + `${path.sep}jai${extension}`;
-  await exec.exec(`${compiler_path} bug_suit.jai`, [], options);
+  compilerPath = path.resolve(compilerPath, '..', '..', '..', `jai-${currentVersion}/bin`) + `${path.sep}jai${extension}`;
+  await exec.exec(`${compilerPath} bug_suit.jai`, [], options);
 
 
   // Get new test results
-  let new_test_results = [];
+  let newTestResults = [];
   try {
     const data = fs.readFileSync('test_results.json', 'utf8');
-    new_test_results = JSON.parse(data);
+    newTestResults = JSON.parse(data);
   } catch (err) {
     console.error("Error reading file:", err);
   }
 
   // make test results available via version, and results via name
-  const oldVersionsObject = old_test_results.reduce((acc, item) => {
+  const oldVersionsObject = oldTestResults.reduce((acc, item) => {
     acc[item.version] = item;
     // also reduce the results
     acc[item.version].results = item.results.reduce((acc, item) => {
@@ -84,7 +84,7 @@ const run_test_suit_and_update = async ({ github, context, exec, io }) => {
     return acc;
   }, {});
 
-  const newVersionsObject = new_test_results.reduce((acc, item) => {
+  const newVersionsObject = newTestResults.reduce((acc, item) => {
     acc[item.version] = item;
     // also reduce the results
     acc[item.version].results = item.results.reduce((acc, item) => {
@@ -95,7 +95,7 @@ const run_test_suit_and_update = async ({ github, context, exec, io }) => {
     return acc;
   }, {});
 
-  console.log('new test res', new_test_results);
+  console.log('new test res', newTestResults);
   console.log('newVersionsObject', newVersionsObject);
 
   const ver = decrementVersionString(oriCurrentVersion, 1);
@@ -106,23 +106,23 @@ const run_test_suit_and_update = async ({ github, context, exec, io }) => {
   // dif with old state to get new tests. We take one older version, because the comparison version
   // has to exist. A new one doesnt exist in old log. Also we dont take the oldest, because
   // it could have been replaced by the latest one. Only leaves the middle as option.
-  const new_test_names = Object.values(newVersionsObject[ver].results).filter(obj1 =>
+  const newTestNames = Object.values(newVersionsObject[ver].results).filter(obj1 =>
     !oldVersionsObject[ver] || !Object.values(oldVersionsObject[ver].results).some(obj2 => obj1.file === obj2.file)
   );
-  const new_test = new_test_names.length > 0
+  const newTest = newTestNames.length > 0
 
 
   // if new test we have to check all version for first encounter. Otherwise just current and
   // one before
-  const changed_test_names = Object.values(newVersionsObject[currentVersion].results).filter(obj1 =>
+  const changedTestNames = Object.values(newVersionsObject[currentVersion].results).filter(obj1 =>
     obj1.file in newVersionsObject[ver].results && !isDeepEqual(obj1, newVersionsObject[ver].results[obj1.file])
   )
 
-  // console.log('new test', new_test);
-  // console.log('new test names ', new_test_names);
-  // console.log('changed test names ', changed_test_names);
+  // console.log('new test', newTest);
+  // console.log('new test names ', newTestNames);
+  // console.log('changed test names ', changedTestNames);
 
-  changed_test_names.forEach(newele => {
+  changedTestNames.forEach(newele => {
     const oldele = newVersionsObject[ver].results[newele.file];
     // update issue
     console.log('old', oldele);
@@ -130,4 +130,4 @@ const run_test_suit_and_update = async ({ github, context, exec, io }) => {
   });
 };
 
-module.exports = run_test_suit_and_update;
+module.exports = runTestSuitAndUpdate;

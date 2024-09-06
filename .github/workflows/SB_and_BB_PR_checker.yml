@@ -17,5 +17,5 @@ jobs:
         uses: actions/github-script@v7
         with:
           script: |
-            const SB_and_BB_PR_checker = require('./.github/workflows/run_test_suit_and_update.js');
-            await SB_and_BB_PR_checker({github, context, exec, io});
+            const SBAndBBPRChecker = require('./.github/workflows/SB_and_BB_PR_checker.js');
+            await SBAndBBPRChecker({github, context, exec, io});

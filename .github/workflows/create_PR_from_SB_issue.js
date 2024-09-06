@@ -1,4 +1,4 @@
-const pull_request_template = `
+const pullRequestTemplate = `
 ### General
 
 - [x] I've looked for similar bugs
@@ -68,7 +68,7 @@ function parseIssueBody(text) {
   return parsedData;
 }
 
-const create_PR_from_SB_issue = async ({github, context, exec}) => {
+const createPRFromSBIssue = async ({github, context, exec}) => {
   const { format } = require('./utils.js');
 
   // Get issue
@@ -80,28 +80,28 @@ const create_PR_from_SB_issue = async ({github, context, exec}) => {
   // Get title text
   const regex = /(?:\[SB\]): (.{5,})/gmi;
   const match = [...issue.title.matchAll(regex)][0] || [];
-  const title_text = match[1]; // maybe undefined
-  if (title_text === undefined) return;
+  const titleText = match[1]; // maybe undefined
+  if (titleText === undefined) return;
 
-  const parsed_body = parseIssueBody(issue.body);
+  const parsedBody = parseIssueBody(issue.body);
 
   const params = {
-    already_reported: parsed_body?.[0]?.[2]?.checked ? 'X' : ' ',
+    already_reported: parsedBody?.[0]?.[2]?.checked ? 'X' : ' ',
     issue_number: context.issue.number,
-    bug_type: parsed_body[1],
-    categories: parsed_body[2],
-    description: parsed_body[3],
-    workaround: parsed_body[4],
-    code: parsed_body[5]
+    bug_type: parsedBody[1],
+    categories: parsedBody[2],
+    description: parsedBody[3],
+    workaround: parsedBody[4],
+    code: parsedBody[5]
   }
 
   const branchName = `issue-${context.issue.number}`;
   const baseBranch = 'master';
   const prTitle = issue.title;
   const fileName = `deleteme-${context.issue.number}.jai`;
-  const fileContent = Buffer.from(parsed_body[5]).toString('base64');
+  const fileContent = Buffer.from(parsedBody[5]).toString('base64');
 
-  const prBody = format(pull_request_template, params);
+  const prBody = format(pullRequestTemplate, params);
 
   // Create a new branch from the base branch
   const { data: { commit } } = await github.rest.repos.getBranch({
@@ -165,16 +165,16 @@ const create_PR_from_SB_issue = async ({github, context, exec}) => {
   // })
 
   // get current jai version
-  const { createCurrentVersionLabel } = require('./create_label.js');
-  const jai_version = await createCurrentVersionLabel({github, context, exec});
+  const { createCurrentCompilerVersionLabel } = require('./create_label.js');
+  const jaiVersion = await createCurrentCompilerVersionLabel({github, context, exec});
 
   // Add labels
   await github.rest.issues.addLabels({
     ...context.repo,
     issue_number: context.issue.number,
-    labels: [ jai_version ]
+    labels: [ jaiVersion ]
   });
 
 }
 
-module.exports = create_PR_from_SB_issue;
+module.exports = createPRFromSBIssue;
