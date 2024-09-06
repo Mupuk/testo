@@ -9,10 +9,12 @@ const createLabels = async ({ github, context, labelNames }) => {
     owner: context.repo.owner,
     repo: context.repo.repo,
   });
+  console.log('Found: ', labels);
 
   // Loop through the array of label names and create any that don't exist
   for (const labelName of labelNames) {
     const labelExists = labels.some(label => label.name === labelName);
+    console.log(`${labelName} : ${labelExists}`);
 
     // If the label doesn't exist, create it
     if (!labelExists) {
