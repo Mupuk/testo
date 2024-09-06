@@ -78,7 +78,7 @@ const createPRFromSBIssue = async ({github, context, exec}) => {
     issue_number: context.issue.number
   });
 
-  createLabels({github, context, labelNames: ['blub']});
+  createLabels({github, context, labelNames: ['blub1', 'blub2', 'blub3']});
 
   // Check that its a SB
   const regex = /\[SB\]:(.+)/gmi;
