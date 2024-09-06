@@ -1,4 +1,4 @@
-name: Create automatic PR from issue
+name: Create automatic PR from SB issue
 
 on:
   workflow_dispatch: # Manual trigger
@@ -6,14 +6,14 @@ on:
     types: [opened, edited] #@todo remove edited
 
 jobs:
-  create_pr:
+  create_pr_from_sb_issue:
     runs-on: [self-hosted, windows]
 
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      - name: Create a new PR
+      - name: Create a new PR from SB Issue
         uses: actions/github-script@v7
         with:
           script: |

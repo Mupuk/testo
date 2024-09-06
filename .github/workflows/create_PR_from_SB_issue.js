@@ -145,11 +145,11 @@ const createPRFromSBIssue = async ({github, context, exec}) => {
   // });
 
 
-  // await github.rest.issues.createComment({
-  //   ...context.repo,
-  //   issue_number: context.issue.number,
-  //   body: `👋 Thanks for the contribution, please continue further discussion on this matter here: ${pr.html_url}!`
-  // })
+  await github.rest.issues.createComment({
+    ...context.repo,
+    issue_number: context.issue.number,
+    body: `👋 Thanks for the contribution, please continue further discussion on this matter here: ${pr.html_url}!`
+  })
 
   // Not sure if we should close or lock the original issue
   await github.rest.issues.lock({
