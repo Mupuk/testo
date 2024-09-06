@@ -134,7 +134,7 @@ const createPRFromSBIssue = async ({github, context, exec}) => {
     body: prBody,
   });
 
-  // // Create a pull request
+  // // Convert issue to a pull request
   // const { data: pr } = await github.rest.pulls.create({
   //   ...context.repo,
   //   // title: prTitle,
