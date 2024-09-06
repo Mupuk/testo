@@ -78,7 +78,7 @@ const createPRFromSBIssue = async ({github, context, exec}) => {
   });
 
   // Check that its a SB
-  const regex = /(?:\[SB\]): (.{5,})/gmi;
+  const regex = /\[SB\]:(.+)/gmi;
   const match = [...issue.title.matchAll(regex)][0] || [];
   const titleText = match[1]; // maybe undefined
   if (titleText === undefined) return; // It's a different issue, ignore
@@ -98,7 +98,7 @@ const createPRFromSBIssue = async ({github, context, exec}) => {
   const branchName = `issue-${context.issue.number}`;
   const baseBranch = 'master';
   const prTitle = issue.title;
-  const fileName = `compiler_bugs/EC${Number.parseInt(parsedBody[1])}_${context.issue.number}.jai`;
+  const fileName = `compiler_bugs/EC${Number.parseInt(params.expected_error_code)}_${context.issue.number}.jai`;
   const fileContent = Buffer.from(parsedBody[5]).toString('base64');
 
   const prBody = format(pullRequestTemplate, params);
@@ -123,8 +123,8 @@ const createPRFromSBIssue = async ({github, context, exec}) => {
     branch: branchName
   });
 
+  
   // not sure if we should convert it to PR or create new PR
-
   // Create a pull request
   const { data: pr } = await github.rest.pulls.create({
     ...context.repo,
@@ -145,6 +145,7 @@ const createPRFromSBIssue = async ({github, context, exec}) => {
   // });
 
 
+  // Link PR to issue
   await github.rest.issues.createComment({
     ...context.repo,
     issue_number: context.issue.number,
@@ -165,15 +166,25 @@ const createPRFromSBIssue = async ({github, context, exec}) => {
   // })
 
   // get current jai version
-  const { createCurrentCompilerVersionLabel } = require('./create_label.js');
+  const { createLabels, createCurrentCompilerVersionLabel } = require('./create_label.js');
   const jaiVersion = await createCurrentCompilerVersionLabel({github, context, exec});
 
-  // Add labels
-  // @todo add other labels for classification
+  const categoryLabels = params.categories.split(', ');
+  console.log(categoryLabels)
+  createLabels({github, context, labelNames: categoryLabels});
+
+  // Add labels to issue
   await github.rest.issues.addLabels({
     ...context.repo,
     issue_number: context.issue.number,
-    labels: [ jaiVersion ]
+    labels: [ jaiVersion,  ...categoryLabels ]
+  });
+
+  // Add labels to issue
+  await github.rest.issues.addLabels({
+    ...context.repo,
+    issue_number: pr.number,
+    labels: [ jaiVersion,  ...categoryLabels ]
   });
 
 }
