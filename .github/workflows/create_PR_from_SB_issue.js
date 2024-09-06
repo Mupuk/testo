@@ -69,6 +69,7 @@ function parseIssueBody(text) {
 }
 
 const createPRFromSBIssue = async ({github, context, exec}) => {
+  const { createLabels } = require('./create_label.js');
   const { format } = require('./utils.js');
 
   // Get issue
@@ -76,6 +77,8 @@ const createPRFromSBIssue = async ({github, context, exec}) => {
     ...context.repo,
     issue_number: context.issue.number
   });
+
+  createLabels({github, context, labelNames: ['blub']});
 
   // Check that its a SB
   const regex = /\[SB\]:(.+)/gmi;
@@ -166,7 +169,6 @@ const createPRFromSBIssue = async ({github, context, exec}) => {
   // })
 
   // get current jai version
-  const { createLabels, createCurrentCompilerVersionLabel } = require('./create_label.js');
   // const jaiVersion = await createCurrentCompilerVersionLabel({github, context, exec});
 
   // Create Labels if they dont exist
