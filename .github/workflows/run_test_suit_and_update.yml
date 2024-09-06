@@ -1,0 +1,22 @@
+name: Run Test Suit
+
+on:
+  # push:
+  #   branches:
+  #     - master
+  workflow_dispatch: # Manual trigger
+
+jobs:
+  run_test_suit:
+    runs-on: [self-hosted, windows]
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Run Bug Suit
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const run_test_suit_and_update = require('./.github/workflows/run_test_suit_and_update.js');
+            await run_test_suit_and_update({github, context, exec, io});

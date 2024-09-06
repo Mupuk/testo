@@ -4,8 +4,6 @@ on:
   issue_comment:
     types: [created, edited]
 
-# CHECK THAT COMMENT IS ON A ISSUE FROM BOT!
-
 jobs:
   handle_issue_comment:
     runs-on: [self-hosted, windows]

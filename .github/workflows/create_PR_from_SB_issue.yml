@@ -1,0 +1,22 @@
+name: Create automatic PR from issue
+
+on:
+  issues:
+    types: [opened, edited]
+
+jobs:
+  create_pr:
+    runs-on: [self-hosted, windows]
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Create a new PR
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const create_PR_from_SB_issue = require('./.github/workflows/create_pr.js');
+            await create_PR_from_SB_issue({github, context, exec});
+
+

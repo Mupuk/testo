@@ -27,7 +27,7 @@ const decrementVersionString = (version, count = 1) => {
   return `${versionSplit[1]}${newMajor}.${newMinor}.${newMicro.toString().padStart(3, '0')}`
 }
 
-const bugSuit = async ({ github, context, exec, io }) => {
+const run_test_suit_and_update = async ({ github, context, exec, io }) => {
   const path = require('path');
   const fs = require('fs');
 
@@ -130,4 +130,4 @@ const bugSuit = async ({ github, context, exec, io }) => {
   });
 };
 
-module.exports = bugSuit;
+module.exports = run_test_suit_and_update;

@@ -1,9 +1,8 @@
 name: Run Test Suit
 
 on:
-  # push:
-  #   branches:
-  #     - master
+  pull_request:
+    types: [opened, edited] # uncomment pr merge below
   workflow_dispatch: # Manual trigger
 
 jobs:
@@ -18,5 +17,5 @@ jobs:
         uses: actions/github-script@v7
         with:
           script: |
-            const bugSuit = require('./.github/workflows/bug_suit.js');
-            await bugSuit({github, context, exec, io});
+            const SB_and_BB_PR_checker = require('./.github/workflows/run_test_suit_and_update.js');
+            await SB_and_BB_PR_checker({github, context, exec, io});
