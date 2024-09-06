@@ -75,5 +75,5 @@ jobs:
       with:
         script: |
           const createTrackingIssueOnPRMerge = require('./.github/workflows/create_tracking_issue_on_PR_merge.js');
-          await createTrackingIssueOnPRMerge({github, context, exec});
+          await createTrackingIssueOnPRMerge({ github, context, exec });
           

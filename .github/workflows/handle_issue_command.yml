@@ -53,7 +53,7 @@ jobs:
       with:
         script: |
           const { handleEmailedIn } = require('./.github/workflows/handle_issue_command.js');
-          await handleEmailedIn({github, context});
+          await handleEmailedIn({ github, context });
 
     - name: Handle !JonSaid
       if: ${{ steps.extract_commands.outputs.jonSaid == 'true' && steps.check_issue.outputs.result == 'true' }}
@@ -61,4 +61,4 @@ jobs:
       with:
         script: |
           const { handleJonSaid } = require('./.github/workflows/handle_issue_command.js');
-          await handleJonSaid({github, context, comment: ${{ steps.extract_commands.outputs.comment }} });
+          await handleJonSaid({ github, context, comment: ${{ steps.extract_commands.outputs.comment }} });

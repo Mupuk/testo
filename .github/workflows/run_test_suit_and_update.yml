@@ -19,4 +19,4 @@ jobs:
         with:
           script: |
             const runTestSuitAndUpdate = require('./.github/workflows/runTestSuitAndUpdate.js');
-            await runTestSuitAndUpdate({github, context, exec, io});
+            await runTestSuitAndUpdate({ github, context, exec, io });

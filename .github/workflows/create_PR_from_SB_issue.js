@@ -185,6 +185,7 @@ const createPRFromSBIssue = async ({github, context, exec}) => {
     labels: [ ...categoryLabels ]
   });
 
+  return pr.number;
 }
 
 module.exports = createPRFromSBIssue;
