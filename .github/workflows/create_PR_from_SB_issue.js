@@ -167,24 +167,24 @@ const createPRFromSBIssue = async ({github, context, exec}) => {
 
   // get current jai version
   const { createLabels, createCurrentCompilerVersionLabel } = require('./create_label.js');
-  const jaiVersion = await createCurrentCompilerVersionLabel({github, context, exec});
+  // const jaiVersion = await createCurrentCompilerVersionLabel({github, context, exec});
 
+  // Create Labels if they dont exist
   const categoryLabels = params.categories.split(', ');
-  console.log(categoryLabels)
   createLabels({github, context, labelNames: categoryLabels});
 
-  // Add labels to issue
-  await github.rest.issues.addLabels({
-    ...context.repo,
-    issue_number: context.issue.number,
-    labels: [ jaiVersion,  ...categoryLabels ]
-  });
+  // // Add labels to issue
+  // await github.rest.issues.addLabels({
+  //   ...context.repo,
+  //   issue_number: context.issue.number,
+  //   labels: [ jaiVersion,  ...categoryLabels ]
+  // });
 
-  // Add labels to issue
+  // Add labels to PR
   await github.rest.issues.addLabels({
     ...context.repo,
     issue_number: pr.number,
-    labels: [ jaiVersion,  ...categoryLabels ]
+    labels: [ ...categoryLabels ]
   });
 
 }
