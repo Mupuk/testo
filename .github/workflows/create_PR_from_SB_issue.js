@@ -173,7 +173,12 @@ const createPRFromSBIssue = async ({github, context, exec}) => {
 
   // Create Labels if they dont exist
   const categoryLabels = params.categories.split(', ');
-  createLabels({github, context, labelNames: categoryLabels});
+  // No clue why it gives me error 422 but still works as expected.
+  try {
+    createLabels({github, context, labelNames: categoryLabels});
+  } catch (error) {
+    console.error(error)
+  }
 
   // // Add labels to issue
   // await github.rest.issues.addLabels({
