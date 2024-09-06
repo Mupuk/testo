@@ -1,6 +1,6 @@
 // @todo add colors
 const createLabel = async ({github, context, labelName}) => {
-  createLabels({github, context, labelNames: [labelName]})
+  await createLabels({github, context, labelNames: [labelName]})
 }
 
 const createLabels = async ({ github, context, labelNames }) => {
