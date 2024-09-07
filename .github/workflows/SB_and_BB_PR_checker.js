@@ -47,7 +47,6 @@ const _SBAndBBPRChecker = async ({ github, contextRepo, prNumber }) => {
 };
 
 const validateAddedTestAndMergeOnSuccess = async ({ github, exec, contextRepo, prNumber }) => {
-  const prNumber = context.payload.pull_request.number;
   console.log(`Validating Pull Request #${prNumber}...`);
 
 
