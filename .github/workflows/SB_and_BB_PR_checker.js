@@ -30,7 +30,7 @@ const _SBAndBBPRChecker = async ({ github, contextRepo, prNumber }) => {
 
   console.log(isSingleFile);
   console.log(isSingleFolderWithFirstJaiFile);
-  console.log(files);
+  console.log(fileResponse);
 
   if (!isSingleFile && !isSingleFolderWithFirstJaiFile) {
     process.exit(1);
