@@ -50,6 +50,7 @@ const _SBAndBBPRChecker = async ({ github, contextRepo, prNumber }) => {
 const validateAddedTestAndMergeOnSuccess = async ({ github, exec, contextRepo, prNumber }) => {
   console.log(`Validating Pull Request #${prNumber}...`);
 
+  // checkout PR instead of master!!
 
   // check that test crashes / is != expected return code
   // get files so we know what to run
