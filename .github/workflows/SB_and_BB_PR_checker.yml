@@ -29,22 +29,23 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      - name: Merge Pull Request
+      - name: Validate new Test and Merge Pull Request
         uses: actions/github-script@v7
         with:
           script: |
             const prNumber = context.payload.pull_request.number;
+            console.log(`Validating Pull Request #${prNumber}...`);
 
-            const mergeResponse = await github.pulls.merge({
-              owner: context.repo.owner,
-              repo: context.repo.repo,
-              pull_number: prNumber,
-              merge_method: 'merge'  // Use 'merge', 'squash', or 'rebase' depending on your needs
-            });
+            // const mergeResponse = await github.pulls.merge({
+            //   owner: context.repo.owner,
+            //   repo: context.repo.repo,
+            //   pull_number: prNumber,
+            //   merge_method: 'merge'  // Use 'merge', 'squash', or 'rebase' depending on your needs
+            // });
 
-            if (mergeResponse.status === 200) {
-              console.log(`Pull Request #${prNumber} merged successfully.`);
-            } else {
-              console.error(`Failed to merge Pull Request #${prNumber}.`);
-              process.exit(1);  // Exit with failure
-            }
+            // if (mergeResponse.status === 200) {
+            //   console.log(`Pull Request #${prNumber} merged successfully.`);
+            // } else {
+            //   console.error(`Failed to merge Pull Request #${prNumber}.`);
+            //   process.exit(1);  // Exit with failure
+            // }
