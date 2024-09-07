@@ -1,10 +1,10 @@
 const SBAndBBPRChecker = async ({ github, context }) => {
-    await _SBAndBBPRChecker({github, prNumber: context.issue.number});
+    await _SBAndBBPRChecker({github, contextRepo: context.repo, prNumber: context.issue.number});
 };
 
-const _SBAndBBPRChecker = async ({ github, prNumber }) => {
+const _SBAndBBPRChecker = async ({ github, contextRepo, prNumber }) => {
      const { data: pr } = await github.rest.pulls.get({
-        ...context.repo,
+        ...contextRepo,
         pull_number: prNumber
     });
 

@@ -32,6 +32,6 @@ jobs:
         with:
           script: |
             const { _SBAndBBPRChecker } = require('./.github/workflows/SB_and_BB_PR_checker.js');
-            await _SBAndBBPRChecker({ github, prNumber: ${{ steps.create_pr_from_sb_issue.outputs.prNumber }} });
+            await _SBAndBBPRChecker({ github, contextRepo: context.repo, prNumber: ${{ steps.create_pr_from_sb_issue.outputs.prNumber }} });
 
 
