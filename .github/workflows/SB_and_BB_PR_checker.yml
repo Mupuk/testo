@@ -20,7 +20,7 @@ jobs:
             const { SBAndBBPRChecker } = require('./.github/workflows/SB_and_BB_PR_checker.js');
             await SBAndBBPRChecker({ github, context });
 
-  merge_pr:
+  validate_and_merge_pr:
     runs-on: [self-hosted, windows]
     needs: sb_bb_pr_checker
     environment: test
