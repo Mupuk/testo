@@ -14,7 +14,8 @@ const _SBAndBBPRChecker = async ({ github, contextRepo, prNumber }) => {
 
     const files = await github.rest.pulls.listFiles({
         ...contextRepo,
-        prNumber,
+        pull_number: prNumber,
+        per_page: 100
     });
 
     console.log(files);
