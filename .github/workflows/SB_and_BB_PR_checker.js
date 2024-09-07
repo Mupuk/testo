@@ -19,6 +19,8 @@ const _SBAndBBPRChecker = async ({ github, contextRepo, prNumber }) => {
     per_page: 100
   });
 
+  const filePaths = fileResponse.data.map(file => file.filename);
+
   if (filePaths.length === 100) {
     await github.rest.issues.createComment({
       ...contextRepo,
@@ -28,7 +30,6 @@ const _SBAndBBPRChecker = async ({ github, contextRepo, prNumber }) => {
     process.exit(1);
   }
 
-  const filePaths = fileResponse.data.map(file => file.filename);
   const isSingleFile = filePaths.length === 1 && (/compiler_bugs\/EC\d+_\d+\.jai/).test(filePaths[0]);
 
   const folders = filePaths.map(file => file.split('/').slice(0, -1).join('/'));
