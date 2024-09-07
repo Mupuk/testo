@@ -78,10 +78,8 @@ const createPRFromSBIssue = async ({github, context, exec}) => {
   });
 
   // Check that its a SB
-  const regex = /\[SB\]:(.+)/gmi;
-  const match = [...issue.title.matchAll(regex)][0] || [];
-  const titleText = match[1]; // maybe undefined
-  if (titleText === undefined) return; // It's a different issue, ignore
+  const isSB = /^\[SB\]:/.test(issue.title);
+  if (!isSB) return;
 
   const parsedBody = parseIssueBody(issue.body);
 

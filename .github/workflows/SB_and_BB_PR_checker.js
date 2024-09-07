@@ -8,8 +8,17 @@ const _SBAndBBPRChecker = async ({ github, contextRepo, prNumber }) => {
         pull_number: prNumber
     });
 
-    console.log(pr);
-    process.exit(1)
+    // Check that its a SB or BB
+    const match = pr.title.match(/^\[([SB]B)\]:/)?.[1]
+    if (!match) return;
+
+    const files = await github.rest.pulls.listFiles({
+        ...contextRepo,
+        prNumber,
+    });
+
+    console.log(files);
+    // process.exit(1)
 };
 
 module.exports = {
