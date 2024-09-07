@@ -15,8 +15,7 @@ function parseIssueCommentBody(issueBody) {
 const handleEmailedIn = async ({ github, context }) => {
 
   const { data: issue } = await github.rest.issues.get({
-    owner: context.repo.owner,
-    repo: context.repo.repo,
+    ...context.repo,
     issue_number: context.issue.number
   });
 
@@ -73,8 +72,7 @@ const handleJonSaid = async ({ github, context, comment }) => {
 
   // Get old issue body
   const { data: issue } = await github.rest.issues.get({
-    owner: context.repo.owner,
-    repo: context.repo.repo,
+    ...context.repo,
     issue_number: context.issue.number
   });
 

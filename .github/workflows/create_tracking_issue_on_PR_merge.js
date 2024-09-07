@@ -63,8 +63,7 @@ const createTrackingIssueOnPRMerge = async ({github, context, exec}) => {
 
   // Create Tracking Issue
   const { data: issue } = await github.rest.issues.create({
-    owner: context.repo.owner,
-    repo: context.repo.repo,
+    ...context.repo,
     title: issueTitle,
     body: issueBody
   });
@@ -75,16 +74,14 @@ const createTrackingIssueOnPRMerge = async ({github, context, exec}) => {
 
   // Add Current Compiler Label
   await github.rest.issues.addLabels({
-    owner: context.repo.owner,
-    repo: context.repo.repo,
+    ...context.repo,
     issue_number: issue.number,
     labels: [ currentVersion ]
   });
 
   await github.rest.issues.createComment({
+    ...context.repo,
     issue_number: context.issue.number,
-    owner: context.repo.owner,
-    repo: context.repo.repo,
     body: `👋 Thanks for the contribution, please continue further discussion on this matter here: #${issue.html_url}!`
   })
 }

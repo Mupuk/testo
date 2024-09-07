@@ -1,28 +1,43 @@
 const SBAndBBPRChecker = async ({ github, context }) => {
-    await _SBAndBBPRChecker({github, contextRepo: context.repo, prNumber: context.issue.number});
+  await _SBAndBBPRChecker({ github, contextRepo: context.repo, prNumber: context.issue.number });
 };
 
+// @todo test if folder checks are correct
 const _SBAndBBPRChecker = async ({ github, contextRepo, prNumber }) => {
-    const { data: pr } = await github.rest.pulls.get({
-        ...contextRepo,
-        pull_number: prNumber
-    });
+  const { data: pr } = await github.rest.pulls.get({
+    ...contextRepo,
+    pull_number: prNumber
+  });
 
-    // Check that its a SB or BB
-    const match = pr.title.match(/^\[([SB]B)\]:/)?.[1]
-    if (!match) return;
+  // Check that its a SB or BB
+  const match = pr.title.match(/^\[([SB]B)\]:/)?.[1]
+  if (!match) return;
 
-    const files = await github.rest.pulls.listFiles({
-        ...contextRepo,
-        pull_number: prNumber,
-        per_page: 100
-    });
+  const fileResponse = await github.rest.pulls.listFiles({
+    ...contextRepo,
+    pull_number: prNumber,
+    per_page: 100
+  });
 
-    console.log(files);
-    // process.exit(1)
+  const filePaths = fileResponse.data.map(file => file.filename);
+  const isSingleFile = filePaths.length === 1 && filePaths[0].test(/compiler_bugs\/EC\d+_\d+\.jai/);
+
+  const folders = files.map(file => file.split('/').slice(0, -1).join('/'));
+  const uniqueFolders = [...new Set(folders)];
+  const isSingleFolderWithFirstJaiFile = uniqueFolders.length === 1
+    && uniqueFolders[0].test(/^compiler_bugs\/[^\/]+\//)
+    && files.some(f => (/^compiler_bugs\/[^\/]+\/first.jai/).test(f));
+
+  console.log(isSingleFile);
+  console.log(isSingleFolderWithFirstJaiFile);
+  console.log(files);
+
+  if (!isSingleFile && !isSingleFolderWithFirstJaiFile) {
+    process.exit(1);
+  }
 };
 
 module.exports = {
-    SBAndBBPRChecker,
-    _SBAndBBPRChecker,
+  SBAndBBPRChecker,
+  _SBAndBBPRChecker,
 };

@@ -19,3 +19,32 @@ jobs:
           script: |
             const { SBAndBBPRChecker } = require('./.github/workflows/SB_and_BB_PR_checker.js');
             await SBAndBBPRChecker({ github, context });
+
+  merge_pr:
+    runs-on: [self-hosted, windows]
+    needs: sb_bb_pr_checker
+    environment: test
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Merge Pull Request
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const prNumber = context.payload.pull_request.number;
+
+            const mergeResponse = await github.pulls.merge({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              pull_number: prNumber,
+              merge_method: 'merge'  // Use 'merge', 'squash', or 'rebase' depending on your needs
+            });
+
+            if (mergeResponse.status === 200) {
+              console.log(`Pull Request #${prNumber} merged successfully.`);
+            } else {
+              console.error(`Failed to merge Pull Request #${prNumber}.`);
+              process.exit(1);  // Exit with failure
+            }
