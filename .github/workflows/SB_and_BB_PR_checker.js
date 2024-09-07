@@ -22,11 +22,11 @@ const _SBAndBBPRChecker = async ({ github, contextRepo, prNumber }) => {
   const filePaths = fileResponse.data.map(file => file.filename);
   const isSingleFile = filePaths.length === 1 && (/compiler_bugs\/EC\d+_\d+\.jai/).test(filePaths[0]);
 
-  const folders = files.map(file => file.split('/').slice(0, -1).join('/'));
+  const folders = filePaths.map(file => file.split('/').slice(0, -1).join('/'));
   const uniqueFolders = [...new Set(folders)];
   const isSingleFolderWithFirstJaiFile = uniqueFolders.length === 1
     && (/^compiler_bugs\/[^\/]+\//).test(uniqueFolders[0])
-    && files.some(f => (/^compiler_bugs\/[^\/]+\/first.jai/).test(f));
+    && filePaths.some(f => (/^compiler_bugs\/[^\/]+\/first.jai/).test(f));
 
   console.log(isSingleFile);
   console.log(isSingleFolderWithFirstJaiFile);
