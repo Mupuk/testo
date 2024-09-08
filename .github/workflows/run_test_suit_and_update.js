@@ -33,8 +33,8 @@ const runTestSuitAndUpdate = async ({ github, context, exec, io }) => {
 
   // Jai Version
   const { isDeepEqual, jaiVersion: getJaiVersion } = require('./utils.js');
-  const oriCurrentVersion = await getJaiVersion({ exec });
-  let currentVersion = oriCurrentVersion
+  const currentVersion = await getJaiVersion({ exec });
+  let tempVersion = currentVersion
 
   // Get old state of test results
   let oldTestResults = [];
@@ -45,21 +45,20 @@ const runTestSuitAndUpdate = async ({ github, context, exec, io }) => {
     console.error("Error reading file:", err);
   }
 
-  console.log('Running for version:', currentVersion);
+  console.log('Running for version:', tempVersion);
   const options = { silent: false };
   let compilerPath = await io.which('jai'); // we start with the current one
   const extension = path.extname(compilerPath);
   await exec.exec(`${compilerPath} bug_suit.jai`, [], options);
 
-
-  currentVersion = decrementVersionString(currentVersion);
-  console.log('Running for version:', currentVersion);
-  compilerPath = path.resolve(compilerPath, '..', '..', '..', `jai-${currentVersion}/bin`) + `${path.sep}jai${extension}`;
+  tempVersion = decrementVersionString(tempVersion);
+  console.log('Running for version:', tempVersion);
+  compilerPath = path.resolve(compilerPath, '..', '..', '..', `jai-${tempVersion}/bin`) + `${path.sep}jai${extension}`;
   await exec.exec(`${compilerPath} bug_suit.jai`, [], options);
 
-  currentVersion = decrementVersionString(currentVersion);
-  console.log('Running for version:', currentVersion);
-  compilerPath = path.resolve(compilerPath, '..', '..', '..', `jai-${currentVersion}/bin`) + `${path.sep}jai${extension}`;
+  tempVersion = decrementVersionString(tempVersion);
+  console.log('Running for version:', tempVersion);
+  compilerPath = path.resolve(compilerPath, '..', '..', '..', `jai-${tempVersion}/bin`) + `${path.sep}jai${extension}`;
   await exec.exec(`${compilerPath} bug_suit.jai`, [], options);
 
 
@@ -73,7 +72,7 @@ const runTestSuitAndUpdate = async ({ github, context, exec, io }) => {
   }
 
   // make test results available via version, and results via name
-  const oldVersionsObject = oldTestResults.reduce((acc, item) => {
+  const oldTestResultsByVersion = oldTestResults.reduce((acc, item) => {
     acc[item.version] = item;
     // also reduce the results
     acc[item.version].results = item.results.reduce((acc, item) => {
@@ -84,7 +83,7 @@ const runTestSuitAndUpdate = async ({ github, context, exec, io }) => {
     return acc;
   }, {});
 
-  const newVersionsObject = newTestResults.reduce((acc, item) => {
+  const newTestResultsByVersion = newTestResults.reduce((acc, item) => {
     acc[item.version] = item;
     // also reduce the results
     acc[item.version].results = item.results.reduce((acc, item) => {
@@ -95,39 +94,64 @@ const runTestSuitAndUpdate = async ({ github, context, exec, io }) => {
     return acc;
   }, {});
 
-  console.log('new test res', newTestResults);
-  console.log('newVersionsObject', newVersionsObject);
+  // console.log('new test res', newTestResults);
+  // console.log('newTestResultsByVersion', newTestResultsByVersion);
 
-  const ver = decrementVersionString(oriCurrentVersion, 1);
-  console.log(ver);
-  console.log('old', oldVersionsObject[ver]);
-  console.log('new', newVersionsObject[ver]);
+  const previousVersion = decrementVersionString(currentVersion, 1);
+  console.log(previousVersion);
+  // console.log('old', oldTestResultsByVersion[previousVersion]);
+  // console.log('new', newTestResultsByVersion[previousVersion]);
 
-  // dif with old state to get new tests. We take one older version, because the comparison version
-  // has to exist. A new one doesnt exist in old log. Also we dont take the oldest, because
-  // it could have been replaced by the latest one. Only leaves the middle as option.
-  const newTestNames = Object.values(newVersionsObject[ver].results).filter(obj1 =>
-    !oldVersionsObject[ver] || !Object.values(oldVersionsObject[ver].results).some(obj2 => obj1.file === obj2.file)
+
+  // We need to find all tests that are new. We compare the old and new log. We have to update their issues.
+  //
+  //
+  //           Old Log       New Log
+  //              -          0.1.094
+  //           0.1.093  <>   0.1.093 // This version exists in both logs, compare them
+  //           0.1.092       0.1.092
+  //           0.1.091          -
+  // 
+  const newTestNames = Object.values(newTestResultsByVersion[previousVersion].results).filter(obj1 =>
+    !oldTestResultsByVersion[previousVersion]  // if the previous version does not exist in old log, then all tests are new
+    || !Object.values(oldTestResultsByVersion[previousVersion].results).some(obj2 => obj1.file === obj2.file) // if the file does not exist in old log
   );
-  const newTest = newTestNames.length > 0
+  const hasNewTests = newTestNames.length > 0
+
+  console.log('newTestNames\n', newTestNames);
 
 
-  // if new test we have to check all version for first encounter. Otherwise just current and
-  // one before
-  const changedTestNames = Object.values(newVersionsObject[currentVersion].results).filter(obj1 =>
-    obj1.file in newVersionsObject[ver].results && !isDeepEqual(obj1, newVersionsObject[ver].results[obj1.file])
+  // We need to update all issues where the status has changed. We compare the old and new log.
+  //
+  //           Old Log       New Log
+  //              -          0.1.094
+  //                            ^--
+  //                               |- compare those to versions, to see if the updated changed the test result
+  //                            v--
+  //           0.1.093       0.1.093 
+  //           0.1.092       0.1.092
+  //           0.1.091          -
+  // 
+  const changedTestNames = Object.values(newTestResultsByVersion[currentVersion].results).filter(
+    obj1 => obj1.file in newTestResultsByVersion[previousVersion].results  // if the file exists in old log
+      && !isDeepEqual(obj1, newTestResultsByVersion[previousVersion].results[obj1.file]) // if the test results are different
   )
+  console.log('changedTestNames\n', changedTestNames);
 
-  // console.log('new test', newTest);
-  // console.log('new test names ', newTestNames);
-  // console.log('changed test names ', changedTestNames);
 
-  changedTestNames.forEach(newele => {
-    const oldele = newVersionsObject[ver].results[newele.file];
-    // update issue
-    console.log('old', oldele);
-    console.log('new', newele);
-  });
+  // We need to find all tests that are removed to close their issues.
+  //
+  //           Old Log       New Log
+  //              -          0.1.094
+  //           0.1.093  <>   0.1.093 // This version exists in both logs, compare them
+  //           0.1.092       0.1.092
+  //           0.1.091          -
+  // 
+  const removedTestNames = Object.values(oldTestResultsByVersion[previousVersion].results).filter(obj1 =>
+    !newTestResultsByVersion[previousVersion]  // if the previous version does not exist in new log, then all tests are removed
+    || !Object.values(newTestResultsByVersion[previousVersion].results).some(obj2 => obj1.file === obj2.file) // if the file does not exist in new log
+  );
+  console.log('removedTestNames\n', removedTestNames);
 };
 
 module.exports = runTestSuitAndUpdate;
