@@ -55,6 +55,8 @@ const validateAddedTestAndMergeOnSuccess = async ({ github, exec, contextRepo, p
   // check that test crashes / is != expected return code
   // get files so we know what to run
 
+  const createTrackingIssueFromPR = require('./.github/workflows/create_tracking_issue_from_PR.js');
+  await createTrackingIssueFromPR({ github, context, exec });
 
 
 

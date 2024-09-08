@@ -43,27 +43,27 @@ function parsePrBody(text) {
   return parsedData;
 }
 
-const createTrackingIssueOnPRMerge = async ({github, context, exec}) => {
-  const { jaiVersion: getJaiVersion, format } = require('./utils.js');
-  const currentVersion = await getJaiVersion({ exec });
+const createTrackingIssueOnPRMerge = async ({github, contextRepo, prNumber}) => {
+  // get PR
+  const { data: pr } = await github.rest.pulls.get({
+    ...contextRepo,
+    pull_number: prNumber
+  });
   
+  // parse PR body
   const date = new Date().toISOString().split('T')[0];
-  const prNumber = context.payload.pull_request.number;
-  const prTitle = context.payload.pull_request.title;
-  const prBody = context.payload.pull_request.body;
-
-  const parsedBody = parsePrBody(prBody);
+  const parsedBody = parsePrBody(pr.body);
   parsedBody.firstEncounter = date;// this is just the first reported date, even if bug itself is older
   parsedBody.firstEncounterVersion = currentVersion; //could get reset by test to an even later version
   parsedBody.lastEncounter = date;
   parsedBody.lastEncounterVersion = currentVersion;
 
-  const issueTitle = `${prTitle}`;
-  const issueBody = format(issueTrackerTemplate, parsedBody);
-
+  
   // Create Tracking Issue
+  const issueTitle = `${pr.title}`;
+  const issueBody = format(issueTrackerTemplate, parsedBody);
   const { data: issue } = await github.rest.issues.create({
-    ...context.repo,
+    ...contextRepo,
     title: issueTitle,
     body: issueBody
   });
@@ -73,6 +73,8 @@ const createTrackingIssueOnPRMerge = async ({github, context, exec}) => {
   // https://github.com/peter-evans/create-pull-request/blob/main/docs/concepts-guidelines.md#triggering-further-workflow-runs
 
   // Add Current Compiler Label
+  // const { jaiVersion: getJaiVersion, format } = require('./utils.js');
+  // const currentVersion = await getJaiVersion({ exec });
   // await github.rest.issues.addLabels({
   //   ...context.repo,
   //   issue_number: issue.number,
@@ -80,10 +82,12 @@ const createTrackingIssueOnPRMerge = async ({github, context, exec}) => {
   // });
 
   await github.rest.issues.createComment({
-    ...context.repo,
+    ...contextRepo,
     issue_number: context.issue.number,
     body: `👋 Thanks for the contribution, please continue further discussion on this matter here: #${issue.html_url}!`
   })
+
+  return issue.number;
 }
 
 module.exports = createTrackingIssueOnPRMerge;
