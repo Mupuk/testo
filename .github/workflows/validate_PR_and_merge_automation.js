@@ -1,5 +1,5 @@
 const validatePRStructure = async ({ github, context }) => {
-  await validatePRStructure({ github, contextRepo: context.repo, prNumber: context.issue.number });
+  await _validatePRStructure({ github, contextRepo: context.repo, prNumber: context.issue.number });
 };
 
 // @todo test if folder checks are correct
