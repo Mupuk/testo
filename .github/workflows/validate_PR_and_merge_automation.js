@@ -68,21 +68,20 @@ const validateAddedTestAndMergeOnSuccess = async ({ github, exec, io, contextRep
 
   console.log(isSingleFile);
   
-  // check that test crashes / is != expected return code
-  // get files so we know what to run
-  
-  const createTrackingIssueFromPR = require('./create_tracking_issue_from_PR.js');
-  const trackingIssueNumber = await createTrackingIssueFromPR({ github, contextRepo, prNumber });
-  
   const fileResponse = await github.rest.pulls.listFiles({
     ...contextRepo,
     pull_number: prNumber,
     per_page: 100
   });
-  
   const filePaths = fileResponse.data.map(file => file.filename);
   console.log(filePaths);
 
+  // check that test crashes / is != expected return code
+  // get files so we know what to run
+  
+  // const createTrackingIssueFromPR = require('./create_tracking_issue_from_PR.js');
+  // const trackingIssueNumber = await createTrackingIssueFromPR({ github, contextRepo, prNumber });
+  
   const path = require('path');
   const fs = require('fs');
   function listFilesInDirectorySync(dirPath) {
@@ -95,7 +94,7 @@ const validateAddedTestAndMergeOnSuccess = async ({ github, exec, io, contextRep
     }
   }
 
-  const dirPath = path.join(process.cwd(), 'compiler_bugs');
+  const dirPath = 'compiler_bugs'; //path.join(process.cwd(), 'compiler_bugs');
   console.log(dirPath);
   listFilesInDirectorySync(dirPath);
   // await io.mv('path/to/file', 'path/to/dest');
