@@ -98,8 +98,8 @@ const validateAddedTestAndMergeOnSuccess = async ({ github, exec, io, contextRep
   // We already know that the structure is valid, so we can just take the first file
   if (isSingleFile) {
     const oldFileName = filePaths[0];
-    const newFileName = oldFolderName.replace(/^compiler_bugs\/EC\d+_(\S+)\.jai/, 666); // @todo tracking issue number
-    console.log(newFolderName);
+    const newFileName = oldFileName.replace(/^compiler_bugs\/EC\d+_(\S+)\.jai/, 666); // @todo tracking issue number
+    console.log(newFileName);
     // await io.mv(oldFileName, newFileName);
   } else { // BB, folder structure
     const oldFolderName = filePaths[0].split('/').slice(0, -1).join('/');
