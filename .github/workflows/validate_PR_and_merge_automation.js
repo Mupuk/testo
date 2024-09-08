@@ -30,7 +30,7 @@ const _SBAndBBPRChecker = async ({ github, contextRepo, prNumber }) => {
     process.exit(1);
   }
 
-  const isSingleFile = filePaths.length === 1 && (/compiler_bugs\/EC\d+_\d+\.jai/).test(filePaths[0]);
+  const isSingleFile = filePaths.length === 1 && (/compiler_bugs\/EC\d+_[\S]+\.jai/).test(filePaths[0]);
 
   const folders = filePaths.map(file => file.split('/').slice(0, -1).join('/'));
   const uniqueFolders = [...new Set(folders)];
