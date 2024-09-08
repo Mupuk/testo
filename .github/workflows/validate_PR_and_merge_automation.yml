@@ -49,4 +49,7 @@ jobs:
         with:
           ref: issue-161
 
+      - name: git log
+        run: git log 
+
             
