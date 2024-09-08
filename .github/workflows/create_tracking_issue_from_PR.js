@@ -1,26 +1,33 @@
 const issueTrackerTemplate = `
-**Status:**
+| Status | Emailed In |  Reported Version | Last Broken Platforms | Last Encountered Version | Fix Version |
+| :---: | :---: | :---: | :---: | :---: | :---: |
+| Open | {alreadyReported} | - | - | - | - |
 
-| Status | Emailed In | First Encounter | First Encounter Version | Last Encountered | Last Encountered Version | Fix Date | Fix Version |
-| :---: | :---: | :---: | :---: | :---: | :---: | :---: | :---: |
-| Open | {already_reported} | {firstEncounter} | {firstEncounterVersion} | {lastEncounter} | {lastEncounterVersion} | - | - |
+### Description
 
-Description:
 {description}
 
 
-Buggy Code:
+
+### Buggy Code
 \`\`\`c
 {code}
 \`\`\`
 
 
-Workarounds:
+### Workarounds
 \`\`\`c
+
 {workaround}
+
 \`\`\`
+
+### History
+| Passed Test | Platforms  | Date | Version | Error Code |
+| :--: | :-------------: | :-------------: | :------------: | :------------: |
 `;
 
+// Parse PR Body of SB/BB template
 function parsePrBody(text) {
   // match all checkbox values from the 3. checkbox onwards
   const regexEmailedIn = /(?<=(?:- \[[ X]\] .*\s){2})- \[([ X])\] /im;
@@ -32,8 +39,7 @@ function parsePrBody(text) {
   const regexCode = /(?<=^### Short Code[\s\S]*####[\s\S]*$\s[\s\S]*```c\s)([\s\S]*?)\s```/im
 
   let parsedData = {
-    already_reported: (text.match(regexEmailedIn)?.[1] || ' ').toLowerCase() === 'x'  ? '✅' : '❌',
-    issue_number: '',
+    alreadyReported: (text.match(regexEmailedIn)?.[1] || ' ').toLowerCase() === 'x'  ? '✅' : '❌',
     categories: text.match(regexCategory)?.[1] || '-',
     description: text.match(regexDescription)?.[1] || '-',
     workaround: text.match(regexWorkaround)?.[1] || '-',
@@ -43,7 +49,7 @@ function parsePrBody(text) {
   return parsedData;
 }
 
-const createTrackingIssueOnPRMerge = async ({github, contextRepo, prNumber}) => {
+const createTrackingIssueFromPR = async ({github, contextRepo, prNumber}) => {
   // get PR
   const { data: pr } = await github.rest.pulls.get({
     ...contextRepo,
@@ -53,11 +59,6 @@ const createTrackingIssueOnPRMerge = async ({github, contextRepo, prNumber}) => 
   // parse PR body
   const date = new Date().toISOString().split('T')[0];
   const parsedBody = parsePrBody(pr.body);
-  parsedBody.firstEncounter = date;// this is just the first reported date, even if bug itself is older
-  parsedBody.firstEncounterVersion = currentVersion; //could get reset by test to an even later version
-  parsedBody.lastEncounter = date;
-  parsedBody.lastEncounterVersion = currentVersion;
-
   
   // Create Tracking Issue
   const issueTitle = `${pr.title}`;
@@ -90,4 +91,4 @@ const createTrackingIssueOnPRMerge = async ({github, contextRepo, prNumber}) => 
   return issue.number;
 }
 
-module.exports = createTrackingIssueOnPRMerge;
+module.exports = createTrackingIssueFromPR;

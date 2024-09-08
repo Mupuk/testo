@@ -47,6 +47,8 @@ const _SBAndBBPRChecker = async ({ github, contextRepo, prNumber }) => {
   }
 };
 
+// This is run after a SB/BB PR has been manually approved
+// It should run in the context of the PR branch
 const validateAddedTestAndMergeOnSuccess = async ({ github, exec, contextRepo, prNumber }) => {
   console.log(`Validating Pull Request #${prNumber}...`);
 
@@ -56,7 +58,7 @@ const validateAddedTestAndMergeOnSuccess = async ({ github, exec, contextRepo, p
   // get files so we know what to run
 
   const createTrackingIssueFromPR = require('./.github/workflows/create_tracking_issue_from_PR.js');
-  await createTrackingIssueFromPR({ github, context, exec });
+  await createTrackingIssueFromPR({ github, contextRepo, prNumber });
 
 
 
