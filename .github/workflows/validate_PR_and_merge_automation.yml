@@ -23,7 +23,7 @@ jobs:
   validate_added_test_and_merge_pr:
     runs-on: [self-hosted, windows]
     needs: validate_pr_structure
-    # environment: test
+    # environment: test # @todo do we only wanna run this on forks?
 
     steps:
       - name: Checkout PR
