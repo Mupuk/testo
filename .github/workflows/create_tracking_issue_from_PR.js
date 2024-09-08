@@ -86,7 +86,7 @@ const createTrackingIssueFromPR = async ({github, contextRepo, prNumber}) => {
   await github.rest.issues.createComment({
     ...contextRepo,
     issue_number: prNumber,
-    body: `👋 Thanks for the contribution, please continue further discussion on this matter here: #${issue.html_url}!`
+    body: `👋 Thanks for the contribution, please continue further discussion on this matter here: ${issue.html_url}!`
   })
 
   return issue.number;
