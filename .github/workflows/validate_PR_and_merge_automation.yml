@@ -23,7 +23,7 @@ jobs:
   validate_and_merge_pr:
     runs-on: [self-hosted, windows]
     needs: sb_bb_pr_checker
-    environment: test
+    # environment: test
 
     steps:
       - name: Checkout repository
