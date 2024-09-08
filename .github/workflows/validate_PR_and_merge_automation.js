@@ -111,8 +111,8 @@ const validateAddedTestAndMergeOnSuccess = async ({ github, exec, io, contextRep
   await exec.exec('git', ['config', 'user.email', 'github-actions[bot]@users.noreply.github.com']);
   await exec.exec('git', ['add', '--all']);
   await exec.exec('git', ['commit', '-m', 'Updated file paths via GitHub Actions']);
-  // await exec.exec('git', ['push']);
-  await exec.exec('git', ['push', 'origin', `HEAD:${prRef}`]);
+  await exec.exec('git', ['push']);
+  // await exec.exec('git', ['push', 'origin', `HEAD:${prRef}`]);
 
 
   // if test crashes, merge PR
