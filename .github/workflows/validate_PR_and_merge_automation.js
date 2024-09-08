@@ -123,7 +123,7 @@ const validateAddedTestAndMergeOnSuccess = async ({ github, exec, io, contextRep
   const mergeResponse = await github.rest.pulls.merge({
     ...contextRepo,
     pull_number: prNumber,
-    merge_method: 'merge'  // Use 'merge', 'squash', or 'rebase' depending on your needs
+    merge_method: 'squash'  // Use 'merge', 'squash', or 'rebase' depending on your needs
   });
 
   console.log(mergeResponse);
