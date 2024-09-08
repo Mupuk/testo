@@ -28,14 +28,14 @@ jobs:
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
-        with:
-          ref: ${{ github.event.pull_request.head.ref }}  # Checkout the PR branch
+        # with:
+        #   ref: ${{ github.event.pull_request.head.ref }}  # Checkout the PR branch
 
       - name: Validate new Test and Merge Pull Request
         uses: actions/github-script@v7
         with:
           script: |
             const { validateAddedTestAndMergeOnSuccess } = require('./.github/workflows/validate_PR_and_merge_automation.js');
-            await validateAddedTestAndMergeOnSuccess({ github, exec, io, contextRepo: context.repo, prNumber: context.issue.number });
+            await validateAddedTestAndMergeOnSuccess({ github, exec, io, contextRepo: context.repo, prNumber: context.issue.number, prRef: '${{ github.event.pull_request.head.ref }}' });
 
             

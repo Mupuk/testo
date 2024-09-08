@@ -51,7 +51,7 @@ const _validatePRStructure = async ({ github, contextRepo, prNumber }) => {
 
 // This is run after a SB/BB PR has been manually approved
 // It should run in the context of the PR branch
-const validateAddedTestAndMergeOnSuccess = async ({ github, exec, io, contextRepo, prNumber }) => {
+const validateAddedTestAndMergeOnSuccess = async ({ github, exec, io, contextRepo, prNumber, prRef }) => {
   console.log(`Validating Pull Request #${prNumber}...`);
 
   const { data: pr } = await github.rest.pulls.get({
@@ -111,7 +111,8 @@ const validateAddedTestAndMergeOnSuccess = async ({ github, exec, io, contextRep
   await exec.exec('git', ['config', 'user.email', 'github-actions[bot]@users.noreply.github.com']);
   await exec.exec('git', ['add', '--all']);
   await exec.exec('git', ['commit', '-m', 'Updated file paths via GitHub Actions']);
-  await exec.exec('git', ['push']);
+  // await exec.exec('git', ['push']);
+  await exec.exec('git', ['push', 'origin', `HEAD:${prRef}`]);
 
 
   // if test crashes, merge PR
