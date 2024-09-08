@@ -106,12 +106,12 @@ const validateAddedTestAndMergeOnSuccess = async ({ github, exec, io, contextRep
     const oldFileName = filePaths[0];
     const newFileName = oldFileName.replace(/(?<=^compiler_bugs\/EC\d+_)(\S+)(?=\.jai)/, trackingIssueNumber);
     console.log(newFileName);
-    // await io.mv(oldFileName, newFileName);
+    await io.mv(oldFileName, newFileName);
   } else { // BB, folder structure
     const oldFolderName = filePaths[0].split('/').slice(0, -1).join('/');
     const newFolderName = oldFolderName.replace(/(?<=^compiler_bugs\/EC\d+_)(\S+)/, trackingIssueNumber);
     console.log(newFolderName);
-    // await io.mv(oldFolderName, newFolderName);
+    await io.mv(oldFolderName, newFolderName);
   }
 
   // Git commands to add, commit, and push changes
@@ -135,12 +135,12 @@ const validateAddedTestAndMergeOnSuccess = async ({ github, exec, io, contextRep
   console.log(pr.head);
   console.log(pr2.head);
 
-  const mergeResponse = await github.rest.pulls.merge({
-    ...contextRepo,
-    pull_number: prNumber,
-    merge_method: 'squash'  // Use 'merge', 'squash', or 'rebase' depending on your needs
-  });
-  console.log(mergeResponse);
+  // const mergeResponse = await github.rest.pulls.merge({
+  //   ...contextRepo,
+  //   pull_number: prNumber,
+  //   merge_method: 'squash'  // Use 'merge', 'squash', or 'rebase' depending on your needs
+  // });
+  // console.log(mergeResponse);
 };
 
 module.exports = {
