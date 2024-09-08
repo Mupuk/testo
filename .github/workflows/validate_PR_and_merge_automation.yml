@@ -31,11 +31,22 @@ jobs:
         with:
           ref: ${{ github.event.pull_request.head.ref }}
 
+      - name: git log
+        run: git log 
+
       - name: Validate new Test and Merge Pull Request
         uses: actions/github-script@v7
         with:
           script: |
             const { validateAddedTestAndMergeOnSuccess } = require('./.github/workflows/validate_PR_and_merge_automation.js');
             await validateAddedTestAndMergeOnSuccess({ github, exec, io, contextRepo: context.repo, prNumber: context.issue.number });
+
+      - name: git log
+        run: git log 
+
+      - name: Checkout issue-161
+        uses: actions/checkout@v4
+        with:
+          ref: issue-161
 
             

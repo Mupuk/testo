@@ -41,7 +41,7 @@ const _validatePRStructure = async ({ github, contextRepo, prNumber }) => {
 
   console.log(isSingleFile);
   console.log(isSingleFolderWithFirstJaiFile);
-  console.log(fileResponse);
+  console.log(filePaths);
 
   // Error, PR doesnt match needed structure
   if (!isSingleFile && !isSingleFolderWithFirstJaiFile) {
@@ -126,14 +126,6 @@ const validateAddedTestAndMergeOnSuccess = async ({ github, exec, io, contextRep
   // await exec.exec('git', ['merge', '--squash', pr.head.ref]);
   // await exec.exec('git', ['commit', '-m', 'Squash merge PR branch into master']);
   // await exec.exec('git', ['push', 'origin', 'master']);
-
-  const { data: pr2 } = await github.rest.pulls.get({
-    ...contextRepo,
-    pull_number: prNumber
-  });
-
-  console.log(pr);
-  console.log(pr2);
 
   // const mergeResponse = await github.rest.pulls.merge({
   //   ...contextRepo,
