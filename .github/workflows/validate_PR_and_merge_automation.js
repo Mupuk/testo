@@ -85,7 +85,8 @@ const validateAddedTestAndMergeOnSuccess = async ({ github, exec, io, contextRep
   }
   
   const createTrackingIssueFromPR = require('./create_tracking_issue_from_PR.js');
-  const trackingIssueNumber = await createTrackingIssueFromPR({ github, contextRepo, prNumber });
+  // const trackingIssueNumber = await createTrackingIssueFromPR({ github, contextRepo, prNumber });
+  const trackingIssueNumber = 666;
   
   const path = require('path');
   const fs = require('fs');
