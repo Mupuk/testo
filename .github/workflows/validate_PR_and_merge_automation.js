@@ -100,13 +100,22 @@ const validateAddedTestAndMergeOnSuccess = async ({ github, exec, io, contextRep
     const oldFileName = filePaths[0];
     const newFileName = oldFileName.replace(/(?<=^compiler_bugs\/EC\d+_)(\S+)(?=\.jai)/, 666); // @todo tracking issue number
     console.log(newFileName);
-    // await io.mv(oldFileName, newFileName);
+    await io.mv(oldFileName, newFileName);
   } else { // BB, folder structure
     const oldFolderName = filePaths[0].split('/').slice(0, -1).join('/');
     const newFolderName = oldFolderName.replace(/(?<=^compiler_bugs\/EC\d+_)(\S+)/, 666); // @todo tracking issue number
     console.log(newFolderName);
-    // await io.mv(oldFolderName, newFolderName);
+    await io.mv(oldFolderName, newFolderName);
   }
+
+  // Git commands to add, commit, and push changes
+  const { execSync } = require('child_process');
+  execSync('git config --global user.name "github-actions[bot]"');
+  execSync('git config --global user.email "github-actions[bot]@users.noreply.github.com"');
+  
+  execSync('git add .');
+  execSync('git commit -m "Renamed folder via GitHub Actions"');
+  execSync('git push');
 
 
   // if test crashes, merge PR
