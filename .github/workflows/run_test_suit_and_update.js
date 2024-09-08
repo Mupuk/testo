@@ -147,7 +147,7 @@ const runTestSuitAndUpdate = async ({ github, context, exec, io }) => {
   //           0.1.092       0.1.092
   //           0.1.091          -
   // 
-  const removedTestNames = Object.values(oldTestResultsByVersion[previousVersion].results).filter(obj1 =>
+  const removedTestNames = Object.values(oldTestResultsByVersion[previousVersion]?.results || []).filter(obj1 =>
     !newTestResultsByVersion[previousVersion]  // if the previous version does not exist in new log, then all tests are removed
     || !Object.values(newTestResultsByVersion[previousVersion].results).some(obj2 => obj1.file === obj2.file) // if the file does not exist in new log
   );
