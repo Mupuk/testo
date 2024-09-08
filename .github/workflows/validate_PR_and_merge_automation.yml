@@ -17,7 +17,7 @@ jobs:
         uses: actions/github-script@v7
         with:
           script: |
-            const { SBAndBBPRChecker } = require('./.github/workflows/SB_and_BB_PR_checker.js');
+            const { SBAndBBPRChecker } = require('./.github/workflows/validate_PR_and_merge_automation.js');
             await SBAndBBPRChecker({ github, context });
 
   validate_and_merge_pr:
@@ -33,7 +33,7 @@ jobs:
         uses: actions/github-script@v7
         with:
           script: |
-            const { validateAddedTestAndMergeOnSuccess } = require('./.github/workflows/SB_and_BB_PR_checker.js');
+            const { validateAddedTestAndMergeOnSuccess } = require('./.github/workflows/validate_PR_and_merge_automation.js');
             await validateAddedTestAndMergeOnSuccess({ github, exec, contextRepo: context.repo, prNumber: context.issue.number });
 
             

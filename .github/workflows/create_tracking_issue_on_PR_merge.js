@@ -73,11 +73,11 @@ const createTrackingIssueOnPRMerge = async ({github, context, exec}) => {
   // https://github.com/peter-evans/create-pull-request/blob/main/docs/concepts-guidelines.md#triggering-further-workflow-runs
 
   // Add Current Compiler Label
-  await github.rest.issues.addLabels({
-    ...context.repo,
-    issue_number: issue.number,
-    labels: [ currentVersion ]
-  });
+  // await github.rest.issues.addLabels({
+  //   ...context.repo,
+  //   issue_number: issue.number,
+  //   labels: [ currentVersion ]
+  // });
 
   await github.rest.issues.createComment({
     ...context.repo,

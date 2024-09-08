@@ -22,16 +22,16 @@ jobs:
             const prNumber = await createPRFromSBIssue({ github, context, exec });
             core.setOutput('prNumber', prNumber);
 
-      # Ideally, we would like to trigger the SB_and_BB_PR_checker workflow here automatically, but
+      # Ideally, we would like to trigger the validate_PR_and_merge_automation workflow here automatically, but
       # since this is disabled when using the GITHUB_TOKEN, we will trigger it manually.
       # https://docs.github.com/en/actions/writing-workflows/choosing-when-your-workflow-runs/triggering-a-workflow#triggering-a-workflow-from-a-workflow
 
-      - name: Manual Trigger SB_and_BB_PR_checker
+      - name: Manual Trigger validate_PR_and_merge_automation
         id: pr_checker
         uses: actions/github-script@v7
         with:
           script: |
-            const { _SBAndBBPRChecker } = require('./.github/workflows/SB_and_BB_PR_checker.js');
+            const { _SBAndBBPRChecker } = require('./.github/workflows/validate_PR_and_merge_automation.js');
             await _SBAndBBPRChecker({ github, contextRepo: context.repo, prNumber: ${{ steps.create_pr_from_sb_issue.outputs.prNumber }} });
 
 

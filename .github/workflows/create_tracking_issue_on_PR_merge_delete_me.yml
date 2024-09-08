@@ -18,7 +18,7 @@
 # [x] automated PR for single file 
 # [x] JonSaid add date
 # [x] close PR update to parse the things
-# [ ] SB_and_BB_PR_checker
+# [x] validate_PR_and_merge_automation
 # [ ] add broken platform info
 # [ ] label colors
 # [ ] issue mention not working after PR create
