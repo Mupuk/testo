@@ -121,12 +121,19 @@ const validateAddedTestAndMergeOnSuccess = async ({ github, exec, io, contextRep
   await exec.exec('git', ['commit', '-m', 'Updated file paths to match tracking issue number']);
   await exec.exec('git', ['push']);
   
-  await exec.exec('git', ['checkout', 'issue-161']);
-  await exec.exec('git', ['pull', 'origin', 'master']);
+  // await exec.exec('git', ['checkout', 'master']);
+  // await exec.exec('git', ['pull', 'origin', 'master']);
   // await exec.exec('git', ['merge', '--squash', pr.head.ref]);
   // await exec.exec('git', ['commit', '-m', 'Squash merge PR branch into master']);
-  await exec.exec('git', ['push', 'origin', 'issue-161']);
+  // await exec.exec('git', ['push', 'origin', 'master']);
 
+  const { data: pr2 } = await github.rest.pulls.get({
+    ...contextRepo,
+    pull_number: prNumber
+  });
+
+  console.log(pr.head.ref);
+  console.log(pr2.head.ref);
 
   const mergeResponse = await github.rest.pulls.merge({
     ...contextRepo,
