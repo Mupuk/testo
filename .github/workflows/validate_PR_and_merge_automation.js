@@ -84,8 +84,8 @@ const validateAddedTestAndMergeOnSuccess = async ({ github, exec, io, contextRep
     process.exit(1);
   }
   
-  // const createTrackingIssueFromPR = require('./create_tracking_issue_from_PR.js');
-  // const trackingIssueNumber = await createTrackingIssueFromPR({ github, contextRepo, prNumber });
+  const createTrackingIssueFromPR = require('./create_tracking_issue_from_PR.js');
+  const trackingIssueNumber = await createTrackingIssueFromPR({ github, contextRepo, prNumber });
   
   const path = require('path');
   const fs = require('fs');
@@ -103,12 +103,12 @@ const validateAddedTestAndMergeOnSuccess = async ({ github, exec, io, contextRep
   // We already know that the structure is valid, so we can just take the first file
   if (isSingleFile) {
     const oldFileName = filePaths[0];
-    const newFileName = oldFileName.replace(/(?<=^compiler_bugs\/EC\d+_)(\S+)(?=\.jai)/, 666); // @todo tracking issue number
+    const newFileName = oldFileName.replace(/(?<=^compiler_bugs\/EC\d+_)(\S+)(?=\.jai)/, trackingIssueNumber);
     console.log(newFileName);
     await io.mv(oldFileName, newFileName);
   } else { // BB, folder structure
     const oldFolderName = filePaths[0].split('/').slice(0, -1).join('/');
-    const newFolderName = oldFolderName.replace(/(?<=^compiler_bugs\/EC\d+_)(\S+)/, 666); // @todo tracking issue number
+    const newFolderName = oldFolderName.replace(/(?<=^compiler_bugs\/EC\d+_)(\S+)/, trackingIssueNumber);
     console.log(newFolderName);
     await io.mv(oldFolderName, newFolderName);
   }
@@ -120,20 +120,11 @@ const validateAddedTestAndMergeOnSuccess = async ({ github, exec, io, contextRep
   await exec.exec('git', ['commit', '-m', 'Updated file paths to match tracking issue number']);
   await exec.exec('git', ['push']);
 
-  // if test crashes, merge PR
-  // const mergeResponse = await github.pulls.merge({
-  //   owner: context.repo.owner,
-  //   repo: context.repo.repo,
-  //   pull_number: prNumber,
-  //   merge_method: 'merge'  // Use 'merge', 'squash', or 'rebase' depending on your needs
-  // });
-
-  // if (mergeResponse.status === 200) {
-  //   console.log(`Pull Request #${prNumber} merged successfully.`);
-  // } else {
-  //   console.error(`Failed to merge Pull Request #${prNumber}.`);
-  //   process.exit(1);  // Exit with failure
-  // }
+  const mergeResponse = await github.pulls.merge({
+    ...contextRepo,
+    pull_number: prNumber,
+    merge_method: 'merge'  // Use 'merge', 'squash', or 'rebase' depending on your needs
+  });
 };
 
 module.exports = {
