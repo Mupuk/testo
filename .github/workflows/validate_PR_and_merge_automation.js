@@ -1,11 +1,11 @@
 const { dir } = require('console');
 
-const SBAndBBPRChecker = async ({ github, context }) => {
-  await _SBAndBBPRChecker({ github, contextRepo: context.repo, prNumber: context.issue.number });
+const validatePRStructure = async ({ github, context }) => {
+  await validatePRStructure({ github, contextRepo: context.repo, prNumber: context.issue.number });
 };
 
 // @todo test if folder checks are correct
-const _SBAndBBPRChecker = async ({ github, contextRepo, prNumber }) => {
+const _validatePRStructure = async ({ github, contextRepo, prNumber }) => {
   const { data: pr } = await github.rest.pulls.get({
     ...contextRepo,
     pull_number: prNumber
@@ -63,7 +63,7 @@ const validateAddedTestAndMergeOnSuccess = async ({ github, exec, io, contextRep
 
   // Check that its a SB or BB
   const match = pr.title.match(/^\[([SB]B)\]:/)?.[1]
-  if (!match) process.exit(1); // should never happen, as we already checked this in SBAndBBPRChecker
+  if (!match) process.exit(1); // should never happen, as we already checked this in validatePRStructure
   const isSingleFile = match === 'SB'; // false means its a BB
 
   console.log(isSingleFile);
@@ -133,7 +133,7 @@ const validateAddedTestAndMergeOnSuccess = async ({ github, exec, io, contextRep
 };
 
 module.exports = {
-  SBAndBBPRChecker,
-  _SBAndBBPRChecker,
+  validatePRStructure,
+  _validatePRStructure,
   validateAddedTestAndMergeOnSuccess
 };

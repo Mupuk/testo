@@ -6,7 +6,7 @@ on:
     types: [opened, edited, synchronize]
 
 jobs:
-  sb_bb_pr_checker:
+  validate_pr_structure:
     runs-on: [self-hosted, windows]
 
     steps:
@@ -17,12 +17,12 @@ jobs:
         uses: actions/github-script@v7
         with:
           script: |
-            const { SBAndBBPRChecker } = require('./.github/workflows/validate_PR_and_merge_automation.js');
-            await SBAndBBPRChecker({ github, context });
+            const { validatePRStructure } = require('./.github/workflows/validate_PR_and_merge_automation.js');
+            await validatePRStructure({ github, context });
 
-  validate_and_merge_pr:
+  validate_added_test_and_merge_pr:
     runs-on: [self-hosted, windows]
-    needs: sb_bb_pr_checker
+    needs: validate_pr_structure
     # environment: test
 
     steps:
