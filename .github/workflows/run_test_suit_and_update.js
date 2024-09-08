@@ -151,7 +151,7 @@ const runTestSuitAndUpdate = async ({ github, context, exec, io }) => {
     !newTestResultsByVersion[previousVersion]  // if the previous version does not exist in new log, then all tests are removed
     || !Object.values(newTestResultsByVersion[previousVersion].results).some(obj2 => obj1.file === obj2.file) // if the file does not exist in new log
   );
-  console.log('removedTestNames\n', removedTestNames);
+  console.log('removedTestNames \n', removedTestNames);
 };
 
 module.exports = runTestSuitAndUpdate;
