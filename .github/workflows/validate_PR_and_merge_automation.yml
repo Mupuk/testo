@@ -41,16 +41,12 @@ jobs:
             const { validateAddedTestAndMergeOnSuccess } = require('./.github/workflows/validate_PR_and_merge_automation.js');
             await validateAddedTestAndMergeOnSuccess({ github, exec, io, contextRepo: context.repo, prNumber: context.issue.number });
 
-      - name: git log
-        run: git log 
-
-      # - name: Checkout issue-161
-      #   uses: actions/checkout@v4
-      #   with:
-      #     ref: issue-161
-
-      - name: git log
-        run: git log 
+      # Not sure why the merge below only works after Checking out the PR again.
+      # If we dont do this, the merge will fail with 'Head branch is out of date'
+      - name: Checkout Updated PR
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.ref }}
 
       - name: Merge PR
         uses: actions/github-script@v7
@@ -61,6 +57,5 @@ jobs:
               pull_number: context.issue.number,
               merge_method: 'squash'  // Use 'merge', 'squash', or 'rebase' depending on your needs
             });
-            console.log(mergeResponse);
 
             
