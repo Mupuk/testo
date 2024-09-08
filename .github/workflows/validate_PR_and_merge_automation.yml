@@ -31,6 +31,19 @@ jobs:
         with:
           ref: ${{ github.event.pull_request.head.ref }}
 
+      - name: Set up Git user
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+
+      - name: Rebase PR branch onto master
+        run: |
+          git fetch origin master
+          git rebase origin/master
+
+      - name: Push the rebased branch
+        run: git push origin HEAD --force-with-lease
+
       - name: Validate new Test and Merge Pull Request
         uses: actions/github-script@v7
         with:

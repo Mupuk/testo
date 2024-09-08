@@ -114,8 +114,8 @@ const validateAddedTestAndMergeOnSuccess = async ({ github, exec, io, contextRep
   }
 
   // Git commands to add, commit, and push changes
-  await exec.exec('git', ['config', 'user.name', 'github-actions[bot]']);
-  await exec.exec('git', ['config', 'user.email', 'github-actions[bot]@users.noreply.github.com']);
+  // await exec.exec('git', ['config', 'user.name', 'github-actions[bot]']);
+  // await exec.exec('git', ['config', 'user.email', 'github-actions[bot]@users.noreply.github.com']);
   await exec.exec('git', ['add', '--all']);
   await exec.exec('git', ['commit', '-m', 'Updated file paths to match tracking issue number']);
   await exec.exec('git', ['push']);
