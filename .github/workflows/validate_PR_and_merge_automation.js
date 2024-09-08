@@ -93,7 +93,7 @@ const validateAddedTestAndMergeOnSuccess = async ({ github, exec, io, contextRep
       console.error(`Error reading directory: ${error}`);
     }
   }
-  listFilesInDirectorySync(dirPath);
+  listFilesInDirectorySync('compiler_bugs');
 
   // We already know that the structure is valid, so we can just take the first file
   if (isSingleFile) {
