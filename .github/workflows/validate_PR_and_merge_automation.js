@@ -109,13 +109,11 @@ const validateAddedTestAndMergeOnSuccess = async ({ github, exec, io, contextRep
   }
 
   // Git commands to add, commit, and push changes
-  const { execSync } = require('child_process');
-  execSync('git config --global user.name "github-actions[bot]"');
-  execSync('git config --global user.email "github-actions[bot]@users.noreply.github.com"');
-  
-  execSync('git add .');
-  execSync('git commit -m "Renamed folder via GitHub Actions"');
-  execSync('git push');
+ await exec.exec('git', ['config', 'user.name', 'github-actions[bot]']);
+  await exec.exec('git', ['config', 'user.email', 'github-actions[bot]@users.noreply.github.com']);
+  await exec.exec('git', ['add .']);
+  await exec.exec('git', ['commit', '-m', 'Updated file content via GitHub Actions']);
+  await exec.exec('git', ['push']);
 
 
   // if test crashes, merge PR
