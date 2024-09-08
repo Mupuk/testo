@@ -1,3 +1,5 @@
+const { dir } = require('console');
+
 const SBAndBBPRChecker = async ({ github, context }) => {
   await _SBAndBBPRChecker({ github, contextRepo: context.repo, prNumber: context.issue.number });
 };
@@ -11,7 +13,7 @@ const _SBAndBBPRChecker = async ({ github, contextRepo, prNumber }) => {
 
   // Check that its a SB or BB
   const match = pr.title.match(/^\[([SB]B)\]:/)?.[1]
-  if (!match) return;
+  if (!match) return; // its not a SB or BB, ignore it since its probably a normal PR
 
   const fileResponse = await github.rest.pulls.listFiles({
     ...contextRepo,
@@ -21,6 +23,7 @@ const _SBAndBBPRChecker = async ({ github, contextRepo, prNumber }) => {
 
   const filePaths = fileResponse.data.map(file => file.filename);
 
+  // @todo also fix validateAddedTestAndMergeOnSuccess
   if (filePaths.length === 100) {
     await github.rest.issues.createComment({
       ...contextRepo,
@@ -30,18 +33,19 @@ const _SBAndBBPRChecker = async ({ github, contextRepo, prNumber }) => {
     process.exit(1);
   }
 
-  const isSingleFile = filePaths.length === 1 && (/compiler_bugs\/EC\d+_[\S]+\.jai/).test(filePaths[0]);
+  const isSingleFile = filePaths.length === 1 && (/^compiler_bugs\/EC\d+_[\S]+\.jai/).test(filePaths[0]);
 
   const folders = filePaths.map(file => file.split('/').slice(0, -1).join('/'));
   const uniqueFolders = [...new Set(folders)];
   const isSingleFolderWithFirstJaiFile = uniqueFolders.length === 1
-    && (/^compiler_bugs\/[^\/]+\//).test(uniqueFolders[0])
-    && filePaths.some(f => (/^compiler_bugs\/[^\/]+\/first.jai/).test(f));
+    && (/^compiler_bugs\/EC\d+_[\S]+\//).test(uniqueFolders[0]) // this is redundant because of below?
+    && filePaths.some(f => (/^compiler_bugs\/EC\d+_[\S]+\/first.jai/).test(f));
 
   console.log(isSingleFile);
   console.log(isSingleFolderWithFirstJaiFile);
   console.log(fileResponse);
 
+  // Error, PR doesnt match needed structure
   if (!isSingleFile && !isSingleFolderWithFirstJaiFile) {
     process.exit(1);
   }
@@ -49,17 +53,52 @@ const _SBAndBBPRChecker = async ({ github, contextRepo, prNumber }) => {
 
 // This is run after a SB/BB PR has been manually approved
 // It should run in the context of the PR branch
-const validateAddedTestAndMergeOnSuccess = async ({ github, exec, contextRepo, prNumber }) => {
+const validateAddedTestAndMergeOnSuccess = async ({ github, exec, io, contextRepo, prNumber }) => {
   console.log(`Validating Pull Request #${prNumber}...`);
 
-  // checkout PR instead of master!!
+  const { data: pr } = await github.rest.pulls.get({
+    ...contextRepo,
+    pull_number: prNumber
+  });
 
+  // Check that its a SB or BB
+  const match = pr.title.match(/^\[([SB]B)\]:/)?.[1]
+  if (!match) process.exit(1); // should never happen, as we already checked this in SBAndBBPRChecker
+  const isSingleFile = match === 'SB'; // false means its a BB
+
+  console.log(isSingleFile);
+  
   // check that test crashes / is != expected return code
   // get files so we know what to run
-
+  
   const createTrackingIssueFromPR = require('./create_tracking_issue_from_PR.js');
   const trackingIssueNumber = await createTrackingIssueFromPR({ github, contextRepo, prNumber });
+  
+  const fileResponse = await github.rest.pulls.listFiles({
+    ...contextRepo,
+    pull_number: prNumber,
+    per_page: 100
+  });
+  
+  const filePaths = fileResponse.data.map(file => file.filename);
+  console.log(filePaths);
 
+  const path = require('path');
+  const fs = require('fs');
+  function listFilesInDirectorySync(dirPath) {
+    try {
+      const files = fs.readdirSync(dirPath);
+      console.log('Files in directory:', files);
+      return files;
+    } catch (error) {
+      console.error(`Error reading directory: ${error}`);
+    }
+  }
+
+  const dirPath = path.join(process.cwd(), 'compiler_bugs');
+  console.log(dirPath);
+  listFilesInDirectorySync(dirPath);
+  // await io.mv('path/to/file', 'path/to/dest');
 
 
   // if test crashes, merge PR

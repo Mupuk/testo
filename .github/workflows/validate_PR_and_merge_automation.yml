@@ -26,7 +26,7 @@ jobs:
     environment: test
 
     steps:
-      - name: Checkout PR Branch
+      - name: Checkout repository
         uses: actions/checkout@v4
         # with:
         #   # Checkout the pull request branch instead of master
@@ -39,6 +39,6 @@ jobs:
         with:
           script: |
             const { validateAddedTestAndMergeOnSuccess } = require('./.github/workflows/validate_PR_and_merge_automation.js');
-            await validateAddedTestAndMergeOnSuccess({ github, exec, contextRepo: context.repo, prNumber: context.issue.number });
+            await validateAddedTestAndMergeOnSuccess({ github, exec, io, contextRepo: context.repo, prNumber: context.issue.number });
 
             
