@@ -1,5 +1,3 @@
-const { dir } = require('console');
-
 const validatePRStructure = async ({ github, context }) => {
   await validatePRStructure({ github, contextRepo: context.repo, prNumber: context.issue.number });
 };
