@@ -152,6 +152,11 @@ const runTestSuitAndUpdate = async ({ github, context, exec, io }) => {
     || !Object.values(newTestResultsByVersion[previousVersion].results).some(obj2 => obj1.file === obj2.file) // if the file does not exist in new log
   );
   console.log('removedTestNames\n', removedTestNames);
+
+
+  // WARNING A TEST CAN BE IN newTestNames AND changedTestNames
+  // probably handle new and removed first and then changed. So the
+  // double update doesnt matter since changed parses the issue again anyways
 };
 
 module.exports = runTestSuitAndUpdate;
