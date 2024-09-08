@@ -115,42 +115,18 @@ const validateAddedTestAndMergeOnSuccess = async ({ github, exec, io, contextRep
   }
 
   // Git commands to add, commit, and push changes
-  // await exec.exec('git', ['config', 'user.name', 'github-actions[bot]']);
-  // await exec.exec('git', ['config', 'user.email', 'github-actions[bot]@users.noreply.github.com']);
-  // await exec.exec('git', ['add', '--all']);
-  // await exec.exec('git', ['commit', '-m', 'Updated file paths to match tracking issue number']);
-  // await exec.exec('git', ['push']);
-  
-  // await exec.exec('git', ['checkout', 'master']);
-  // await exec.exec('git', ['pull', 'origin', 'master']);
-  // await exec.exec('git', ['merge', '--squash', pr.head.ref]);
-  // await exec.exec('git', ['commit', '-m', 'Squash merge PR branch into master']);
-  // await exec.exec('git', ['push', 'origin', 'master']);
-
-
-  // Step 1: Configure Git user
   await exec.exec('git', ['config', 'user.name', 'github-actions[bot]']);
   await exec.exec('git', ['config', 'user.email', 'github-actions[bot]@users.noreply.github.com']);
-
-  // Step 2: Add and commit any changes
   await exec.exec('git', ['add', '--all']);
   await exec.exec('git', ['commit', '-m', 'Updated file paths to match tracking issue number']);
+  await exec.exec('git', ['push']);
+  
+  await exec.exec('git', ['checkout', 'issue-161']);
+  await exec.exec('git', ['pull', 'origin', 'master']);
+  // await exec.exec('git', ['merge', '--squash', pr.head.ref]);
+  // await exec.exec('git', ['commit', '-m', 'Squash merge PR branch into master']);
+  await exec.exec('git', ['push', 'origin', 'issue-161']);
 
-  // Step 3: Pull the latest changes from the base branch (e.g., master)
-  try {
-    await exec.exec('git', ['pull', '--rebase', 'origin', 'master']);
-  } catch (error) {
-    console.log('Rebase failed, attempting to abort...');
-    await exec.exec('git', ['rebase', '--abort']);  // Abort if the rebase fails
-    throw new Error('Rebase failed, manual intervention needed.');
-  }
-
-  // Step 4: Push the updated PR branch
-  try {
-    await exec.exec('git', ['push', 'origin', 'HEAD', '--force-with-lease']);
-  } catch (error) {
-    throw new Error('Failed to push the rebased branch.');
-  }
 
   const mergeResponse = await github.rest.pulls.merge({
     ...contextRepo,
