@@ -26,12 +26,12 @@ jobs:
       # since this is disabled when using the GITHUB_TOKEN, we will trigger it manually.
       # https://docs.github.com/en/actions/writing-workflows/choosing-when-your-workflow-runs/triggering-a-workflow#triggering-a-workflow-from-a-workflow
 
-      - name: Manual Trigger validate_PR_and_merge_automation
-        id: pr_checker
-        uses: actions/github-script@v7
-        with:
-          script: |
-            const { _validatePRStructure } = require('./.github/workflows/validate_PR_and_merge_automation.js');
-            await _validatePRStructure({ github, contextRepo: context.repo, prNumber: ${{ steps.create_pr_from_sb_issue.outputs.prNumber }} });
+      # - name: Manual Trigger validate_PR_and_merge_automation
+      #   id: pr_checker
+      #   uses: actions/github-script@v7
+      #   with:
+      #     script: |
+      #       const { _validatePRStructure } = require('./.github/workflows/validate_PR_and_merge_automation.js');
+      #       await _validatePRStructure({ github, contextRepo: context.repo, prNumber: ${{ steps.create_pr_from_sb_issue.outputs.prNumber }} });
 
 

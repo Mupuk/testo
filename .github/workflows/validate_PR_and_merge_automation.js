@@ -74,8 +74,15 @@ const validateAddedTestAndMergeOnSuccess = async ({ github, exec, io, contextRep
   const filePaths = fileResponse.data.map(file => file.filename);
   console.log(filePaths);
 
-  // check that test crashes / is != expected return code
-  // get files so we know what to run
+  // Make sure the test actually fails
+  const fileToRun = isSingleFile ? filePaths[0] : filePaths.find(f => (/^compiler_bugs\/EC\d+_\S+\/first.jai/).test(f));
+  const returnCode = await exec.exec('jai ' + fileToRun);
+  const expectedReturnCode = fileToRun.match(/(?<=EC)(\d+)(?=_\S+)/)[0];
+  console.log(returnCode);  
+  console.log(expectedReturnCode);  
+  if (returnCode !== expectedReturnCode) {
+    process.exit(1);
+  }
   
   // const createTrackingIssueFromPR = require('./create_tracking_issue_from_PR.js');
   // const trackingIssueNumber = await createTrackingIssueFromPR({ github, contextRepo, prNumber });
