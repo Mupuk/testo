@@ -132,8 +132,8 @@ const validateAddedTestAndMergeOnSuccess = async ({ github, exec, io, contextRep
     pull_number: prNumber
   });
 
-  console.log(pr.head);
-  console.log(pr2.head);
+  console.log(pr);
+  console.log(pr2);
 
   // const mergeResponse = await github.rest.pulls.merge({
   //   ...contextRepo,
