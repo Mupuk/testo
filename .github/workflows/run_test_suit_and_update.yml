@@ -18,5 +18,5 @@ jobs:
         uses: actions/github-script@v7
         with:
           script: |
-            const runTestSuitAndUpdate = require('./.github/workflows/runTestSuitAndUpdate.js');
+            const runTestSuitAndUpdate = require('./.github/workflows/run_test_suit_and_update.js');
             await runTestSuitAndUpdate({ github, context, exec, io });
