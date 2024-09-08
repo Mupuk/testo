@@ -116,23 +116,22 @@ const validateAddedTestAndMergeOnSuccess = async ({ github, exec, io, contextRep
   // Git commands to add, commit, and push changes
   // await exec.exec('git', ['config', 'user.name', 'github-actions[bot]']);
   // await exec.exec('git', ['config', 'user.email', 'github-actions[bot]@users.noreply.github.com']);
-  await exec.exec('git', ['add', '--all']);
-  await exec.exec('git', ['commit', '-m', 'Updated file paths to match tracking issue number']);
-  await exec.exec('git', ['push']);
+  // await exec.exec('git', ['add', '--all']);
+  // await exec.exec('git', ['commit', '-m', 'Updated file paths to match tracking issue number']);
+  // await exec.exec('git', ['push']);
   
-  await exec.exec('git', ['checkout', 'master']);
-  await exec.exec('git', ['pull', 'origin', 'master']);
-  await exec.exec('git', ['merge', '--squash', pr.head.ref]);
-  await exec.exec('git', ['commit', '-m', 'Squash merge PR branch into master']);
-  await exec.exec('git', ['push', 'origin', 'master']);
+  // await exec.exec('git', ['checkout', 'master']);
+  // await exec.exec('git', ['pull', 'origin', 'master']);
+  // await exec.exec('git', ['merge', '--squash', pr.head.ref]);
+  // await exec.exec('git', ['commit', '-m', 'Squash merge PR branch into master']);
+  // await exec.exec('git', ['push', 'origin', 'master']);
 
-  // const mergeResponse = await github.rest.pulls.merge({
-  //   ...contextRepo,
-  //   pull_number: prNumber,
-  //   merge_method: 'squash'  // Use 'merge', 'squash', or 'rebase' depending on your needs
-  // });
-
-  // console.log(mergeResponse);
+  const mergeResponse = await github.rest.pulls.merge({
+    ...contextRepo,
+    pull_number: prNumber,
+    merge_method: 'squash'  // Use 'merge', 'squash', or 'rebase' depending on your needs
+  });
+  console.log(mergeResponse);
 };
 
 module.exports = {
