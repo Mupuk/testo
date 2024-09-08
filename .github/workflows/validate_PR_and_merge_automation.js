@@ -33,13 +33,13 @@ const _SBAndBBPRChecker = async ({ github, contextRepo, prNumber }) => {
     process.exit(1);
   }
 
-  const isSingleFile = filePaths.length === 1 && (/^compiler_bugs\/EC\d+_[\S]+\.jai/).test(filePaths[0]);
+  const isSingleFile = filePaths.length === 1 && (/^compiler_bugs\/EC\d+_\S+\.jai/).test(filePaths[0]);
 
   const folders = filePaths.map(file => file.split('/').slice(0, -1).join('/'));
   const uniqueFolders = [...new Set(folders)];
   const isSingleFolderWithFirstJaiFile = uniqueFolders.length === 1
-    && (/^compiler_bugs\/EC\d+_[\S]+\//).test(uniqueFolders[0]) // this is redundant because of below?
-    && filePaths.some(f => (/^compiler_bugs\/EC\d+_[\S]+\/first.jai/).test(f));
+    && (/^compiler_bugs\/EC\d+_\S+\//).test(uniqueFolders[0]) // this is redundant because of below?
+    && filePaths.some(f => (/^compiler_bugs\/EC\d+_\S+\/first.jai/).test(f));
 
   console.log(isSingleFile);
   console.log(isSingleFolderWithFirstJaiFile);
@@ -93,11 +93,20 @@ const validateAddedTestAndMergeOnSuccess = async ({ github, exec, io, contextRep
       console.error(`Error reading directory: ${error}`);
     }
   }
-
-  const dirPath = 'compiler_bugs'; //path.join(process.cwd(), 'compiler_bugs');
-  console.log(dirPath);
   listFilesInDirectorySync(dirPath);
-  // await io.mv('path/to/file', 'path/to/dest');
+
+  // We already know that the structure is valid, so we can just take the first file
+  if (isSingleFile) {
+    const oldFileName = filePaths[0];
+    const newFileName = oldFolderName.replace(/^compiler_bugs\/EC\d+_(\S+)\.jai/, 666); // @todo tracking issue number
+    console.log(newFolderName);
+    // await io.mv(oldFileName, newFileName);
+  } else { // BB, folder structure
+    const oldFolderName = filePaths[0].split('/').slice(0, -1).join('/');
+    const newFolderName = oldFolderName.replace(/^compiler_bugs\/EC\d+_(\S+)/, 666); // @todo tracking issue number
+    console.log(newFolderName);
+    // await io.mv(oldFolderName, newFolderName);
+  }
 
 
   // if test crashes, merge PR
