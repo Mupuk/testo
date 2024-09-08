@@ -120,11 +120,13 @@ const validateAddedTestAndMergeOnSuccess = async ({ github, exec, io, contextRep
   await exec.exec('git', ['commit', '-m', 'Updated file paths to match tracking issue number']);
   await exec.exec('git', ['push']);
 
-  const mergeResponse = await github.pulls.merge({
+  const mergeResponse = await github.rest.pulls.merge({
     ...contextRepo,
     pull_number: prNumber,
     merge_method: 'merge'  // Use 'merge', 'squash', or 'rebase' depending on your needs
   });
+
+  console.log(mergeResponse);
 };
 
 module.exports = {
