@@ -280,8 +280,8 @@ Test_Result_Set :: struct {
   {
     test_result_sets[same_version_index] = current_result_set;
   }
-  // if not yet 5 results, add it
-  else if test_result_sets.count < 3 
+  // if not yet 3 results, add it
+  else if test_result_sets.count < 3 // @todo if we ever change this theres other places that break!!!
   {
     array_add(*test_result_sets, current_result_set);
   }

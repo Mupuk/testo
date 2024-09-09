@@ -74,6 +74,7 @@ const validateAddedTestAndMergeOnSuccess = async ({ github, exec, io, contextRep
   const filePaths = fileResponse.data.map(file => file.filename);
   console.log(filePaths);
 
+  // @todo rework this to work with multi platform
   // Make sure the test actually fails
   const fileToRun = isSingleFile ? filePaths[0] : filePaths.find(f => (/^compiler_bugs\/EC\d+_\S+\/first.jai/).test(f));
   const exitCode = await exec.exec('jai ' + fileToRun, [], { ignoreReturnCode: true });

@@ -61,9 +61,7 @@ const handleJonSaid = async ({ github, context, comment }) => {
     // second: '2-digit'
   };
   // Format the date and time
-  let time = new Intl.DateTimeFormat('en-CA', options).format(new Date());
-  // Extract the date part (YYYY-MM-DD)
-  let date = time.split(',')[0];
+  const date = new Date().toISOString().split('T')[0];
 
   const jonSaidBody = comment.body.split(/!JonSaid\s?/i)[1];
   if (jonSaidBody.length <= 25) return;
