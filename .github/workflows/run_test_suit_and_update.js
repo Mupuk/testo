@@ -252,6 +252,7 @@ const runTestSuitAndUpdate = async ({ github, context, exec, io }) => {
     console.log('issue', issue);
 
     let newCommentBody = issue.body;
+    let newLabels = issue.labels.map(label => label.name);
 
     // Get last history entry of current platform
     const lastHistoryEntryOfPCurrentlatform = [...newCommentBody.matchAll(parseIssueHistoryRegex)]
@@ -301,7 +302,7 @@ const runTestSuitAndUpdate = async ({ github, context, exec, io }) => {
         fixVersion = currentVersion;
         newEmailIn = '✅';
         newIssueState = 'closed';
-        issue.labels = issue.labels.filter((p) => p !== platform);
+        newLabels = newLabels.filter((p) => p !== platform);
       } else if (testToggled && !currentTest.passed_test) {
         // Test failed, add platform to broken list
         brokenPlatforms = [... new Set(lastBrokenPlatforms.split(', ').filter(p => p !== '-').concat(platform))].sort().join(', '); // add current platform to list
@@ -309,7 +310,7 @@ const runTestSuitAndUpdate = async ({ github, context, exec, io }) => {
         fixVersion = '-'; // no fix version yet
         newEmailIn = '❌';
         newIssueState = 'open';
-        issue.labels.push(currentVersion, platform);
+        newLabels.push(currentVersion, platform);
       } else {
         // Test result did not change
         brokenPlatforms = lastBrokenPlatforms;
@@ -319,7 +320,7 @@ const runTestSuitAndUpdate = async ({ github, context, exec, io }) => {
     })
 
     const { createLabels } = require('./create_label.js');
-    await createLabels({github, context, labelNames: issue.labels});
+    await createLabels({github, context, labelNames: newLabels});
 
     // Update comment
     await github.rest.issues.update({
@@ -327,7 +328,7 @@ const runTestSuitAndUpdate = async ({ github, context, exec, io }) => {
       issue_number: issueId,
       body: newCommentBody,
       ...(newIssueState ? { state: newIssueState, state_reason: newIssueState === 'open' ? 'reopened' : 'completed' } : {}),
-      labels: issue.labels
+      labels: newLabels
     });
   }
 

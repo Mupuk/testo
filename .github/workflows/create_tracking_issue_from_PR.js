@@ -69,7 +69,7 @@ const createTrackingIssueFromPR = async ({github, contextRepo, prNumber}) => {
     ...contextRepo,
     title: issueTitle,
     body: issueBody,
-    labels: pr.labels
+    labels: pr.labels.map(label => label.name)
   });
 
   // Since recursive workflows are not triggered when using GITHUB_TOKEN 
