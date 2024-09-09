@@ -179,7 +179,7 @@ const runTestSuitAndUpdate = async ({ github, context, exec, io }) => {
     let newCommentBody = issue.body;
 
     const parseIssueHeaderStatusRegex = /(?<=\| :.*\n)\| (?<status>.*?) \| (?<emailedIn>.*?) \| (?<reportedVersion>.*?) \| (?<lastBrokenPlatforms>.*?) \| (?<lastEncounteredVersion>.*?) \| (?<fixVersion>.*?) \|/im;
-    newCommentBody.replace(parseIssueHeaderStatusRegex, (match, status, emailedIn, reportedVersion, lastBrokenPlatforms, lastEncounteredVersion, fixVersion) => {
+    newCommentBody = newCommentBody.replace(parseIssueHeaderStatusRegex, (match, status, emailedIn, reportedVersion, lastBrokenPlatforms, lastEncounteredVersion, fixVersion) => {
       lastBrokenPlatforms = platform;
       // Since its a new bug, we know the latest version is broken so we use it here
       lastEncounteredVersion = currentVersion;
@@ -202,14 +202,14 @@ const runTestSuitAndUpdate = async ({ github, context, exec, io }) => {
       const currentDate = new Date().toISOString().split('T')[0];
       const currentPassedTest = currentTestResultOfVersion.passed_test ? '✅' : '❌';
       const currentErrorCode = currentTestResultOfVersion.did_run ? currentTestResultOfVersion.run_exit_code : currentTestResultOfVersion.compilation_exit_code;
-      const currentExpectedErrorCode = currentTestResultOfVersion.passed_test ? '✅' : '❌';
+      const currentExpectedErrorCode = currentTestResultOfVersion.expected_error_code;
       if (index === 0) {
         // Just append since the history is still empty
         newCommentBody = newCommentBody.trimEnd() + `\n| ${currentPassedTest} | ${platform} | ${currentDate} | ${version} | ${currentErrorCode} - Expected ${currentExpectedErrorCode} |`;
       } else {
         // Update history via regex, only works if at least one is there
           let replaceIndex = 0;
-          newCommentBody.replace(parseIssueHistoryRegex, (match, passedTest, platforms, date, oldVersion, errorCode, expectedErrorCode, i) => {
+          newCommentBody = newCommentBody.replace(parseIssueHistoryRegex, (match, passedTest, platforms, date, oldVersion, errorCode, expectedErrorCode, i) => {
               /////////////////////////////////////////////
               // Add New Row
               let newFirstRow = '';
