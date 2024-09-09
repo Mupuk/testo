@@ -301,7 +301,7 @@ const runTestSuitAndUpdate = async ({ github, context, exec, io }) => {
         fixVersion = currentVersion;
         newEmailIn = '✅';
         newIssueState = 'closed';
-        issue.labels.remove(platform);
+        issue.labels = issue.labels.filter((p) => p !== platform);
       } else if (testToggled && !currentTest.passed_test) {
         // Test failed, add platform to broken list
         brokenPlatforms = [... new Set(lastBrokenPlatforms.split(', ').filter(p => p !== '-').concat(platform))].sort().join(', '); // add current platform to list
