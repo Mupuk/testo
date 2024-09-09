@@ -30,6 +30,7 @@ const decrementVersionString = (version, count = 1) => {
 const runTestSuitAndUpdate = async ({ github, context, exec, io }) => {
   const path = require('path');
   const fs = require('fs');
+  const { createLabels } = require('./create_label.js');
 
   // Jai Version
   const { isDeepEqual, jaiVersion: getJaiVersion } = require('./utils.js');
@@ -178,6 +179,7 @@ const runTestSuitAndUpdate = async ({ github, context, exec, io }) => {
     issue.body = issue.body.replace(/\r\n/g, '\n').replace(/\r/g, '\n');
 
     let newCommentBody = issue.body;
+    let newLabels = issue.labels.map(label => label.name);
 
     newCommentBody = newCommentBody.replace(parseIssueHeaderStatusRegex, (match, emailedIn, lastBrokenPlatforms, lastEncounteredVersion, fixVersion) => {
       lastBrokenPlatforms = platform;
@@ -198,6 +200,11 @@ const runTestSuitAndUpdate = async ({ github, context, exec, io }) => {
       const currentPassedTest = currentTestResultOfVersion.passed_test ? '✅' : '❌';
       const currentErrorCode = currentTestResultOfVersion.did_run ? currentTestResultOfVersion.run_exit_code : currentTestResultOfVersion.compilation_exit_code;
       const currentExpectedErrorCode = currentTestResultOfVersion.expected_error_code;
+
+      if (currentTestResultOfVersion.passed_test === false) {
+        labelNames.push(version, platform);
+      }
+
       if (index === 0) {
         // Just append since the history is still empty
         newCommentBody = newCommentBody.trimEnd() + `\n| ${currentPassedTest} | ${platform} | ${currentDate} | ${version} | ${currentErrorCode} - Expected ${currentExpectedErrorCode} |`;
@@ -225,14 +232,22 @@ const runTestSuitAndUpdate = async ({ github, context, exec, io }) => {
       }
     });
 
+    newLabels = [...new Set(newLabels)]; // remove duplicates
+    await createLabels({github, context, labelNames: newLabels});
+
     // @todo instead up update here, pass result to updater
     // Update comment
     await github.rest.issues.update({
       ...context.repo,
       issue_number: issueId,
-      body: newCommentBody
+      body: newCommentBody,
+      labels: newLabels
     });
   }
+
+
+
+
 
 
 
@@ -319,7 +334,7 @@ const runTestSuitAndUpdate = async ({ github, context, exec, io }) => {
       return `| ${newEmailIn} | ${brokenPlatforms} | ${lastEncounteredVersion} | ${fixVersion} |`;
     })
 
-    const { createLabels } = require('./create_label.js');
+    newLabels = [...new Set(newLabels)]; // remove duplicates
     await createLabels({github, context, labelNames: newLabels});
 
     // Update comment
