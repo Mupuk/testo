@@ -63,7 +63,7 @@ const createTrackingIssueFromPR = async ({github, contextRepo, prNumber}) => {
   
   // Create Tracking Issue
   const { format } = require('./utils.js');
-  const issueTitle = `${pr.title}`;
+  const issueTitle = `[TRACKER] #${prNumber}`;
   const issueBody = format(issueTrackerTemplate, parsedBody);
   const { data: issue } = await github.rest.issues.create({
     ...contextRepo,
