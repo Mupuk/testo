@@ -268,7 +268,7 @@ const runTestSuitAndUpdate = async ({ github, context, exec, io }) => {
       }, {})[platform];
       console.log('lastHistoryEntryOfPCurrentlatform', lastHistoryEntryOfPCurrentlatform);
 
-    const testToggled = (lastHistoryEntryOfPCurrentlatform.passed_test === false && currentTest.passed_test === true) || (lastHistoryEntryOfPCurrentlatform.passed_test === true && currentTest.passed_test === false);
+    const testToggled = (lastHistoryEntryOfPCurrentlatform.passed_test === '❌' && currentTest.passed_test === true) || (lastHistoryEntryOfPCurrentlatform.passed_test === '✅' && currentTest.passed_test === false);
 
     let replaceIndex = 0;
     newCommentBody = newCommentBody.replace(parseIssueHistoryRegex, (match, passedTest, platforms, date, oldVersion, errorCode, expectedErrorCode, i) => {
