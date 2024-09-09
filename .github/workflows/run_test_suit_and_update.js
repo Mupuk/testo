@@ -235,7 +235,7 @@ const runTestSuitAndUpdate = async ({ github, context, exec, io }) => {
     await github.rest.issues.update({
       ...context.repo,
       issue_number: issueId,
-      body: result
+      body: newCommentBody
     });
   }
 
