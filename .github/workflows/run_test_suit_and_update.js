@@ -321,7 +321,7 @@ const runTestSuitAndUpdate = async ({ github, context, exec, io }) => {
       ...context.repo,
       issue_number: issueId,
       body: newCommentBody,
-      ...(newIssueState ? { state: newIssueState, state_reason: newIssueState === 'open' ? 'reopened' : 'closed' } : {}),
+      ...(newIssueState ? { state: newIssueState, state_reason: newIssueState === 'open' ? 'reopened' : 'completed' } : {}),
     });
   }
 
