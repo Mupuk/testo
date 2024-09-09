@@ -65,7 +65,7 @@ const runTestSuitAndUpdate = async ({ github, context, exec, io }) => {
   // Get new test results
   let newTestResults = [];
   try {
-    const data = fs.readFileSync('test_results.json', 'utf8');
+    const data = fs.readFileSync('temp_test_results.json', 'utf8');
     newTestResults = JSON.parse(data);
   } catch (err) {
     console.error("Error reading file:", err);
@@ -313,9 +313,9 @@ const runTestSuitAndUpdate = async ({ github, context, exec, io }) => {
     });
   }
 
-  // Handle all removed Tests
-  for (const currentTest of removedTests) {
-  }
+  // Don't think we need to handle removed tests
+  // for (const currentTest of removedTests) {
+  // }
 
   // @todo instead up update here, pass result to updater
   return 'updated row';
