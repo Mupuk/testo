@@ -189,6 +189,7 @@ const runTestSuitAndUpdate = async ({ github, context, exec, io }) => {
     })
 
     console.log('newCommentBody', newCommentBody);
+    console.log('tester', parseIssueHeaderStatusRegex.test(newCommentBody)); 
 
 
     const parseIssueHistoryRegex = /(?<=History$\s(?:.*$\s){2,})\| (?<passedTest>.*?) \| (?<platforms>.*?) \| (?<date>.*?) \| (?<version>.*?) \| (?<errorCode>\d+) - Expected (?<expectedErrorCode>\d+) \|/img;
