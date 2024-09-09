@@ -177,7 +177,7 @@ const runTestSuitAndUpdate = async ({ github, context, exec, io }) => {
     });
 
     let newCommentBody = issue.body;
-    console.log('oriCommentBody', newCommentBody);
+    console.log('Raw newCommentBody:', JSON.stringify(newCommentBody));
 
     const parseIssueHeaderStatusRegex = /(?<=\| :-.*\s)\| (?<status>.*?) \| (?<emailedIn>.*?) \| (?<reportedVersion>.*?) \| (?<lastBrokenPlatforms>.*?) \| (?<lastEncounteredVersion>.*?) \| (?<fixVersion>.*?) \|/im;
     newCommentBody = newCommentBody.replace(parseIssueHeaderStatusRegex, (match, status, emailedIn, reportedVersion, lastBrokenPlatforms, lastEncounteredVersion, fixVersion) => {
@@ -194,8 +194,10 @@ const runTestSuitAndUpdate = async ({ github, context, exec, io }) => {
 
     const parseIssueHistoryRegex = /(?<=History$\s(?:.*$\s){2,})\| (?<passedTest>.*?) \| (?<platforms>.*?) \| (?<date>.*?) \| (?<version>.*?) \| (?<errorCode>\d+) - Expected (?<expectedErrorCode>\d+) \|/img;
     // since its a new issue, the history should be empty, all platforms in the matrix only get the original state and it will be udpated after all of them ran
-    if (parseIssueHistoryRegex.test(newCommentBody))
+    if (parseIssueHistoryRegex.test(newCommentBody)) {
+      console.error('History already exists in issue:', issueId);
       process.exit(1); // Should never happen
+    }
 
     console.log('newCommentBody', newCommentBody);
 
