@@ -164,6 +164,7 @@ const runTestSuitAndUpdate = async ({ github, context, exec, io }) => {
 
   // Handle all new Tests
   for (const currentTest of newTests) {
+    console.log('newTest', currentTest);
     const issueId = Number.parseInt(currentTest.file.match(/\d+(?=[./])/)?.[0]) || -1;
     if (issueId === -1) {
       console.error('Issue ID not found in file name:', currentTest);
@@ -234,7 +235,8 @@ const runTestSuitAndUpdate = async ({ github, context, exec, io }) => {
   }
 
 
-  // Handle all new Tests
+
+  // Handle all changed Tests
   for (const currentTest of changedTests) {
     console.log('changedTest', currentTest);
     const issueId = Number.parseInt(currentTest.file.match(/\d+(?=[./])/)?.[0]) || -1;
@@ -294,7 +296,7 @@ const runTestSuitAndUpdate = async ({ github, context, exec, io }) => {
         // Test passed, remove platform from broken list
         brokenPlatforms = lastBrokenPlatforms.split(', ').filter(p => p !== platform).join(', ') || '-'; // remove current platform from list
         fixVersion = currentVersion;
-      } else {
+      } else { // ehehehehhe @todo
         // Test failed, add platform to broken list
         brokenPlatforms = [... new Set(lastBrokenPlatforms.split(', ').filter(p => p !== '-').concat(platform))].sort().join(', '); // add current platform to list
         lastEncounteredVersion = [lastEncounteredVersion, currentVersion].sort().reverse()[0]
