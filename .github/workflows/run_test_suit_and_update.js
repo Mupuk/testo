@@ -134,6 +134,7 @@ const runTestSuitAndUpdate = async ({ github, context, exec, io }) => {
   const changedTests = Object.values(newTestResultsByVersion[currentVersion].results).filter(
     obj1 => obj1.file in newTestResultsByVersion[previousVersion].results  // if the file exists in old log
       && !isDeepEqual(obj1, newTestResultsByVersion[previousVersion].results[obj1.file]) // if the test results are different
+      && !newTests.some( (test) => test.file === obj1.file) // if the test is not new
   )
   console.log('changedTests\n', changedTests);
 
@@ -152,19 +153,17 @@ const runTestSuitAndUpdate = async ({ github, context, exec, io }) => {
   );
   console.log('removedTests\n', removedTests);
 
-
-  // WARNING A TEST CAN BE IN newTests AND changedTests
-  // probably handle new and removed first and then changed. So the
-  // double update doesnt matter since changed parses the issue again anyways
-
   console.log(`Running on platform: ${process.env.RUNNER_OS}`);
 
   const platform = 'win'; //@todo get platform from env
   const oldToNewCompilerVersions = newTestResults.map(item => item.version).sort()
+  const currentDate = new Date().toISOString().split('T')[0];
+  
+  const parseIssueHeaderStatusRegex = /(?<=\| :-.*\s)\| (?<emailedIn>.*?) \| (?<lastBrokenPlatforms>.*?) \| (?<lastEncounteredVersion>.*?) \| (?<fixVersion>.*?) \|/im;
+  const parseIssueHistoryRegex = /(?<=History$\s(?:.*$\s){2,})\| (?<passedTest>.*?) \| (?<platforms>.*?) \| (?<date>.*?) \| (?<version>.*?) \| (?<errorCode>\d+) - Expected (?<expectedErrorCode>\d+) \|/img;
 
+  // Handle all new Tests
   for (const currentTest of newTests) {
-    console.log('new test', currentTest);
-
     const issueId = Number.parseInt(currentTest.file.match(/\d+(?=[./])/)?.[0]) || -1;
     if (issueId === -1) {
       console.error('Issue ID not found in file name:', currentTest);
@@ -175,40 +174,26 @@ const runTestSuitAndUpdate = async ({ github, context, exec, io }) => {
       ...context.repo,
       issue_number: issueId
     });
+    issue.body = issue.body.replace(/\r\n/g, '\n').replace(/\r/g, '\n');
 
-    let newCommentBody = issue.body.replace(/\r\n/g, '\n').replace(/\r/g, '\n');
-    console.log('Raw newCommentBody:', JSON.stringify(newCommentBody));
-    console.log(`Current Node.js version: ${process.version}`);
+    let newCommentBody = issue.body;
 
-    const parseIssueHeaderStatusRegex = /(?<=\| :-.*\s)\| (?<emailedIn>.*?) \| (?<lastBrokenPlatforms>.*?) \| (?<lastEncounteredVersion>.*?) \| (?<fixVersion>.*?) \|/im;
     newCommentBody = newCommentBody.replace(parseIssueHeaderStatusRegex, (match, emailedIn, lastBrokenPlatforms, lastEncounteredVersion, fixVersion) => {
-      console.log('######################################### YOO FOUND THINGY #########################################');
       lastBrokenPlatforms = platform;
       // Since its a new bug, we know the latest version is broken so we use it here
       lastEncounteredVersion = currentVersion;
       return `| ${emailedIn} | ${lastBrokenPlatforms} | ${lastEncounteredVersion} | ${fixVersion} |`;
     })
 
-    console.log('newCommentBody', newCommentBody);
-    console.log('tester', parseIssueHeaderStatusRegex.test(newCommentBody)); 
-
-
-    const parseIssueHistoryRegex = /(?<=History$\s(?:.*$\s){2,})\| (?<passedTest>.*?) \| (?<platforms>.*?) \| (?<date>.*?) \| (?<version>.*?) \| (?<errorCode>\d+) - Expected (?<expectedErrorCode>\d+) \|/img;
     // since its a new issue, the history should be empty, all platforms in the matrix only get the original state and it will be udpated after all of them ran
     if (parseIssueHistoryRegex.test(newCommentBody)) {
       console.error('History already exists in issue:', issueId);
       process.exit(1); // Should never happen
     }
 
-    console.log('newCommentBody', newCommentBody);
-
     // Go over all versions of the test run and change the history accordingly
     oldToNewCompilerVersions.forEach((version, index) => {
-      console.log('version', version);
-      console.log('currentTest', currentTest);
       const currentTestResultOfVersion = newTestResultsByVersion[version].results[currentTest.file];
-      console.log(currentTestResultOfVersion);
-      const currentDate = new Date().toISOString().split('T')[0];
       const currentPassedTest = currentTestResultOfVersion.passed_test ? '✅' : '❌';
       const currentErrorCode = currentTestResultOfVersion.did_run ? currentTestResultOfVersion.run_exit_code : currentTestResultOfVersion.compilation_exit_code;
       const currentExpectedErrorCode = currentTestResultOfVersion.expected_error_code;
@@ -246,6 +231,86 @@ const runTestSuitAndUpdate = async ({ github, context, exec, io }) => {
       issue_number: issueId,
       body: newCommentBody
     });
+  }
+
+
+  // Handle all new Tests
+  for (const currentTest of changedTests) {
+    console.log('changedTest', currentTest);
+    const issueId = Number.parseInt(currentTest.file.match(/\d+(?=[./])/)?.[0]) || -1;
+    if (issueId === -1) {
+      console.error('Issue ID not found in file name:', currentTest);
+      continue;
+    }
+
+    const { data: issue } = await github.rest.issues.get({
+      ...context.repo,
+      issue_number: issueId
+    });
+    issue.body = issue.body.replace(/\r\n/g, '\n').replace(/\r/g, '\n');
+
+    let newCommentBody = issue.body;
+
+    // Get last history entry of current platform
+    const lastHistoryEntryOfPCurrentlatform = [...newCommentBody.matchAll(parseIssueHistoryRegex)]
+      .map(match => match.groups) // Extract groups
+      .reduce ((acc, item, i) => { // Reduce to last entry per platform
+        const platforms = item.platforms.split(',').map(p => p.trim()); // In case platforms are comma-separated
+        platforms.forEach(platform => {
+          if (!acc[platform]) {
+            acc[platform] = item;
+            acc[platform]['index'] = i; // Add row index for later use
+          }
+        });
+        return acc;
+      }, {})[platform];
+      console.log('lastHistoryEntryOfPCurrentlatform', lastHistoryEntryOfCurrentPlatform);
+
+
+    let replaceIndex = 0;
+    newCommentBody = newCommentBody.replace(parseIssueHistoryRegex, (match, passedTest, platforms, date, oldVersion, errorCode, expectedErrorCode, i) => {
+      /////////////////////////////////////////////
+      // Add New Row
+      let newFirstRow = '';
+      const addNewEntry = !currentTest.passed_test || (lastHistoryEntryOfPCurrentlatform.passed_test === false && currentTest.passed_test === true);
+      if (replaceIndex === 0 && addNewEntry) {
+        replaceIndex++; // increment counter
+        newFirstRow = `| ${currentTest.passed_test ? '✅' : '❌'} | ${platform} | ${currentDate} | ${currentVersion} | ${currentTest.did_run ? currentTest.run_exit_code : currentTest.compilation_exit_code} - Expected ${currentTest.expected_error_code} |\n`
+      }
+      
+      /////////////////////////////////////////////
+      // Overwrite Old Row
+      replaceIndex++; // increment counter
+      let oldRow = `| ${passedTest} | ${platforms} | ${date} | ${oldVersion} | ${errorCode} - Expected ${expectedErrorCode} |`
+      return `${newFirstRow}${oldRow}`;
+    })
+    
+    // Update header status
+    newCommentBody = newCommentBody.replace(parseIssueHeaderStatusRegex, (match, emailedIn, lastBrokenPlatforms, lastEncounteredVersion, fixVersion) => {
+      const testToggled = (lastHistoryEntryOfPCurrentlatform.passed_test === false && currentTest.passed_test === true) || (lastHistoryEntryOfPCurrentlatform.passed_test === true && currentTest.passed_test === false);
+      let brokenPlatforms;
+      if (testToggled && currentTest.passed_test) {
+        // Test passed, remove platform from broken list
+        brokenPlatforms = lastBrokenPlatforms.split(', ').filter(p => p !== platform).join(', ') || '-'; // remove current platform from list
+        fixVersion = currentVersion;
+      } else {
+        // Test failed, add platform to broken list
+        brokenPlatforms = [... new Set(lastBrokenPlatforms.split(', ').filter(p => p !== '-').concat(platform))].sort().join(', '); // add current platform to list
+      }
+      return `| ${testToggled && currentTest.passed_test ? '✅' : '❌'} | ${brokenPlatforms} | ${[lastEncounteredVersion, currentVersion].sort().reverse()[0]} | ${fixVersion} |`;
+    })
+
+    // @todo instead up update here, pass result to updater
+    // Update comment
+    await github.rest.issues.update({
+      ...context.repo,
+      issue_number: issueId,
+      body: newCommentBody
+    });
+  }
+
+  // Handle all removed Tests
+  for (const currentTest of removedTests) {
   }
 
   // @todo instead up update here, pass result to updater
