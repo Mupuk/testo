@@ -178,6 +178,7 @@ const runTestSuitAndUpdate = async ({ github, context, exec, io }) => {
 
     let newCommentBody = issue.body;
     console.log('Raw newCommentBody:', JSON.stringify(newCommentBody));
+    console.log(`Current Node.js version: ${process.version}`);
 
     const parseIssueHeaderStatusRegex = /(?<=\| :-.*\s)\| (?<status>.*?) \| (?<emailedIn>.*?) \| (?<reportedVersion>.*?) \| (?<lastBrokenPlatforms>.*?) \| (?<lastEncounteredVersion>.*?) \| (?<fixVersion>.*?) \|/im;
     newCommentBody = newCommentBody.replace(parseIssueHeaderStatusRegex, (match, status, emailedIn, reportedVersion, lastBrokenPlatforms, lastEncounteredVersion, fixVersion) => {
