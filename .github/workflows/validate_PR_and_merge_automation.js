@@ -126,14 +126,14 @@ const validateAddedTestAndMergeOnSuccess = async ({ github, exec, io, contextRep
   // If we dont do this, the merge will fail with 'Head branch is out of date'
   // Currently, we work around this by checking out the PR branch again
 
-  console.log('trying to merge')
+  // console.log('trying to merge')
 
-  const mergeResponse = await github.rest.pulls.merge({
-    ...contextRepo,
-    pull_number: prNumber,
-    merge_method: 'squash'  // Use 'merge', 'squash', or 'rebase' depending on your needs
-  });
-  console.log(mergeResponse);
+  // const mergeResponse = await github.rest.pulls.merge({
+  //   ...contextRepo,
+  //   pull_number: prNumber,
+  //   merge_method: 'squash'  // Use 'merge', 'squash', or 'rebase' depending on your needs
+  // });
+  // console.log(mergeResponse);
 };
 
 module.exports = {
