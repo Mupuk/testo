@@ -25,7 +25,7 @@ const issueTrackerTemplate = `
 ### History
 | Passed Test | Platforms  | Date | Version | Error Code |
 | :--: | :-------------: | :-------------: | :------------: | :------------: |
-`;
+`.replace(/\r\n/g, '\n').replace(/\r/g, '\n');
 
 // Parse PR Body of SB/BB template
 function parsePrBody(text) {
@@ -55,6 +55,7 @@ const createTrackingIssueFromPR = async ({github, contextRepo, prNumber}) => {
     ...contextRepo,
     pull_number: prNumber
   });
+  pr.body = pr.body.replace(/\r\n/g, '\n').replace(/\r/g, '\n');
   
   // parse PR body
   const date = new Date().toISOString().split('T')[0];

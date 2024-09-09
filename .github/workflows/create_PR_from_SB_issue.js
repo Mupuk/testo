@@ -32,7 +32,7 @@ Closes: #{issue_number}
 \`\`\`c
 {code}
 \`\`\`
-`;
+`.replace(/\r\n/g, '\n').replace(/\r/g, '\n');
 
 function parseIssueBody(text) {
   const sections = text.split('### ').slice(1); // Split into sections by headings
@@ -76,6 +76,7 @@ const createPRFromSBIssue = async ({github, context, exec}) => {
     ...context.repo,
     issue_number: context.issue.number
   });
+  issue.body = issue.body.replace(/\r\n/g, '\n').replace(/\r/g, '\n');
 
   // Check that its a SB
   const isSB = /^\[SB\]:/.test(issue.title);

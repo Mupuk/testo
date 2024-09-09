@@ -176,7 +176,7 @@ const runTestSuitAndUpdate = async ({ github, context, exec, io }) => {
       issue_number: issueId
     });
 
-    let newCommentBody = issue.body;
+    let newCommentBody = issue.body.replace(/\r\n/g, '\n').replace(/\r/g, '\n');
     console.log('Raw newCommentBody:', JSON.stringify(newCommentBody));
     console.log(`Current Node.js version: ${process.version}`);
 

@@ -18,6 +18,7 @@ const handleEmailedIn = async ({ github, context }) => {
     ...context.repo,
     issue_number: context.issue.number
   });
+  issue.body = issue.body.replace(/\r\n/g, '\n').replace(/\r/g, '\n');
 
   let parsedFields = parseIssueCommentBody(issue.body);
 
