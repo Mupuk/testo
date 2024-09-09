@@ -78,7 +78,7 @@ const validateAddedTestAndMergeOnSuccess = async ({ github, exec, io, contextRep
   // Make sure the test actually fails
   const fileToRun = isSingleFile ? filePaths[0] : filePaths.find(f => (/^compiler_bugs\/EC\d+_\S+\/first.jai/).test(f));
   const exitCode = await exec.exec('jai ' + fileToRun, [], { ignoreReturnCode: true });
-  const expectedExitCode = fileToRun.match(/(?<=EC)(\d+)(?=_\S+)/)[0];
+  const expectedExitCode = Number.parseInt(fileToRun.match(/(?<=EC)(\d+)(?=_\S+)/)[0]);
   console.log(exitCode);  
   console.log(expectedExitCode);  
   if (exitCode === expectedExitCode) {

@@ -155,11 +155,10 @@ const createPRFromSBIssue = async ({github, context, exec}) => {
   })
 
   // Not sure if we should close or lock the original issue
-  // @todo uncomment after testing
-  // await github.rest.issues.lock({
-  //   ...context.repo,
-  //   issue_number: context.issue.number,
-  // })
+  await github.rest.issues.lock({
+    ...context.repo,
+    issue_number: context.issue.number,
+  })
 
   // await github.rest.issues.update({
   //   ...context.repo,
