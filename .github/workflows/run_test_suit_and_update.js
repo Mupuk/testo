@@ -132,7 +132,7 @@ const runTestSuitAndUpdate = async ({ github, context, exec, io }) => {
   //           0.1.091          -
   // 
   const changedTests = Object.values(newTestResultsByVersion[currentVersion].results).filter(
-    obj1 => obj1.file in newTestResultsByVersion[previousVersion].results  // if the file exists in old log
+    obj1 => obj1.file in newTestResultsByVersion[previousVersion].results  // if the file exists in previous version, this should be redundant?
       && !isDeepEqual(obj1, newTestResultsByVersion[previousVersion].results[obj1.file]) // if the test results are different
       && !newTests.some( (test) => test.file === obj1.file) // if the test is not new
   )
