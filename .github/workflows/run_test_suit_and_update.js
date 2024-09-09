@@ -266,13 +266,15 @@ const runTestSuitAndUpdate = async ({ github, context, exec, io }) => {
       }, {})[platform];
       console.log('lastHistoryEntryOfPCurrentlatform', lastHistoryEntryOfPCurrentlatform);
 
+    const testToggled = (lastHistoryEntryOfPCurrentlatform.passed_test === false && currentTest.passed_test === true) || (lastHistoryEntryOfPCurrentlatform.passed_test === true && currentTest.passed_test === false);
 
     let replaceIndex = 0;
     newCommentBody = newCommentBody.replace(parseIssueHistoryRegex, (match, passedTest, platforms, date, oldVersion, errorCode, expectedErrorCode, i) => {
       /////////////////////////////////////////////
       // Add New Row
       let newFirstRow = '';
-      const addNewEntry = !currentTest.passed_test || (lastHistoryEntryOfPCurrentlatform.passed_test === false && currentTest.passed_test === true);
+      // only add new entry if status changed, or if the test still failes on a newer version
+      const addNewEntry = testToggled || !testToggled && lastHistoryEntryOfPCurrentlatform.version !== currentVersion && currentTest.passed_test === false;
       if (replaceIndex === 0 && addNewEntry) {
         replaceIndex++; // increment counter
         newFirstRow = `| ${currentTest.passed_test ? '✅' : '❌'} | ${platform} | ${currentDate} | ${currentVersion} | ${currentTest.did_run ? currentTest.run_exit_code : currentTest.compilation_exit_code} - Expected ${currentTest.expected_error_code} |\n`
@@ -287,7 +289,6 @@ const runTestSuitAndUpdate = async ({ github, context, exec, io }) => {
     
     // Update header status
     newCommentBody = newCommentBody.replace(parseIssueHeaderStatusRegex, (match, emailedIn, lastBrokenPlatforms, lastEncounteredVersion, fixVersion) => {
-      const testToggled = (lastHistoryEntryOfPCurrentlatform.passed_test === false && currentTest.passed_test === true) || (lastHistoryEntryOfPCurrentlatform.passed_test === true && currentTest.passed_test === false);
       let brokenPlatforms;
       if (testToggled && currentTest.passed_test) {
         // Test passed, remove platform from broken list
