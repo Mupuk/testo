@@ -26,17 +26,23 @@ jobs:
     # environment: test # @todo do we only wanna run this on forks?
 
     steps:
+      - uses: actions/create-github-app-token@v1
+        id: app-token
+        with:
+          app-id: ${{ secrets.APP_ID }}
+          private-key: ${{ secrets.APP_PRIVATE_KEY }}
+
       - name: Checkout PR
         uses: actions/checkout@v4
         with:
+          token: ${{ steps.app-token.outputs.token }}
+          persist-credentials: false
           ref: ${{ github.event.pull_request.head.ref }}
-
-      - name: git log
-        run: git log 
 
       - name: Validate new Test and Merge Pull Request
         uses: actions/github-script@v7
         with:
+          github-token: ${{ steps.app-token.outputs.token }}
           script: |
             const { validateAddedTestAndMergeOnSuccess } = require('./.github/workflows/validate_PR_and_merge_automation.js');
             await validateAddedTestAndMergeOnSuccess({ github, exec, io, contextRepo: context.repo, prNumber: context.issue.number });
@@ -46,11 +52,14 @@ jobs:
       - name: Checkout Updated PR
         uses: actions/checkout@v4
         with:
+          token: ${{ steps.app-token.outputs.token }}
+          persist-credentials: false
           ref: ${{ github.event.pull_request.head.ref }}
 
       - name: Merge PR
         uses: actions/github-script@v7
         with:
+          github-token: ${{ steps.app-token.outputs.token }}
           script: |
             const mergeResponse = await github.rest.pulls.merge({
               ...context.repo,

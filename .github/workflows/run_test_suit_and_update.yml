@@ -11,12 +11,22 @@ jobs:
     runs-on: [self-hosted, windows]
 
     steps:
+      - uses: actions/create-github-app-token@v1
+        id: app-token
+        with:
+          app-id: ${{ secrets.APP_ID }}
+          private-key: ${{ secrets.APP_PRIVATE_KEY }}
+
       - name: Checkout repository
         uses: actions/checkout@v4
+        with:
+          token: ${{ steps.app-token.outputs.token }}
+          persist-credentials: false
 
       - name: Run Bug Suit
         uses: actions/github-script@v7
         with:
+          github-token: ${{ steps.app-token.outputs.token }}
           script: |
             const runTestSuitAndUpdate = require('./.github/workflows/run_test_suit_and_update.js');
             await runTestSuitAndUpdate({ github, context, exec, io });
