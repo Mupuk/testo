@@ -177,6 +177,7 @@ const runTestSuitAndUpdate = async ({ github, context, exec, io }) => {
     });
 
     let newCommentBody = issue.body;
+    console.log('oriCommentBody', newCommentBody);
 
     const parseIssueHeaderStatusRegex = /(?<=\| :.*\n)\| (?<status>.*?) \| (?<emailedIn>.*?) \| (?<reportedVersion>.*?) \| (?<lastBrokenPlatforms>.*?) \| (?<lastEncounteredVersion>.*?) \| (?<fixVersion>.*?) \|/im;
     newCommentBody = newCommentBody.replace(parseIssueHeaderStatusRegex, (match, status, emailedIn, reportedVersion, lastBrokenPlatforms, lastEncounteredVersion, fixVersion) => {
@@ -186,7 +187,7 @@ const runTestSuitAndUpdate = async ({ github, context, exec, io }) => {
       return `| ${status} | ${emailedIn} | ${reportedVersion} | ${lastBrokenPlatforms} | ${lastEncounteredVersion} | ${fixVersion} |`;
     })
 
-    console.log(newCommentBody);
+    console.log('newCommentBody', newCommentBody);
 
 
     const parseIssueHistoryRegex = /(?<=History$\s(?:.*$\s){2,})\| (?<passedTest>.*?) \| (?<platforms>.*?) \| (?<date>.*?) \| (?<version>.*?) \| (?<errorCode>\d+) - Expected (?<expectedErrorCode>\d+) \|/img;
@@ -194,7 +195,7 @@ const runTestSuitAndUpdate = async ({ github, context, exec, io }) => {
     if (parseIssueHistoryRegex.test(newCommentBody))
       process.exit(1); // Should never happen
 
-    console.log(newCommentBody);
+    console.log('newCommentBody', newCommentBody);
 
     // Go over all versions of the test run and change the history accordingly
     oldToNewCompilerVersions.forEach((version, index) => {
