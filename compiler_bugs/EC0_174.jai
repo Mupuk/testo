@@ -1,1 +1,3 @@
-#if crash {}
+// #if crash {}
+
+main :: () {}
