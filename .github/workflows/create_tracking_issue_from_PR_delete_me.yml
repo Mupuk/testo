@@ -19,31 +19,30 @@
 # [x] JonSaid add date
 # [x] close PR update to parse the things
 # [x] validate_PR_and_merge_automation
-# [ ] add broken platform info
+# [x] add broken platform info
 # [ ] label colors
-# [ ] issue mention not working after PR create
+# [x] issue mention not working after PR create
 # [ ] assign original owner to issue tracker
 # [ ] commit the test_result.json, is there any other way around that? we just 
     # use it to track new issues. Maybe we could check the issues history of the test
     # and do the things we need to do, when we see it doesnt have any entries?
-# [ ] rename PR file to new issue number, so we know which file belongs to what issue
+# [x] rename PR file to new issue number, so we know which file belongs to what issue
     # make sure it checks if it is a directory. Not sure how well we can handle that case
     # in confidently doing the right thing. If it is just a single file in the commit we know
     # that is the bug.
     # Scan all files, make sure its either a single file in bug dir, or a single folder. 
     # Otherwisse reject with comment.
-# [ ] rethink needed fields in depth
+# [x] rethink needed fields in depth
 # [ ] make issue/pr mention use link instead of message?
-# [ ] issue name (clasification only) from PR name or classification dropdown?
 
 # [x] Auto run Testsuit on push
 # [x] create test result json
 # [x] run for past 3-5 jai versions
 # [x] gather all test date, get it inot actions and do comparisons
 # [x] new issure tracker design
-# [ ] Update issue on test results
-#     [ ] change state, dates, labels
-#     [ ] how to map name to issue number? maybe we DO need an id
+# [x] Update issue on test results
+#     [x] change state, dates, labels
+#     [x] how to map name to issue number? maybe we DO need an id
 # [ ] summary tracker design
 # [ ] Update summary on test results
 #     [ ] link issue number
@@ -52,7 +51,7 @@
 #         or reopen compiler version (!= last encounter, maybe change that?)
 #     [ ] column ordering?
 #     [ ] recently fixed section (last 2 compiler versions?)
-# [ ] Auto run testsuit on approval of PR to check it actually crashes
+# [x] Auto run testsuit on approval of PR to check it actually crashes
 
 name: Create Issue on PR Merge
 
