@@ -179,7 +179,7 @@ const runTestSuitAndUpdate = async ({ github, context, exec, io }) => {
     let newCommentBody = issue.body;
     console.log('oriCommentBody', newCommentBody);
 
-    const parseIssueHeaderStatusRegex = /(?<=\| :.*\n)\| (?<status>.*?) \| (?<emailedIn>.*?) \| (?<reportedVersion>.*?) \| (?<lastBrokenPlatforms>.*?) \| (?<lastEncounteredVersion>.*?) \| (?<fixVersion>.*?) \|/im;
+    const parseIssueHeaderStatusRegex = /(?<=\| :-.*\s)\| (?<status>.*?) \| (?<emailedIn>.*?) \| (?<reportedVersion>.*?) \| (?<lastBrokenPlatforms>.*?) \| (?<lastEncounteredVersion>.*?) \| (?<fixVersion>.*?) \|/im;
     newCommentBody = newCommentBody.replace(parseIssueHeaderStatusRegex, (match, status, emailedIn, reportedVersion, lastBrokenPlatforms, lastEncounteredVersion, fixVersion) => {
       console.log('######################################### YOO FOUND THINGY #########################################');
       lastBrokenPlatforms = platform;
