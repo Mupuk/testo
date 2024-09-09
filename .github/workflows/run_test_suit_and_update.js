@@ -195,7 +195,10 @@ const runTestSuitAndUpdate = async ({ github, context, exec, io }) => {
 
     // Go over all versions of the test run and change the history accordingly
     oldToNewCompilerVersions.forEach((version, index) => {
+      console.log('version', version);
+      console.log('testName', testName);
       const currentTestResultOfVersion = newTestResultsByVersion[version].results[testName];
+      console.log(currentTestResultOfVersion);
       const currentDate = new Date().toISOString().split('T')[0];
       const currentPassedTest = currentTestResultOfVersion.passed_test ? '✅' : '❌';
       const currentErrorCode = currentTestResultOfVersion.did_run ? currentTestResultOfVersion.run_exit_code : currentTestResultOfVersion.compilation_exit_code;
