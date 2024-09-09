@@ -1,7 +1,7 @@
 const issueTrackerTemplate = `
-| Status | Emailed In | Reported Version | Last Broken Platforms | Last Encountered Version | Fix Version |
-| :---: | :---: | :---: | :---: | :---: | :---: |
-| Open | {alreadyReported} | - | - | - | - |
+| Emailed In | Last Broken Platforms | Last Encountered Version | Fix Version |
+| :---: | :---: | :---: | :---: |
+| {alreadyReported} | - | - | - |
 
 ### Description
 

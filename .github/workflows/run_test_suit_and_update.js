@@ -180,13 +180,13 @@ const runTestSuitAndUpdate = async ({ github, context, exec, io }) => {
     console.log('Raw newCommentBody:', JSON.stringify(newCommentBody));
     console.log(`Current Node.js version: ${process.version}`);
 
-    const parseIssueHeaderStatusRegex = /(?<=\| :-.*\s)\| (?<status>.*?) \| (?<emailedIn>.*?) \| (?<reportedVersion>.*?) \| (?<lastBrokenPlatforms>.*?) \| (?<lastEncounteredVersion>.*?) \| (?<fixVersion>.*?) \|/im;
-    newCommentBody = newCommentBody.replace(parseIssueHeaderStatusRegex, (match, status, emailedIn, reportedVersion, lastBrokenPlatforms, lastEncounteredVersion, fixVersion) => {
+    const parseIssueHeaderStatusRegex = /(?<=\| :-.*\s)\| (?<emailedIn>.*?) \| (?<lastBrokenPlatforms>.*?) \| (?<lastEncounteredVersion>.*?) \| (?<fixVersion>.*?) \|/im;
+    newCommentBody = newCommentBody.replace(parseIssueHeaderStatusRegex, (match, emailedIn, lastBrokenPlatforms, lastEncounteredVersion, fixVersion) => {
       console.log('######################################### YOO FOUND THINGY #########################################');
       lastBrokenPlatforms = platform;
       // Since its a new bug, we know the latest version is broken so we use it here
       lastEncounteredVersion = currentVersion;
-      return `| ${status} | ${emailedIn} | ${reportedVersion} | ${lastBrokenPlatforms} | ${lastEncounteredVersion} | ${fixVersion} |`;
+      return `| ${emailedIn} | ${lastBrokenPlatforms} | ${lastEncounteredVersion} | ${fixVersion} |`;
     })
 
     console.log('newCommentBody', newCommentBody);
