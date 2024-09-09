@@ -296,8 +296,9 @@ const runTestSuitAndUpdate = async ({ github, context, exec, io }) => {
       } else {
         // Test failed, add platform to broken list
         brokenPlatforms = [... new Set(lastBrokenPlatforms.split(', ').filter(p => p !== '-').concat(platform))].sort().join(', '); // add current platform to list
+        lastEncounteredVersion = [lastEncounteredVersion, currentVersion].sort().reverse()[0]
       }
-      return `| ${testToggled && currentTest.passed_test ? '✅' : '❌'} | ${brokenPlatforms} | ${[lastEncounteredVersion, currentVersion].sort().reverse()[0]} | ${fixVersion} |`;
+      return `| ${testToggled && currentTest.passed_test ? '✅' : '❌'} | ${brokenPlatforms} | ${lastEncounteredVersion} | ${fixVersion} |`;
     })
 
     // @todo instead up update here, pass result to updater
