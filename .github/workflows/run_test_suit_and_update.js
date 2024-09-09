@@ -112,12 +112,12 @@ const runTestSuitAndUpdate = async ({ github, context, exec, io }) => {
   //           0.1.092       0.1.092
   //           0.1.091          -
   // 
-  const newTestNames = Object.values(newTestResultsByVersion[previousVersion].results).filter(obj1 =>
+  const newTests = Object.values(newTestResultsByVersion[previousVersion].results).filter(obj1 =>
     !oldTestResultsByVersion[previousVersion]  // if the previous version does not exist in old log, then all tests are new
     || !Object.values(oldTestResultsByVersion[previousVersion].results).some(obj2 => obj1.file === obj2.file) // if the file does not exist in old log
   );
 
-  console.log('newTestNames\n', newTestNames);
+  console.log('newTests\n', newTests);
 
 
   // We need to update all issues where the status has changed. We compare the old and new log.
@@ -131,11 +131,11 @@ const runTestSuitAndUpdate = async ({ github, context, exec, io }) => {
   //           0.1.092       0.1.092
   //           0.1.091          -
   // 
-  const changedTestNames = Object.values(newTestResultsByVersion[currentVersion].results).filter(
+  const changedTests = Object.values(newTestResultsByVersion[currentVersion].results).filter(
     obj1 => obj1.file in newTestResultsByVersion[previousVersion].results  // if the file exists in old log
       && !isDeepEqual(obj1, newTestResultsByVersion[previousVersion].results[obj1.file]) // if the test results are different
   )
-  console.log('changedTestNames\n', changedTestNames);
+  console.log('changedTests\n', changedTests);
 
 
   // We need to find all tests that are removed to close their issues.
@@ -146,14 +146,14 @@ const runTestSuitAndUpdate = async ({ github, context, exec, io }) => {
   //           0.1.092       0.1.092
   //           0.1.091          -
   // 
-  const removedTestNames = Object.values(oldTestResultsByVersion[previousVersion]?.results || []).filter(obj1 =>
+  const removedTests = Object.values(oldTestResultsByVersion[previousVersion]?.results || []).filter(obj1 =>
     !newTestResultsByVersion[previousVersion]  // if the previous version does not exist in new log, then all tests are removed
     || !Object.values(newTestResultsByVersion[previousVersion].results).some(obj2 => obj1.file === obj2.file) // if the file does not exist in new log
   );
-  console.log('removedTestNames\n', removedTestNames);
+  console.log('removedTests\n', removedTests);
 
 
-  // WARNING A TEST CAN BE IN newTestNames AND changedTestNames
+  // WARNING A TEST CAN BE IN newTests AND changedTests
   // probably handle new and removed first and then changed. So the
   // double update doesnt matter since changed parses the issue again anyways
 
@@ -162,12 +162,12 @@ const runTestSuitAndUpdate = async ({ github, context, exec, io }) => {
   const platform = 'win'; //@todo get platform from env
   const oldToNewCompilerVersions = newTestResults.map(item => item.version).sort()
 
-  for (const testName of newTestNames) {
-    console.log('new test', testName);
+  for (const currentTest of newTests) {
+    console.log('new test', currentTest);
 
-    const issueId = Number.parseInt(testName.file.match(/\d+(?=[./])/)?.[0]) || -1;
+    const issueId = Number.parseInt(currentTest.file.match(/\d+(?=[./])/)?.[0]) || -1;
     if (issueId === -1) {
-      console.error('Issue ID not found in file name:', testName);
+      console.error('Issue ID not found in file name:', currentTest);
       continue;
     }
 
@@ -196,8 +196,8 @@ const runTestSuitAndUpdate = async ({ github, context, exec, io }) => {
     // Go over all versions of the test run and change the history accordingly
     oldToNewCompilerVersions.forEach((version, index) => {
       console.log('version', version);
-      console.log('testName', testName);
-      const currentTestResultOfVersion = newTestResultsByVersion[version].results[testName];
+      console.log('currentTest', currentTest);
+      const currentTestResultOfVersion = newTestResultsByVersion[version].results[currentTest.file];
       console.log(currentTestResultOfVersion);
       const currentDate = new Date().toISOString().split('T')[0];
       const currentPassedTest = currentTestResultOfVersion.passed_test ? '✅' : '❌';
@@ -213,7 +213,7 @@ const runTestSuitAndUpdate = async ({ github, context, exec, io }) => {
               /////////////////////////////////////////////
               // Add New Row
               let newFirstRow = '';
-              const testResultOfPreviousVersion = newTestResultsByVersion[oldToNewCompilerVersions[index-1]].results[testName];
+              const testResultOfPreviousVersion = newTestResultsByVersion[oldToNewCompilerVersions[index-1]].results[currentTest.file];
               const addNewEntry = currentTestResultOfVersion.passed_test === false || (currentTestResultOfVersion.passed_test === true && testResultOfPreviousVersion.passed_test === false);
               if (replaceIndex === 0 && addNewEntry) {
                 replaceIndex++; // increment counter
