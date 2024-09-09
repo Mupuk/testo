@@ -66,7 +66,7 @@ const runTestSuitAndUpdate = async ({ github, context, exec, io }) => {
   // Get new test results
   let newTestResults = [];
   try {
-    const data = fs.readFileSync('temp_test_results.json', 'utf8');
+    const data = fs.readFileSync('test_results.json', 'utf8');
     newTestResults = JSON.parse(data);
   } catch (err) {
     console.error("Error reading file:", err);
