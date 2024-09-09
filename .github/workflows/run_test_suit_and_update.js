@@ -292,16 +292,24 @@ const runTestSuitAndUpdate = async ({ github, context, exec, io }) => {
     // Update header status
     newCommentBody = newCommentBody.replace(parseIssueHeaderStatusRegex, (match, emailedIn, lastBrokenPlatforms, lastEncounteredVersion, fixVersion) => {
       let brokenPlatforms;
+      let newEmailIn;
       if (testToggled && currentTest.passed_test) {
         // Test passed, remove platform from broken list
         brokenPlatforms = lastBrokenPlatforms.split(', ').filter(p => p !== platform).join(', ') || '-'; // remove current platform from list
         fixVersion = currentVersion;
-      } else { // ehehehehhe @todo
+        newEmailIn = '✅';
+      } else if (testToggled && !currentTest.passed_test) {
         // Test failed, add platform to broken list
         brokenPlatforms = [... new Set(lastBrokenPlatforms.split(', ').filter(p => p !== '-').concat(platform))].sort().join(', '); // add current platform to list
         lastEncounteredVersion = [lastEncounteredVersion, currentVersion].sort().reverse()[0]
+        fixVersion = '-'; // no fix version yet
+        newEmailIn = '❌';
+      } else {
+        // Test result did not change
+        brokenPlatforms = lastBrokenPlatforms;
+        newEmailIn = emailedIn;
       }
-      return `| ${testToggled && currentTest.passed_test ? '✅' : '❌'} | ${brokenPlatforms} | ${lastEncounteredVersion} | ${fixVersion} |`;
+      return `| ${newEmailIn} | ${brokenPlatforms} | ${lastEncounteredVersion} | ${fixVersion} |`;
     })
 
     // @todo instead up update here, pass result to updater
