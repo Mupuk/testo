@@ -250,6 +250,7 @@ const runTestSuitAndUpdate = async ({ github, context, exec, io }) => {
       issue_number: issueId
     });
     issue.body = issue.body.replace(/\r\n/g, '\n').replace(/\r/g, '\n');
+    console.log('issue', issue);
 
     let newCommentBody = issue.body;
 
