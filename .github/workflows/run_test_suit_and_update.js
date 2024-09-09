@@ -165,7 +165,7 @@ const runTestSuitAndUpdate = async ({ github, context, exec, io }) => {
   for (const testName of newTestNames) {
     console.log('new test', testName);
 
-    const issueId = Number.parseInt(test.file.match(/\d+(?=[./])/)?.[0]) || -1;
+    const issueId = Number.parseInt(testName.file.match(/\d+(?=[./])/)?.[0]) || -1;
     if (issueId === -1) {
       console.error('Issue ID not found in file name:', testName);
       continue;
