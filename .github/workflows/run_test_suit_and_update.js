@@ -181,6 +181,7 @@ const runTestSuitAndUpdate = async ({ github, context, exec, io }) => {
 
     const parseIssueHeaderStatusRegex = /(?<=\| :.*\n)\| (?<status>.*?) \| (?<emailedIn>.*?) \| (?<reportedVersion>.*?) \| (?<lastBrokenPlatforms>.*?) \| (?<lastEncounteredVersion>.*?) \| (?<fixVersion>.*?) \|/im;
     newCommentBody = newCommentBody.replace(parseIssueHeaderStatusRegex, (match, status, emailedIn, reportedVersion, lastBrokenPlatforms, lastEncounteredVersion, fixVersion) => {
+      console.log('######################################### YOO FOUND THINGY #########################################');
       lastBrokenPlatforms = platform;
       // Since its a new bug, we know the latest version is broken so we use it here
       lastEncounteredVersion = currentVersion;
