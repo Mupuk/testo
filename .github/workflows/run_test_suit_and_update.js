@@ -238,7 +238,6 @@ const runTestSuitAndUpdate = async ({ github, context, exec, io }) => {
 
   // Handle all changed Tests
   for (const currentTest of changedTests) {
-    console.log('changedTest', currentTest);
     const issueId = Number.parseInt(currentTest.file.match(/\d+(?=[./])/)?.[0]) || -1;
     if (issueId === -1) {
       console.error('Issue ID not found in file name:', currentTest);
@@ -267,10 +266,10 @@ const runTestSuitAndUpdate = async ({ github, context, exec, io }) => {
         });
         return acc;
       }, {})[platform];
-    console.log('lastHistoryEntryOfPCurrentlatform', lastHistoryEntryOfPCurrentlatform);
 
     const testToggled = (lastHistoryEntryOfPCurrentlatform.passedTest === '❌' && currentTest.passed_test === true) || (lastHistoryEntryOfPCurrentlatform.passedTest === '✅' && currentTest.passed_test === false);
 
+    // Update history via regex
     let replaceIndex = 0;
     newCommentBody = newCommentBody.replace(parseIssueHistoryRegex, (match, passedTest, platforms, date, oldVersion, errorCode, expectedErrorCode, i) => {
       /////////////////////////////////////////////
@@ -302,6 +301,7 @@ const runTestSuitAndUpdate = async ({ github, context, exec, io }) => {
         fixVersion = currentVersion;
         newEmailIn = '✅';
         newIssueState = 'closed';
+        issue.labels.remove(platform);
       } else if (testToggled && !currentTest.passed_test) {
         // Test failed, add platform to broken list
         brokenPlatforms = [... new Set(lastBrokenPlatforms.split(', ').filter(p => p !== '-').concat(platform))].sort().join(', '); // add current platform to list
@@ -309,6 +309,7 @@ const runTestSuitAndUpdate = async ({ github, context, exec, io }) => {
         fixVersion = '-'; // no fix version yet
         newEmailIn = '❌';
         newIssueState = 'open';
+        issue.labels.push(currentVersion, platform);
       } else {
         // Test result did not change
         brokenPlatforms = lastBrokenPlatforms;
@@ -317,12 +318,16 @@ const runTestSuitAndUpdate = async ({ github, context, exec, io }) => {
       return `| ${newEmailIn} | ${brokenPlatforms} | ${lastEncounteredVersion} | ${fixVersion} |`;
     })
 
+    const { createLabels } = require('./create_label.js');
+    await createLabels({github, context, labelNames: issue.labels});
+
     // Update comment
     await github.rest.issues.update({
       ...context.repo,
       issue_number: issueId,
       body: newCommentBody,
       ...(newIssueState ? { state: newIssueState, state_reason: newIssueState === 'open' ? 'reopened' : 'completed' } : {}),
+      labels: issue.labels
     });
   }
 
