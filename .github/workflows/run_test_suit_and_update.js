@@ -289,6 +289,8 @@ const runTestSuitAndUpdate = async ({ github, context, exec, io }) => {
       return `${newFirstRow}${oldRow}`;
     })
     
+    // @todo update header and comment only after all platforms test have run
+    let newIssueState;
     // Update header status
     newCommentBody = newCommentBody.replace(parseIssueHeaderStatusRegex, (match, emailedIn, lastBrokenPlatforms, lastEncounteredVersion, fixVersion) => {
       let brokenPlatforms;
@@ -298,12 +300,14 @@ const runTestSuitAndUpdate = async ({ github, context, exec, io }) => {
         brokenPlatforms = lastBrokenPlatforms.split(', ').filter(p => p !== platform).join(', ') || '-'; // remove current platform from list
         fixVersion = currentVersion;
         newEmailIn = '✅';
+        newIssueState = 'closed';
       } else if (testToggled && !currentTest.passed_test) {
         // Test failed, add platform to broken list
         brokenPlatforms = [... new Set(lastBrokenPlatforms.split(', ').filter(p => p !== '-').concat(platform))].sort().join(', '); // add current platform to list
         lastEncounteredVersion = [lastEncounteredVersion, currentVersion].sort().reverse()[0]
         fixVersion = '-'; // no fix version yet
         newEmailIn = '❌';
+        newIssueState = 'open';
       } else {
         // Test result did not change
         brokenPlatforms = lastBrokenPlatforms;
@@ -312,12 +316,12 @@ const runTestSuitAndUpdate = async ({ github, context, exec, io }) => {
       return `| ${newEmailIn} | ${brokenPlatforms} | ${lastEncounteredVersion} | ${fixVersion} |`;
     })
 
-    // @todo instead up update here, pass result to updater
     // Update comment
     await github.rest.issues.update({
       ...context.repo,
       issue_number: issueId,
-      body: newCommentBody
+      body: newCommentBody,
+      ...(newIssueState ? { state: newIssueState, state_reason: newIssueState === 'open' ? 'reopened' : 'closed' } : {}),
     });
   }
 
