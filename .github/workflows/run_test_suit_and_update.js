@@ -202,7 +202,7 @@ const runTestSuitAndUpdate = async ({ github, context, exec, io }) => {
       const currentExpectedErrorCode = currentTestResultOfVersion.expected_error_code;
 
       if (currentTestResultOfVersion.passed_test === false) {
-        labelNames.push(version, platform);
+        newLabels.push(version, platform);
       }
 
       if (index === 0) {
