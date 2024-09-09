@@ -264,7 +264,7 @@ const runTestSuitAndUpdate = async ({ github, context, exec, io }) => {
         });
         return acc;
       }, {})[platform];
-      console.log('lastHistoryEntryOfPCurrentlatform', lastHistoryEntryOfCurrentPlatform);
+      console.log('lastHistoryEntryOfPCurrentlatform', lastHistoryEntryOfPCurrentlatform);
 
 
     let replaceIndex = 0;
