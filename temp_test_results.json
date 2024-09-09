@@ -7,10 +7,10 @@
 		"results": [
 			{
 				"file": "compiler_bugs/EC0_174.jai",
-				"passed_test": true,
+				"passed_test": false,
 				"expected_error_code": 0,
 				"compilation_succeeded": false,
-				"compilation_exit_code": 0,
+				"compilation_exit_code": 1,
 				"did_run": false,
 				"run_succeeded": false,
 				"run_exit_code": 0
@@ -24,10 +24,10 @@
 		"results": [
 			{
 				"file": "compiler_bugs/EC0_174.jai",
-				"passed_test": false,
+				"passed_test": true,
 				"expected_error_code": 0,
 				"compilation_succeeded": false,
-				"compilation_exit_code": 3,
+				"compilation_exit_code": 0,
 				"did_run": false,
 				"run_succeeded": false,
 				"run_exit_code": 0
