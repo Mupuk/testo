@@ -80,7 +80,10 @@ const createPRFromSBIssue = async ({github, context, exec}) => {
 
   // Check that its a SB
   const isSB = /^\[SB\]:/.test(issue.title);
-  if (!isSB) return;
+  if (!isSB) {
+    console.log('Issue is not a SB ... skipping');
+    return;
+  }
 
   const parsedBody = parseIssueBody(issue.body);
 
