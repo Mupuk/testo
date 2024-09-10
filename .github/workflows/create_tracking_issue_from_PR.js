@@ -72,15 +72,6 @@ const createTrackingIssueFromPR = async ({github, contextRepo, prNumber}) => {
     labels: pr.labels.map(label => label.name)
   });
 
-  // Add Current Compiler Label
-  // const { jaiVersion: getJaiVersion, format } = require('./utils.js');
-  // const currentVersion = await getJaiVersion({ exec });
-  // await github.rest.issues.addLabels({
-  //   ...context.repo,
-  //   issue_number: issue.number,
-  //   labels: [ currentVersion ]
-  // });
-
   await github.rest.issues.createComment({
     ...contextRepo,
     issue_number: prNumber,
