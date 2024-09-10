@@ -130,12 +130,12 @@ const validateAddedTestAndMergeOnSuccess = async ({ github, exec, io, contextRep
   await exec.exec('git', ['rev-parse', 'HEAD']);
 
   
-  const { data: commit } = await github.rest.repos.getBranch({
-    ...contextRepo,
-    branch: 'refs/heads/issue-224'
-  });
-  const latestSha = commit.commit.sha;
-  console.log(`Latest commit SHA on ${branch}: ${latestSha}`);
+  // const { data: commit } = await github.rest.repos.getBranch({
+  //   ...contextRepo,
+  //   branch: 'refs/heads/issue-224'
+  // });
+  // const latestSha = commit.commit.sha;
+  // console.log(`Latest commit SHA on ${branch}: ${latestSha}`);
 
   // Not sure why the merge below only works after Checking out the PR again.
   // If we dont do this, the merge will fail with 'Head branch is out of date'
