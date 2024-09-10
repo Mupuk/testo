@@ -356,7 +356,7 @@ const runTestSuitAndUpdate = async ({ github, context, exec, io }) => {
     message: '[CI] Update test results',
     content: Buffer.from(JSON.stringify(newTestResults)).toString('base64'),
     branch: 'master',
-    sha: await github.rest.repos.getContent({...context.repo, path: 'test_results.json'})
+    sha: await github.rest.repos.getContent({...context.repo, path: 'test_results.json'}).sha
   });
 
   // Don't think we need to handle removed tests
