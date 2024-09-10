@@ -115,7 +115,8 @@ const validateAddedTestAndMergeOnSuccess = async ({ github, exec, io, contextRep
     await io.mv(oldFolderName, newFolderName);
   }
 
-  await exec.exec('git rev-parse HEAD');
+  console.log('sha1')
+  await exec.exec('git', ['rev-parse', 'HEAD']);
 
   // Git commands to add, commit, and push changes
   await exec.exec('git', ['config', 'user.name', 'github-actions[bot]']);
@@ -125,7 +126,8 @@ const validateAddedTestAndMergeOnSuccess = async ({ github, exec, io, contextRep
   await exec.exec('git', ['commit', '-m', 'Updated file paths to match tracking issue number']);
   await exec.exec('git', ['push']);
   
-  await exec.exec('git rev-parse HEAD');
+  console.log('sha')
+  await exec.exec('git', ['rev-parse', 'HEAD']);
   // Not sure why the merge below only works after Checking out the PR again.
   // If we dont do this, the merge will fail with 'Head branch is out of date'
   // Currently, we work around this by checking out the PR branch again
