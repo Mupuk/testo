@@ -6,15 +6,9 @@ on:
     types: [opened, edited, synchronize]
 
 jobs:
-  testo:
-    runs-on: [self-hosted, windows]
-
+  workflow-modification-check:
+    runs-on: [ubuntu-latest]
     steps:
-      # - name: Checkout repository
-      #   uses: actions/checkout@v4
-      #   with:
-      #     ref: ${{ github.event.pull_request.head.ref }}
-        
       - name: Check if '.github' folder was modified
         uses: actions/github-script@v7
         with:
@@ -51,7 +45,7 @@ jobs:
 
   validate_pr_structure:
     runs-on: [self-hosted, windows]
-    needs: testo
+    needs: workflow-modification-check
 
     steps:
       # https://docs.github.com/en/actions/writing-workflows/choosing-when-your-workflow-runs/events-that-trigger-workflows#pull_request_target
