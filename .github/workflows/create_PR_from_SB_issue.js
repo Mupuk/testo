@@ -173,13 +173,6 @@ const createPRFromSBIssue = async ({github, context, exec}) => {
   const categoryLabels = params.categories.split(', ');
   await createLabels({github, context, labelNames: categoryLabels});
 
-  // // Add labels to issue
-  // await github.rest.issues.addLabels({
-  //   ...context.repo,
-  //   issue_number: context.issue.number,
-  //   labels: [ jaiVersion,  ...categoryLabels ]
-  // });
-
   // Add labels to PR
   await github.rest.issues.addLabels({
     ...context.repo,

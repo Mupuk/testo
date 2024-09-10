@@ -79,6 +79,10 @@ const validateAddedTestAndMergeOnSuccess = async ({ github, exec, io, contextRep
 
   // @todo rework this to work with multi platform
   // Make sure the test actually fails
+
+  // @todo check security, techincally this would never run without manual approval anyways but eh
+  // also check all other calls to jai, becase maybe they could update the workflow file to run something else
+  // before another js file is loaded, making it a security issue
   const fileToRun = isSingleFile ? filePaths[0] : filePaths.find(f => (/^compiler_bugs\/EC\d+_\S+\/first.jai/).test(f));
   const exitCode = await exec.exec('jai ' + fileToRun, [], { ignoreReturnCode: true });
   const expectedExitCode = Number.parseInt(fileToRun.match(/(?<=EC)(\d+)(?=_\S+)/)[0]);
