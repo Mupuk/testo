@@ -243,6 +243,15 @@ const runTestSuitAndUpdate = async ({ github, context, exec, io }) => {
       body: newCommentBody,
       labels: newLabels
     });
+
+    // Commit test_results.json
+    await github.rest.repos.createOrUpdateFileContents({
+      ...context.repo,
+      path: 'test_results.json',
+      message: '[CI] Update test results',
+      content: JSON.stringify(newTestResults),
+      branch: 'master'
+    });
   }
 
 
