@@ -2,8 +2,8 @@
   {
     "version": "beta-0.1.092",
     "succeeded_count": 1,
-    "failed_count": 1,
-    "total_count": 2,
+    "failed_count": 2,
+    "total_count": 3,
     "results": [
       {
         "file": "compiler_bugs/EC0_209.jai",
@@ -16,6 +16,15 @@
         "run_exit_code": 0
       },{
         "file": "compiler_bugs/EC0_212.jai",
+        "passed_test": false,
+        "expected_error_code": 0,
+        "compilation_succeeded": false,
+        "compilation_exit_code": 1,
+        "did_run": false,
+        "run_succeeded": false,
+        "run_exit_code": 0
+      },{
+        "file": "compiler_bugs/EC0_215.jai",
         "passed_test": false,
         "expected_error_code": 0,
         "compilation_succeeded": false,
@@ -28,8 +37,8 @@
   },{
     "version": "beta-0.1.091",
     "succeeded_count": 1,
-    "failed_count": 1,
-    "total_count": 2,
+    "failed_count": 2,
+    "total_count": 3,
     "results": [
       {
         "file": "compiler_bugs/EC0_209.jai",
@@ -49,13 +58,22 @@
         "did_run": false,
         "run_succeeded": false,
         "run_exit_code": 0
+      },{
+        "file": "compiler_bugs/EC0_215.jai",
+        "passed_test": false,
+        "expected_error_code": 0,
+        "compilation_succeeded": false,
+        "compilation_exit_code": 1,
+        "did_run": false,
+        "run_succeeded": false,
+        "run_exit_code": 0
       }
     ]
   },{
     "version": "beta-0.1.090",
     "succeeded_count": 1,
-    "failed_count": 1,
-    "total_count": 2,
+    "failed_count": 2,
+    "total_count": 3,
     "results": [
       {
         "file": "compiler_bugs/EC0_209.jai",
@@ -68,6 +86,15 @@
         "run_exit_code": 0
       },{
         "file": "compiler_bugs/EC0_212.jai",
+        "passed_test": false,
+        "expected_error_code": 0,
+        "compilation_succeeded": false,
+        "compilation_exit_code": 1,
+        "did_run": false,
+        "run_succeeded": false,
+        "run_exit_code": 0
+      },{
+        "file": "compiler_bugs/EC0_215.jai",
         "passed_test": false,
         "expected_error_code": 0,
         "compilation_succeeded": false,
