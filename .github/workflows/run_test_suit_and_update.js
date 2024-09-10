@@ -351,7 +351,7 @@ const runTestSuitAndUpdate = async ({ github, context, exec, io }) => {
     });
   }
   
-  const { data } = await github.rest.repos.getContent({...context.repo, path: 'test_results.json'}).catch(() => { data: null });
+  const { data } = await github.rest.repos.getContent({...context.repo, path: 'test_results.json'}).catch(() => ({ data: null }));
   console.log(data);
 
   // Commit test_results.json
