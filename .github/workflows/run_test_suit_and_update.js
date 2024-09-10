@@ -71,6 +71,7 @@ const runTestSuitAndUpdate = async ({ github, context, exec, io }) => {
   } catch (err) {
     console.error("Error reading file:", err);
   }
+  console.log('newTestResults', newTestResults);
 
   // make test results available via version, and results via name
   const oldTestResultsByVersion = oldTestResults.reduce((acc, item) => {
@@ -250,7 +251,7 @@ const runTestSuitAndUpdate = async ({ github, context, exec, io }) => {
       ...context.repo,
       path: 'test_results.json',
       message: '[CI] Update test results',
-      content: Buffer.from(newTestResults).toString('base64'),
+      content: Buffer.from(JSON.stringify(newTestResults)).toString('base64'),
       branch: 'master'
     });
   }
