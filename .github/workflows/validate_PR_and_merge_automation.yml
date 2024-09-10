@@ -10,6 +10,8 @@ jobs:
     runs-on: [self-hosted, windows]
 
     steps:
+      # https://docs.github.com/en/actions/writing-workflows/choosing-when-your-workflow-runs/events-that-trigger-workflows#pull_request_target
+      # since this is pull_request_target it will checkout the base branch
       - name: Checkout repository
         uses: actions/checkout@v4
 
@@ -32,45 +34,42 @@ jobs:
           app-id: ${{ secrets.APP_ID }}
           private-key: ${{ secrets.APP_PRIVATE_KEY }}
 
+      # Use GITHUB_TOKEN so we dont trigger a infinite loop
+      # when updateing the PR
+
+      # @todo potentially unsafe
       - name: Checkout PR
         uses: actions/checkout@v4
         with:
-          # token: ${{ steps.app-token.outputs.token }}
-          # persist-credentials: false
           ref: ${{ github.event.pull_request.head.ref }}
 
-      # - name: Configure Git
-      #   run: |
-      #     git config --global user.name '${{ steps.app-token.outputs.app-slug }}[bot]'
-      #     git config --global user.email '181020123+${{ steps.app-token.outputs.app-slug }}[bot]@users.noreply.github.com>'
-      #     git remote set-url origin https://x-access-token:${{ steps.app-token.outputs.token }}@github.com/${{ github.repository }}.git
+      # - name: Validate new Test and Merge Pull Request
+      #   uses: actions/github-script@v7
+      #   with:
+      #     script: |
+      #       const { validateAddedTestAndMergeOnSuccess } = require('./.github/workflows/validate_PR_and_merge_automation.js');
+      #       await validateAddedTestAndMergeOnSuccess({ github, exec, io, contextRepo: context.repo, prNumber: context.issue.number });
 
-      - name: Validate new Test and Merge Pull Request
-        uses: actions/github-script@v7
-        with:
-          # github-token: ${{ steps.app-token.outputs.token }}
-          script: |
-            const { validateAddedTestAndMergeOnSuccess } = require('./.github/workflows/validate_PR_and_merge_automation.js');
-            await validateAddedTestAndMergeOnSuccess({ github, exec, io, contextRepo: context.repo, prNumber: context.issue.number });
+      # # Not sure why the merge below only works after Checking out the PR again.
+      # # If we dont do this, the merge will fail with 'Head branch is out of date'
+      # # Use the app-token to checkout the PR, so we can trigger
+      # # the push event when merging the PR
+      # - name: Checkout Updated PR
+      #   uses: actions/checkout@v4
+      #   with:
+      #     token: ${{ steps.app-token.outputs.token }}
+      #     persist-credentials: false
+      #     ref: ${{ github.event.pull_request.head.ref }}
 
-      # Not sure why the merge below only works after Checking out the PR again.
-      # If we dont do this, the merge will fail with 'Head branch is out of date'
-      - name: Checkout Updated PR
-        uses: actions/checkout@v4
-        with:
-          token: ${{ steps.app-token.outputs.token }}
-          persist-credentials: false
-          ref: ${{ github.event.pull_request.head.ref }}
-
-      - name: Merge PR
-        uses: actions/github-script@v7
-        with:
-          github-token: ${{ steps.app-token.outputs.token }}
-          script: |
-            const mergeResponse = await github.rest.pulls.merge({
-              ...context.repo,
-              pull_number: context.issue.number,
-              merge_method: 'squash'  // Use 'merge', 'squash', or 'rebase' depending on your needs
-            });
+      # - name: Merge PR
+      #   uses: actions/github-script@v7
+      #   with:
+      #     github-token: ${{ steps.app-token.outputs.token }}
+      #     script: |
+      #       const mergeResponse = await github.rest.pulls.merge({
+      #         ...context.repo,
+      #         pull_number: context.issue.number,
+      #         merge_method: 'squash'  // Use 'merge', 'squash', or 'rebase' depending on your needs
+      #       });
 
             

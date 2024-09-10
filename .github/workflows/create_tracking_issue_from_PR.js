@@ -72,10 +72,6 @@ const createTrackingIssueFromPR = async ({github, contextRepo, prNumber}) => {
     labels: pr.labels.map(label => label.name)
   });
 
-  // Since recursive workflows are not triggered when using GITHUB_TOKEN 
-  // we do it manually again.
-  // https://github.com/peter-evans/create-pull-request/blob/main/docs/concepts-guidelines.md#triggering-further-workflow-runs
-
   // Add Current Compiler Label
   // const { jaiVersion: getJaiVersion, format } = require('./utils.js');
   // const currentVersion = await getJaiVersion({ exec });
