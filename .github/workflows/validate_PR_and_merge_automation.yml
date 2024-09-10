@@ -55,8 +55,6 @@ jobs:
               process.exit(1);
             }
 
-            process.exit(1);
-
   validate_pr_structure:
     runs-on: [self-hosted, windows]
     needs: workflow-modification-check
