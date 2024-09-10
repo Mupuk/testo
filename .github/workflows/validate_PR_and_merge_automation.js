@@ -12,7 +12,8 @@ const _validatePRStructure = async ({ github, contextRepo, prNumber }) => {
 
   // Check that its a SB or BB
   const match = pr.title.match(/^\[([SB]B)\]:/)?.[1]
-  if (!match) return; // its not a SB or BB, ignore it since its probably a normal PR
+  // @todo convert this to proper input/outputs?
+  if (!match) process.exit(1); // its not a SB or BB, ignore it since its probably a normal PR
 
   const fileResponse = await github.rest.pulls.listFiles({
     ...contextRepo,
