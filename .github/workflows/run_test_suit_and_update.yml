@@ -11,10 +11,6 @@ jobs:
     runs-on: [self-hosted, windows]
 
     steps:
-      - name: hashes
-        run: |
-          CertUtil -hashfile .github/workflows/run_test_suit_and_update.js SHA256
-          CertUtil -hashfile .github/workflows/run_test_suit_and_update.yml SHA256
 
       - uses: actions/create-github-app-token@v1
         id: app-token
@@ -40,8 +36,3 @@ jobs:
       #     script: |
       #       const runTestSuitAndUpdate = require('./.github/workflows/run_test_suit_and_update.js');
       #       await runTestSuitAndUpdate({ github, context, exec, io });
-
-      - name: hashes
-        run: |
-          CertUtil -hashfile .github/workflows/run_test_suit_and_update.js SHA256
-          CertUtil -hashfile .github/workflows/run_test_suit_and_update.yml SHA256
