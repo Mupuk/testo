@@ -13,6 +13,16 @@ jobs:
         uses: actions/github-script@v7
         with:
           script: |
+            // Get PR data
+            const { data: pr } = await github.rest.pulls.get({
+              ...context.repo,
+              pull_number: context.issue.number
+            });
+
+            // Check that its a SB or BB
+            const match = pr.title.match(/^\[([SB]B)\]:/)?.[1]
+            if (!match) return; // its not a SB or BB, ignore it since its probably a normal PR
+
             const { data } = await github.rest.pulls.listFiles({
               ...context.repo,
               pull_number: context.issue.number,
