@@ -21,7 +21,6 @@ jobs:
       - name: dir 
         run: |
           dir
-          dir .github/workflows
 
       # - name: Checkout repository
       #   uses: actions/checkout@v4
