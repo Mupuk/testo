@@ -1,3 +1,4 @@
+// @todo cleanup
 const validatePRStructure = async ({ github, context }) => {
   await _validatePRStructure({ github, contextRepo: context.repo, prNumber: context.issue.number });
 };
@@ -74,12 +75,6 @@ const validateAddedTestAndMergeOnSuccess = async ({ github, exec, io, contextRep
   const filePaths = fileResponse.data.map(file => file.filename);
   console.log(filePaths);
 
-  const { data: prCommitHistory } = await github.rest.pulls.listCommits({
-    ...contextRepo,
-    pull_number: prNumber
-  });
-
-  console.log('prCommitHistory', prCommitHistory);
 
   // @todo rework this to work with multi platform
   // Make sure the test actually fails
@@ -93,23 +88,19 @@ const validateAddedTestAndMergeOnSuccess = async ({ github, exec, io, contextRep
     process.exit(1);
   }
   
+  // const { data: prCommitHistory } = await github.rest.pulls.listCommits({
+  //   ...contextRepo,
+  //   pull_number: prNumber
+  // });
+  // console.log('prCommitHistory', prCommitHistory);
+
+  // if (prCommitHistory.length === 1) {
+
   // @todo make this only be run once when the pr has only one commit?
+  // but this hole thing here should only be run once, or error before?
   const createTrackingIssueFromPR = require('./create_tracking_issue_from_PR.js');
   const trackingIssueNumber = await createTrackingIssueFromPR({ github, contextRepo, prNumber });
   
-  // @todo remove this
-  const fs = require('fs');
-  function listFilesInDirectorySync(dirPath) {
-    try {
-      const files = fs.readdirSync(dirPath);
-      console.log('Files in directory:', files);
-      return files;
-    } catch (error) {
-      console.error(`Error reading directory: ${error}`);
-    }
-  }
-  listFilesInDirectorySync('compiler_bugs');
-
   // We already know that the structure is valid, so we can just take the first file
   if (isSingleFile) {
     const oldFileName = filePaths[0];
@@ -123,8 +114,6 @@ const validateAddedTestAndMergeOnSuccess = async ({ github, exec, io, contextRep
     await io.mv(oldFolderName, newFolderName);
   }
 
-  console.log('sha1')
-  await exec.exec('git', ['rev-parse', 'HEAD']);
 
   // Git commands to add, commit, and push changes
   await exec.exec('git', ['config', 'user.name', 'github-actions[bot]']);
@@ -133,23 +122,11 @@ const validateAddedTestAndMergeOnSuccess = async ({ github, exec, io, contextRep
   await exec.exec('git', ['add', '--all']);
   await exec.exec('git', ['commit', '-m', 'Updated file paths to match tracking issue number']);
   await exec.exec('git', ['push']);
-  
-  console.log('sha')
-  await exec.exec('git', ['rev-parse', 'HEAD']);
 
 
-  console.log('trying to merge')
-
-  const { data: pr2 } = await github.rest.pulls.get({
-    ...contextRepo,
-    pull_number: prNumber
-  });
-  console.log('pr2', pr2.head);
-
-
+  // Try to merge the PR, we have to wait until the push has been processed
   const maxRetries = 3;
-  const delayMs = 5000
-  // Try to merge the PR
+  const delayMs = 10000
   for (let attempt = 1; attempt <= maxRetries; attempt++) {
     try {
       console.log(`Attempt ${attempt}: Merging pull request #${prNumber}`);
