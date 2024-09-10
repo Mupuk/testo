@@ -297,7 +297,7 @@ Test_Result_Set :: struct {
     assert(false, "Could not find a version to replace");
   }
 
-  success = json_write_file("test_results.json", test_result_sets);
+  success = json_write_file("test_results.json", test_result_sets, indent_char = "  ");
   assert(success, "Could not write test_results.json");
 
 
