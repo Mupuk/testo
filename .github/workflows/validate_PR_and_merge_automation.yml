@@ -21,7 +21,10 @@ jobs:
 
             // Check that its a SB or BB
             const match = pr.title.match(/^\[([SB]B)\]:/)?.[1]
-            if (!match) process.exit(1);; // its not a SB or BB, ignore it since its probably a normal PR
+            if (!match) {
+              console.log('This PR is not a SB or BB, ignoring it.');
+              process.exit(1);; // its not a SB or BB, ignore it since its probably a normal PR
+            }
 
             const { data } = await github.rest.pulls.listFiles({
               ...context.repo,
@@ -48,6 +51,7 @@ jobs:
                 issue_number: context.issue.number,
                 body: `@Mupu, This PR has modified the .github folder, which is illegal!`
               })
+              console.error('This PR has modified the .github folder, which is illegal!');
               process.exit(1);
             }
 
