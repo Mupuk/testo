@@ -15,18 +15,10 @@ jobs:
       #   with:
       #     ref: ${{ github.event.pull_request.head.ref }}
         
-      - name: PR Checker
+      - name: Check if '.github' folder was modified
         uses: actions/github-script@v7
         with:
           script: |
-            // console.log('original YML')
-            // await exec.exec(`certutil -hashfile ./.github/workflows/validate_PR_and_merge_automation.js SHA256`)
-            // await exec.exec(`certutil -hashfile ./.github/workflows/testo.js SHA256`)
-            // const printer = require('./.github/workflows/testo.js');
-            // printer();
-            // process.exit(1)
-
-
             const { data } = await github.rest.pulls.listFiles({
               ...context.repo,
               pull_number: context.issue.number,
