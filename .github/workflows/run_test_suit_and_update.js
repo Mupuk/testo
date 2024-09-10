@@ -249,7 +249,7 @@ const runTestSuitAndUpdate = async ({ github, context, exec, io }) => {
       ...context.repo,
       path: 'test_results.json',
       message: '[CI] Update test results',
-      content: JSON.stringify(newTestResults),
+      content: JSON.stringify(newTestResults).toString('base64'),
       branch: 'master'
     });
   }
