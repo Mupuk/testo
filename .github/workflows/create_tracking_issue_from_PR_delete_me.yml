@@ -1,5 +1,4 @@
 # [ ] cross platform support
-# [ ] add unsure if bug stuff?
 
 # [x] Create Label on Issue, PR, and (??test suit??) if not exist
 # [x] Add label on Issue/PR create
@@ -23,7 +22,7 @@
 # [ ] label colors
 # [x] issue mention not working after PR create
 # [ ] assign original owner to issue tracker
-# [ ] commit the test_result.json, is there any other way around that? we just 
+# [x] commit the test_result.json, is there any other way around that? we just 
     # use it to track new issues. Maybe we could check the issues history of the test
     # and do the things we need to do, when we see it doesnt have any entries?
 # [x] rename PR file to new issue number, so we know which file belongs to what issue
@@ -34,6 +33,8 @@
     # Otherwisse reject with comment.
 # [x] rethink needed fields in depth
 # [ ] make issue/pr mention use link instead of message?
+# [ ] test security
+# [ ] test if you can edit the autocreated pr from external user. Make user the owner of the pr somehow?
 
 # [x] Auto run Testsuit on push
 # [x] create test result json
