@@ -137,20 +137,6 @@ const validateAddedTestAndMergeOnSuccess = async ({ github, exec, io, contextRep
   console.log('sha')
   await exec.exec('git', ['rev-parse', 'HEAD']);
 
-  console.log('waiting 10s')
-  await new Promise(r => setTimeout(r, 10000));
-  console.log('done')
-  
-  // const { data: commit } = await github.rest.repos.getBranch({
-  //   ...contextRepo,
-  //   branch: 'refs/heads/issue-224'
-  // });
-  // const latestSha = commit.commit.sha;
-  // console.log(`Latest commit SHA on ${branch}: ${latestSha}`);
-
-  // Not sure why the merge below only works after Checking out the PR again.
-  // If we dont do this, the merge will fail with 'Head branch is out of date'
-  // Currently, we work around this by checking out the PR branch again
 
   console.log('trying to merge')
 
@@ -160,12 +146,36 @@ const validateAddedTestAndMergeOnSuccess = async ({ github, exec, io, contextRep
   });
   console.log('pr2', pr2.head);
 
-  const mergeResponse = await github.rest.pulls.merge({
-    ...contextRepo,
-    pull_number: prNumber,
-    merge_method: 'squash'  // Use 'merge', 'squash', or 'rebase' depending on your needs
-  });
-  console.log(mergeResponse);
+
+  const maxRetries = 3;
+  const delayMs = 5000
+  // Try to merge the PR
+  for (let attempt = 1; attempt <= maxRetries; attempt++) {
+    try {
+      console.log(`Attempt ${attempt}: Merging pull request #${prNumber}`);
+
+      const mergeResponse = await github.rest.pulls.merge({
+        ...contextRepo,
+        pull_number: prNumber,
+        merge_method: 'squash',  // Use 'merge', 'squash', or 'rebase'
+      });
+
+      console.log(`Merge successful: ${mergeResponse.data.message}`);
+      return mergeResponse;  // Exit after successful merge
+
+    } catch (error) {
+      console.error(`Error during merge attempt ${attempt}: ${error.message}`);
+
+      // Retry if it's a merge conflict or related to a temporary issue
+      if (attempt < maxRetries) {
+        console.log(`Retrying after ${delayMs}ms...`);
+        await new Promise(resolve => setTimeout(resolve, delayMs));  // Wait for the specified delay
+      } else {
+        console.error(`Failed to merge after ${maxRetries} attempts.`);
+        throw error;  // Rethrow the error if all retries fail
+      }
+    }
+  }
 };
 
 module.exports = {
