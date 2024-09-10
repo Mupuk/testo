@@ -128,21 +128,23 @@ const createPRFromSBIssue = async ({github, context, exec}) => {
   
   // not sure if we should convert it to PR or create new PR
   // Create a pull request
-  // const { data: pr } = await github.rest.pulls.create({
-  //   ...context.repo,
-  //   title: prTitle,
-  //   head: branchName,
-  //   base: baseBranch,
-  //   body: prBody,
-  // });
-
-  // // Convert issue to a pull request
   const { data: pr } = await github.rest.pulls.create({
     ...context.repo,
+    title: prTitle,
     head: branchName,
     base: baseBranch,
-    issue: context.issue.number
+    body: prBody,
   });
+
+  // // Convert issue to a pull request
+  // const { data: pr } = await github.rest.pulls.create({
+  //   ...context.repo,
+  //   // title: prTitle,
+  //   head: branchName,
+  //   base: baseBranch,
+  //   // body: prBody,
+  //   issue: context.issue.number
+  // });
 
 
   // Link PR to issue
