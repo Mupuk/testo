@@ -33,7 +33,7 @@
     # Otherwisse reject with comment.
 # [x] rethink needed fields in depth
 # [ ] make issue/pr mention use link instead of message?
-# [ ] test security
+# [x] test security
 # [ ] test if you can edit the autocreated pr from external user. Make user the owner of the pr somehow?
 
 # [x] Auto run Testsuit on push
