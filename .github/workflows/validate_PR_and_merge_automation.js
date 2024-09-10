@@ -74,6 +74,13 @@ const validateAddedTestAndMergeOnSuccess = async ({ github, exec, io, contextRep
   const filePaths = fileResponse.data.map(file => file.filename);
   console.log(filePaths);
 
+  const { data: prCommitHistory } = await github.rest.pulls.listCommits({
+    ...contextRepo,
+    pull_number: prNumber
+  });
+
+  console.log('prCommitHistory', prCommitHistory);
+
   // @todo rework this to work with multi platform
   // Make sure the test actually fails
   const fileToRun = isSingleFile ? filePaths[0] : filePaths.find(f => (/^compiler_bugs\/EC\d+_\S+\/first.jai/).test(f));
