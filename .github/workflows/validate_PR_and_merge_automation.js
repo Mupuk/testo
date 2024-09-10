@@ -82,6 +82,7 @@ const validateAddedTestAndMergeOnSuccess = async ({ github, exec, io, contextRep
   console.log(exitCode);  
   console.log(expectedExitCode);  
   if (exitCode === expectedExitCode) {
+    console.error(`Test failed as expected, exit code: ${exitCode} .. skipping`);
     process.exit(1);
   }
   
