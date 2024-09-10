@@ -348,6 +348,9 @@ const runTestSuitAndUpdate = async ({ github, context, exec, io }) => {
       labels: newLabels
     });
   }
+  
+  const { data } = await github.rest.repos.getContent({...context.repo, path: 'test_results.json'})
+  console.log(data);
 
   // Commit test_results.json
   await github.rest.repos.createOrUpdateFileContents({
@@ -356,7 +359,7 @@ const runTestSuitAndUpdate = async ({ github, context, exec, io }) => {
     message: '[CI] Update test results',
     content: Buffer.from(JSON.stringify(newTestResults)).toString('base64'),
     branch: 'master',
-    sha: await github.rest.repos.getContent({...context.repo, path: 'test_results.json'}).sha
+    sha: data.sha
   });
 
   // Don't think we need to handle removed tests
