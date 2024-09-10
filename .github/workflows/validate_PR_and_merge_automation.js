@@ -86,10 +86,11 @@ const validateAddedTestAndMergeOnSuccess = async ({ github, exec, io, contextRep
     process.exit(1);
   }
   
+  // @todo make this only be run once when the pr has only one commit?
   const createTrackingIssueFromPR = require('./create_tracking_issue_from_PR.js');
   const trackingIssueNumber = await createTrackingIssueFromPR({ github, contextRepo, prNumber });
   
-  const path = require('path');
+  // @todo remove this
   const fs = require('fs');
   function listFilesInDirectorySync(dirPath) {
     try {
