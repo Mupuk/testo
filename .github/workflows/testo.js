@@ -1,5 +1,5 @@
 function printer() {
-  console.log('original js!')
+  console.log('original jss!')
 }
 
 module.exports = printer;
