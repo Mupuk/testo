@@ -58,7 +58,7 @@ const runTestSuitAndUpdate = async ({ github, context, exec, io }) => {
   } catch (err) {} // ignore error
 
   console.log('compilerPath', compilerPath);
-  const suffix = '';
+  let suffix = '';
   if (platform === 'Linux')    suffix = '-linux';
   if (platform === 'MacOS')     suffix = '-macos';
 
