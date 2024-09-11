@@ -243,6 +243,8 @@ const runTestSuitAndUpdate = async ({ github, context, exec, io }) => {
       }
     });
 
+    process.exit(1);
+
     newLabels = [...new Set(newLabels)]; // remove duplicates
     await createLabels({github, context, labelNames: newLabels});
 
