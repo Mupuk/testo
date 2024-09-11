@@ -84,7 +84,7 @@ Test_Result_Set :: struct {
     // @todo platform specific
 #if OS == .WINDOWS {
     program := tprint("%.exe", path_strip_extension(it));
-} else if OS == .LINUX {
+} else #if OS == .LINUX {
     program := tprint("%", path_strip_extension(it));
 }
 
