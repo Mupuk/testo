@@ -55,26 +55,25 @@ const runTestSuitAndUpdate = async ({ github, context, exec, io }) => {
   // This will fail on windows because we already have the real path
   try {
     compilerPath = fs.readlinkSync(compilerPath);
-    if (platform === 'Linux') {
-      // compilerPath += '-linux';
-    } else if (platform === 'MacOS') { // @todo
-      // compilerPath += '-macos';
-    }
   } catch (err) {} // ignore error
 
   console.log('compilerPath', compilerPath);
+  const suffix = '';
+  if (platform === 'Linux')    suffix = '-linux';
+  if (platform === 'MacOS')     suffix = '-macos';
+
   const extension = path.extname(compilerPath);
   await exec.exec(`${compilerPath} bug_suit.jai`, [], options);
 
   tempVersion = decrementVersionString(tempVersion);
   console.log('Running for version:', tempVersion);
-  compilerPath = path.resolve(compilerPath, '..', '..', '..', `jai-${tempVersion}/bin`) + `${path.sep}jai${extension}`;
+  compilerPath = path.resolve(compilerPath, '..', '..', '..', `jai-${tempVersion}/bin`) + `${path.sep}jai${suffix}${extension}`;
   console.log('compilerPath', compilerPath);
   await exec.exec(`${compilerPath} bug_suit.jai`, [], options);
 
   tempVersion = decrementVersionString(tempVersion);
   console.log('Running for version:', tempVersion);
-  compilerPath = path.resolve(compilerPath, '..', '..', '..', `jai-${tempVersion}/bin`) + `${path.sep}jai${extension}`;
+  compilerPath = path.resolve(compilerPath, '..', '..', '..', `jai-${tempVersion}/bin`) + `${path.sep}jai${suffix}${extension}`;
   await exec.exec(`${compilerPath} bug_suit.jai`, [], options);
 
 
