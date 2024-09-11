@@ -55,7 +55,6 @@ const runTestSuitAndUpdate = async ({ github, context, exec, io }) => {
   } catch (err) {} // ignore error
 
   console.log('compilerPath', compilerPath);
-  process.exit(1);
   const extension = path.extname(compilerPath);
   await exec.exec(`${compilerPath} bug_suit.jai`, [], options);
 
