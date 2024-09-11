@@ -53,7 +53,7 @@ const runTestSuitAndUpdate = async ({ github, context, exec, io }) => {
     if (err) {
       console.error('Error reading symbolic link:', err);
     } else {
-      console.log(realPath);
+      console.log(`RealPaht: ${realPath}`);
     }
   });
   console.log('compilerPath', compilerPath);
