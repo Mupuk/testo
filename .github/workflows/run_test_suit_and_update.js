@@ -49,13 +49,9 @@ const runTestSuitAndUpdate = async ({ github, context, exec, io }) => {
   console.log('Running for version:', tempVersion);
   const options = { silent: false };
   let compilerPath = await io.which('jai'); // we start with the current one
-  fs.readlink(compilerPath, (err, realPath) => {
-    if (err) {
-      console.error('Error reading symbolic link:', err);
-    } else {
-      console.log(`RealPaht: ${realPath}`);
-    }
-  });
+  // This will fail on windows because we already have the real path
+
+  compilerPath = fs.readlinkSync(compilerPath);
   console.log('compilerPath', compilerPath);
   process.exit(1);
   const extension = path.extname(compilerPath);
