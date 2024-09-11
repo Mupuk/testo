@@ -51,16 +51,6 @@ const handleEmailedIn = async ({ github, context }) => {
 }
 
 const handleJonSaid = async ({ github, context, comment }) => {
-  // Specify the Berlin time zone and desired format
-  let options = {
-    timeZone: 'Europe/Berlin',
-    year: 'numeric',
-    month: '2-digit',
-    day: '2-digit',
-    // hour: '2-digit',
-    // minute: '2-digit',
-    // second: '2-digit'
-  };
   // Format the date and time
   const date = new Date().toISOString().split('T')[0];
 

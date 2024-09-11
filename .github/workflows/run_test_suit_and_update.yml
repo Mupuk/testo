@@ -6,13 +6,16 @@ on:
     branches:
       - master
 
+# update test_results.json structure, add new dimension for platform
+# run all tests gather changes of issue
+
 jobs:
   run_test_suit:
     strategy:
       matrix:
-        platform: [linux]
+        platform: [windows, linux]
     runs-on: 
-     - self-hosted 
+     - self-hosted
      - ${{ matrix.platform }}
 
     steps:
@@ -25,3 +28,23 @@ jobs:
           script: |
             const runTestSuitAndUpdate = require('./.github/workflows/run_test_suit_and_update.js');
             await runTestSuitAndUpdate({ github, context, exec, io });
+
+      - name: Upload build artifact
+        uses: actions/upload-artifact@v3
+        with:
+          name: test_results_${{ matrix.platform }}
+          path: test_results.json
+
+  testo_inputttulus:
+    needs: run_test_suit
+    runs-on: [self-hosted]
+    steps:
+      - name: Download artifact to specific directory
+        uses: actions/download-artifact@v3
+        with:
+          name: test_results_windows
+
+      - name: Download artifact to specific directory
+        uses: actions/download-artifact@v3
+        with:
+          name: test_results_linux
