@@ -56,9 +56,9 @@ const runTestSuitAndUpdate = async ({ github, context, exec, io }) => {
   try {
     compilerPath = fs.readlinkSync(compilerPath);
     if (platform === 'Linux') {
-      compilerPath += '-linux';
+      // compilerPath += '-linux';
     } else if (platform === 'MacOS') { // @todo
-      compilerPath += '-macos';
+      // compilerPath += '-macos';
     }
   } catch (err) {} // ignore error
 
