@@ -10,7 +10,7 @@ jobs:
   run_test_suit:
     strategy:
       matrix:
-        platform: [windows, linux]
+        platform: [linux]
     runs-on: 
      - self-hosted 
      - ${{ matrix.platform }}
