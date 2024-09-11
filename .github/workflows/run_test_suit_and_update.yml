@@ -12,7 +12,7 @@ jobs:
       matrix:
         platform: [windows, linux]
     runs-on: 
-     - self-hosted, 
+     - self-hosted 
      - ${{ matrix.platform }}
 
     steps:
