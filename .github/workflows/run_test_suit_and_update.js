@@ -49,7 +49,7 @@ const runTestSuitAndUpdate = async ({ github, context, exec, io }) => {
   console.log('Running for version:', tempVersion);
   const options = { silent: false };
   let compilerPath = await io.which('jai'); // we start with the current one
-  fs.readlink(path, (err, realPath) => {
+  fs.readlink(compilerPath, (err, realPath) => {
     if (err) {
       console.error('Error reading symbolic link:', err);
     } else {
