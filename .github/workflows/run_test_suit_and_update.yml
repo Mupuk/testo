@@ -43,8 +43,10 @@ jobs:
         uses: actions/download-artifact@v3
         with:
           name: test_results_windows
+          path: blubb
 
       - name: Download artifact to specific directory
         uses: actions/download-artifact@v3
         with:
           name: test_results_linux
+          path: blubb
