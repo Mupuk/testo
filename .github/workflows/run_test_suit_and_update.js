@@ -50,8 +50,10 @@ const runTestSuitAndUpdate = async ({ github, context, exec, io }) => {
   const options = { silent: false };
   let compilerPath = await io.which('jai'); // we start with the current one
   // This will fail on windows because we already have the real path
+  try {
+    compilerPath = fs.readlinkSync(compilerPath);
+  } catch (err) {} // ignore error
 
-  compilerPath = fs.readlinkSync(compilerPath);
   console.log('compilerPath', compilerPath);
   process.exit(1);
   const extension = path.extname(compilerPath);
