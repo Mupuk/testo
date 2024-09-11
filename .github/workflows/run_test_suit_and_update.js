@@ -37,6 +37,9 @@ const runTestSuitAndUpdate = async ({ github, context, exec, io }) => {
   const currentVersion = await getJaiVersion({ exec });
   let tempVersion = currentVersion
 
+  const platform = process.env.RUNNER_OS;
+  console.log(`Running on platform: ${platform}`);
+
   // Get old state of test results
   let oldTestResults = [];
   try {
@@ -52,6 +55,11 @@ const runTestSuitAndUpdate = async ({ github, context, exec, io }) => {
   // This will fail on windows because we already have the real path
   try {
     compilerPath = fs.readlinkSync(compilerPath);
+    if (platform === 'Linux') {
+      compilerPath += '-linux';
+    } else if (platform === 'MacOS') { // @todo
+      compilerPath += '-macos';
+    }
   } catch (err) {} // ignore error
 
   console.log('compilerPath', compilerPath);
@@ -164,9 +172,7 @@ const runTestSuitAndUpdate = async ({ github, context, exec, io }) => {
   );
   console.log('removedTests\n', removedTests);
 
-  console.log(`Running on platform: ${process.env.RUNNER_OS}`);
 
-  const platform = 'win'; //@todo get platform from env
   const oldToNewCompilerVersions = newTestResults.map(item => item.version).sort()
   const currentDate = new Date().toISOString().split('T')[0];
   
