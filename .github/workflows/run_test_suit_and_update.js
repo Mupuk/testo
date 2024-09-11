@@ -49,14 +49,15 @@ const runTestSuitAndUpdate = async ({ github, context, exec, io }) => {
   console.log('Running for version:', tempVersion);
   const options = { silent: false };
   let compilerPath = await io.which('jai'); // we start with the current one
-  fs.realpath(compilerPath, (err, realPath) => {
-  if (err) {
-    console.error('Error resolving real path:', err);
-  } else {
-    compilerPath = realPath;
-  }
-});
+  fs.realpath(compilerPath + '..', (err, realPath) => {
+    if (err) {
+      console.error('Error resolving real path:', err);
+    } else {
+      compilerPath = realPath;
+    }
+  });
   console.log('compilerPath', compilerPath);
+  process.exit(1);
   const extension = path.extname(compilerPath);
   await exec.exec(`${compilerPath} bug_suit.jai`, [], options);
 
