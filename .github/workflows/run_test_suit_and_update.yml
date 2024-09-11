@@ -7,21 +7,13 @@ on:
       - master
 
 jobs:
-  linux_testo:
-    runs-on: [self-hosted, linux]
-
-    steps:
-      - name: Checkout repository
-        uses: actions/checkout@v4
-
-      - name: Run Bug Suit
-        uses: actions/github-script@v7
-        with:
-          script: |
-            console.log('Running Bug Suit');
-
   run_test_suit:
-    runs-on: [self-hosted, windows]
+    strategy:
+      matrix:
+        platform: [windows, linux]
+    runs-on: 
+     - self-hosted, 
+     - ${{ matrix.platform }}
 
     steps:
       - name: Checkout repository
