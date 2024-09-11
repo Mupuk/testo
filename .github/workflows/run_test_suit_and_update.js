@@ -49,12 +49,14 @@ const runTestSuitAndUpdate = async ({ github, context, exec, io }) => {
   console.log('Running for version:', tempVersion);
   const options = { silent: false };
   let compilerPath = await io.which('jai'); // we start with the current one
+  console.log('compilerPath', compilerPath);
   const extension = path.extname(compilerPath);
   await exec.exec(`${compilerPath} bug_suit.jai`, [], options);
 
   tempVersion = decrementVersionString(tempVersion);
   console.log('Running for version:', tempVersion);
   compilerPath = path.resolve(compilerPath, '..', '..', '..', `jai-${tempVersion}/bin`) + `${path.sep}jai${extension}`;
+  console.log('compilerPath', compilerPath);
   await exec.exec(`${compilerPath} bug_suit.jai`, [], options);
 
   tempVersion = decrementVersionString(tempVersion);
