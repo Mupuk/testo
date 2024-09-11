@@ -29,11 +29,13 @@ jobs:
             const runTestSuitAndUpdate = require('./.github/workflows/run_test_suit_and_update.js');
             await runTestSuitAndUpdate({ github, context, exec, io });
 
+      # @todo check if we can overwrite it or else delete it below!
       - name: Upload build artifact
         uses: actions/upload-artifact@v3
         with:
           name: test_results_${{ matrix.platform }}
           path: test_results.json
+          retention-days: 1 // we only need this for the next job
 
   testo_inputttulus:
     needs: run_test_suit
@@ -43,8 +45,17 @@ jobs:
         uses: actions/download-artifact@v3
         with:
           name: test_results_windows
+          path: windows
 
       - name: Download artifact to specific directory
         uses: actions/download-artifact@v3
         with:
           name: test_results_linux
+          path: linux
+
+      # @todo
+      # - name: Download artifact to specific directory
+      #   uses: actions/download-artifact@v3
+      #   with:
+      #     name: test_results_macos
+      #     path: macos
