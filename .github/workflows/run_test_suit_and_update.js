@@ -32,6 +32,8 @@ const runTestSuitAndUpdate = async ({ github, context, exec, io }) => {
   const fs = require('fs');
   const { createLabels } = require('./create_label.js');
 
+  const testSuitOutput = { };
+
   // Jai Version
   const { isDeepEqual, jaiVersion: getJaiVersion } = require('./utils.js');
   const currentVersion = await getJaiVersion({ exec });
@@ -251,17 +253,22 @@ const runTestSuitAndUpdate = async ({ github, context, exec, io }) => {
     });
 
 
-    newLabels = [...new Set(newLabels)]; // remove duplicates
-    await createLabels({github, context, labelNames: newLabels});
+    const issueEntry = {};
+    issue.issueId = issueId;
+    issue.newLabels = [...new Set(newLabels)]; // remove duplicates
+    issue.newCommentBody = newCommentBody;
 
-    // @todo instead up update here, pass result to updater
-    // Update comment
-    await github.rest.issues.update({
-      ...context.repo,
-      issue_number: issueId,
-      body: newCommentBody,
-      labels: newLabels
-    });
+    (testSuitOutput['issues'] || (testSuitOutput['issues'] = [])).push(issueEntry);
+    // await createLabels({github, context, labelNames: newLabels});
+
+    // // @todo instead up update here, pass result to updater
+    // // Update comment
+    // await github.rest.issues.update({
+    //   ...context.repo,
+    //   issue_number: issueId,
+    //   body: newCommentBody,
+    //   labels: newLabels
+    // });
   }
 
 
@@ -353,17 +360,24 @@ const runTestSuitAndUpdate = async ({ github, context, exec, io }) => {
       return `| ${newEmailIn} | ${brokenPlatforms} | ${lastEncounteredVersion} | ${fixVersion} |`;
     })
 
-    newLabels = [...new Set(newLabels)]; // remove duplicates
-    await createLabels({github, context, labelNames: newLabels});
+    const issueEntry = {};
+    issue.issueId = issueId;
+    issue.newLabels = [...new Set(newLabels)]; // remove duplicates
+    issue.newCommentBody = newCommentBody;
+    issue.newIssueState = newIssueState;
+    (testSuitOutput['issues'] || (testSuitOutput['issues'] = [])).push(issueEntry);
 
-    // Update comment
-    await github.rest.issues.update({
-      ...context.repo,
-      issue_number: issueId,
-      body: newCommentBody,
-      ...(newIssueState ? { state: newIssueState, state_reason: newIssueState === 'open' ? 'reopened' : 'completed' } : {}),
-      labels: newLabels
-    });
+    // newLabels = [...new Set(newLabels)]; // remove duplicates
+    // await createLabels({github, context, labelNames: newLabels});
+
+    // // Update comment
+    // await github.rest.issues.update({
+    //   ...context.repo,
+    //   issue_number: issueId,
+    //   body: newCommentBody,
+    //   ...(newIssueState ? { state: newIssueState, state_reason: newIssueState === 'open' ? 'reopened' : 'completed' } : {}),
+    //   labels: newLabels
+    // });
   }
   
   const { data } = await github.rest.repos.getContent({...context.repo, path: 'test_results.json'}).catch(() => ({ data: null }));
@@ -385,13 +399,24 @@ const runTestSuitAndUpdate = async ({ github, context, exec, io }) => {
 
 
   // @todo instead up update here, pass result to updater
-  const testSuitOutput = { test: 'working ' + platform };
   return testSuitOutput;
 };
 
 
 const updateGithubIssuesAndFiles = async ({ github, context, exec, io, testSuitOutputs }) => {
   console.log(testSuitOutputs);
+
+  // Update Issues
+  for (const issue in testSuitOutputs.issues) {
+    await createLabels({github, context, labelNames: issue.newLabels});
+
+    await github.rest.issues.update({
+      ...context.repo,
+      issue_number: issue.issueId,
+      body: issue.newCommentBody,
+      ...(issue.newIssueState ? { state: issue.newIssueState, state_reason: issue.newIssueState === 'open' ? 'reopened' : 'completed' } : {}),
+      labels: issue.newLabels
+    });
 }
 
 module.exports = {
