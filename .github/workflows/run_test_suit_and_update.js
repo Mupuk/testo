@@ -411,7 +411,7 @@ const updateGithubIssuesAndFiles = async ({ github, context, exec, io, testSuitO
   // Update Issues
   for (const platform in testSuitOutputs) {
     console.log('platform', platform);
-    for (const issue in testSuitOutputs.issues) {
+    for (const issue in testSuitOutputs[platform].issues) {
       await createLabels({github, context, labelNames: issue.newLabels});
 
       await github.rest.issues.update({
@@ -422,24 +422,23 @@ const updateGithubIssuesAndFiles = async ({ github, context, exec, io, testSuitO
         labels: issue.newLabels
       });
     }
-
-    // Update test_results.json
-    const { data: oldData } = await github.rest.repos.getContent({...context.repo, path: 'test_results.json'}).catch(() => ({ data: null }));
-
-    const windowsTestResultContent = fs.readFileSync('windows/test_results.json', 'utf8');
-    const windowsTestResults = JSON.parse(windowsTestResultContent);
-
-    const linuxTestResultContent = fs.readFileSync('linux/test_results.json', 'utf8');
-    const linuxTestResults = JSON.parse(linuxTestResultContent);
-
-    const newTestResults = {
-      windows: windowsTestResults.windows,
-      linux: linuxTestResults.linux
-    };
   }
 
-  // Commit test_results.json
-  // @todo only do it once aswell
+  // Update test_results.json
+  const { data: oldData } = await github.rest.repos.getContent({...context.repo, path: 'test_results.json'}).catch(() => ({ data: null }));
+
+  const windowsTestResultContent = fs.readFileSync('windows/test_results.json', 'utf8');
+  const windowsTestResults = JSON.parse(windowsTestResultContent);
+
+  const linuxTestResultContent = fs.readFileSync('linux/test_results.json', 'utf8');
+  const linuxTestResults = JSON.parse(linuxTestResultContent);
+
+  const newTestResults = {
+    windows: windowsTestResults.windows,
+    linux: linuxTestResults.linux
+  };
+
+  // Commit new test_results.json
   await github.rest.repos.createOrUpdateFileContents({
     ...context.repo,
     path: 'test_results.json',
