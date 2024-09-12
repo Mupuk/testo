@@ -61,6 +61,7 @@ jobs:
         uses: actions/github-script@v7
         with:
           script: |
+            console.log('Windows:', ${{ needs.run_test_suit.outputs.test_suit_output_windows }});
             const testsuit = {
               windows: JSON.parse(${{ needs.run_test_suit.outputs.test_suit_output_windows }}),
               linux: JSON.parse(${{ needs.run_test_suit.outputs.test_suit_output_linux }}),
