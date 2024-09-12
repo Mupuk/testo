@@ -444,7 +444,7 @@ const updateGithubIssuesAndFiles = async ({ github, context, exec, io, testSuitO
     ...context.repo,
     path: 'test_results.json',
     message: '[CI] Update test results',
-    content: Buffer.from(JSON.stringify(newTestResults)).toString('base64'),
+    content: Buffer.from(JSON.stringify(newTestResults, null, 2)).toString('base64'),
     branch: 'master',
     ...(oldData ? { sha: oldData.sha } : {})
   });
