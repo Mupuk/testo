@@ -406,7 +406,7 @@ const runTestSuitAndUpdate = async ({ github, context, exec, io }) => {
 const updateGithubIssuesAndFiles = async ({ github, context, exec, io, testSuitOutputs }) => {
   const fs = require('fs');
   const { createLabels } = require('./create_label.js');
-  console.log(JSON.stringify(testSuitOutputs));
+  console.log('testSuitOutput', JSON.stringify(testSuitOutputs, null, 2));
 
   // Update Issues
   for (const platform in testSuitOutputs) {
