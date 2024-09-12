@@ -39,17 +39,17 @@ jobs:
     needs: run_test_suit
     runs-on: [self-hosted]
     steps:
-      - name: Download Linux test results
-        uses: actions/download-artifact@v3
-        with:
-          name: test_results_linux
-          path: linux
-
       - name: Download Windows test results
-        uses: actions/download-artifact@v3
+        uses: actions/download-artifact@v4
         with:
           name: test_results_windows
           path: windows
+
+      - name: Download Linux test results
+        uses: actions/download-artifact@v4
+        with:
+          name: test_results_linux
+          path: linux
 
       - name: Update Issues
         uses: actions/github-script@v7
