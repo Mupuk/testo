@@ -37,7 +37,7 @@ const runTestSuitAndUpdate = async ({ github, context, exec, io }) => {
   const currentVersion = await getJaiVersion({ exec });
   let tempVersion = currentVersion
 
-  const platform = process.env.RUNNER_OS;
+  const platform = process.env.RUNNER_OS.toLowerCase();
   console.log(`Running on platform: ${platform}`);
 
   // Get old state of test results
@@ -59,8 +59,8 @@ const runTestSuitAndUpdate = async ({ github, context, exec, io }) => {
 
   console.log('compilerPath', compilerPath);
   let suffix = '';
-  if (platform === 'Linux')    suffix = '-linux';
-  if (platform === 'MacOS')     suffix = '-macos';
+  if (platform === 'linux')    suffix = '-linux';
+  if (platform === 'macos')     suffix = '-macos';
 
   const extension = path.extname(compilerPath);
   await exec.exec(`${compilerPath} bug_suit.jai`, [], options);
@@ -91,10 +91,10 @@ const runTestSuitAndUpdate = async ({ github, context, exec, io }) => {
 
   // make test results available via version, and results via name
   const oldTestResultsByVersion = oldTestResults.reduce((acc, item) => {
-    acc[item.version] = item;
+    acc[platform][item.version] = item;
     // also reduce the results
-    acc[item.version].results = item.results.reduce((acc, item) => {
-      acc[item.file] = item;
+    acc[platform][item.version].results = item.results.reduce((acc, item) => {
+      acc[platform][item.file] = item;
       return acc;
     }, {});
 
@@ -102,10 +102,10 @@ const runTestSuitAndUpdate = async ({ github, context, exec, io }) => {
   }, {});
 
   const newTestResultsByVersion = newTestResults.reduce((acc, item) => {
-    acc[item.version] = item;
+    acc[platform][item.version] = item;
     // also reduce the results
-    acc[item.version].results = item.results.reduce((acc, item) => {
-      acc[item.file] = item;
+    acc[platform][item.version].results = item.results.reduce((acc, item) => {
+      acc[platform][item.file] = item;
       return acc;
     }, {});
 
@@ -130,9 +130,9 @@ const runTestSuitAndUpdate = async ({ github, context, exec, io }) => {
   //           0.1.092       0.1.092
   //           0.1.091          -
   // 
-  const newTests = Object.values(newTestResultsByVersion[previousVersion].results).filter(obj1 =>
-    !oldTestResultsByVersion[previousVersion]  // if the previous version does not exist in old log, then all tests are new
-    || !Object.values(oldTestResultsByVersion[previousVersion].results).some(obj2 => obj1.file === obj2.file) // if the file does not exist in old log
+  const newTests = Object.values(newTestResultsByVersion[platform][previousVersion].results).filter(obj1 =>
+    !oldTestResultsByVersion[platform][previousVersion]  // if the previous version does not exist in old log, then all tests are new
+    || !Object.values(oldTestResultsByVersion[platform][previousVersion].results).some(obj2 => obj1.file === obj2.file) // if the file does not exist in old log
   );
 
   console.log('newTests\n', newTests);
@@ -149,9 +149,9 @@ const runTestSuitAndUpdate = async ({ github, context, exec, io }) => {
   //           0.1.092       0.1.092
   //           0.1.091          -
   // 
-  const changedTests = Object.values(newTestResultsByVersion[currentVersion].results).filter(
-    obj1 => obj1.file in newTestResultsByVersion[previousVersion].results  // if the file exists in previous version, this should be redundant?
-      && !isDeepEqual(obj1, newTestResultsByVersion[previousVersion].results[obj1.file]) // if the test results are different
+  const changedTests = Object.values(newTestResultsByVersion[platform][currentVersion].results).filter(
+    obj1 => obj1.file in newTestResultsByVersion[platform][previousVersion].results  // if the file exists in previous version, this should be redundant?
+      && !isDeepEqual(obj1, newTestResultsByVersion[platform][previousVersion].results[obj1.file]) // if the test results are different
       && !newTests.some( (test) => test.file === obj1.file) // if the test is not new
   )
   console.log('changedTests\n', changedTests);
@@ -165,14 +165,14 @@ const runTestSuitAndUpdate = async ({ github, context, exec, io }) => {
   //           0.1.092       0.1.092
   //           0.1.091          -
   // 
-  const removedTests = Object.values(oldTestResultsByVersion[previousVersion]?.results || []).filter(obj1 =>
-    !newTestResultsByVersion[previousVersion]  // if the previous version does not exist in new log, then all tests are removed
-    || !Object.values(newTestResultsByVersion[previousVersion].results).some(obj2 => obj1.file === obj2.file) // if the file does not exist in new log
+  const removedTests = Object.values(oldTestResultsByVersion[platform][previousVersion]?.results || []).filter(obj1 =>
+    !newTestResultsByVersion[platform][previousVersion]  // if the previous version does not exist in new log, then all tests are removed
+    || !Object.values(newTestResultsByVersion[platform][previousVersion].results).some(obj2 => obj1.file === obj2.file) // if the file does not exist in new log
   );
   console.log('removedTests\n', removedTests);
 
 
-  const oldToNewCompilerVersions = newTestResults.map(item => item.version).sort()
+  const oldToNewCompilerVersions = newTestResults.map(item => item[platform].version).sort()
   const currentDate = new Date().toISOString().split('T')[0];
   
   const parseIssueHeaderStatusRegex = /(?<=\| :-.*\s)\| (?<emailedIn>.*?) \| (?<lastBrokenPlatforms>.*?) \| (?<lastEncounteredVersion>.*?) \| (?<fixVersion>.*?) \|/im;
@@ -212,7 +212,7 @@ const runTestSuitAndUpdate = async ({ github, context, exec, io }) => {
 
     // Go over all versions of the test run and change the history accordingly
     oldToNewCompilerVersions.forEach((version, index) => {
-      const currentTestResultOfVersion = newTestResultsByVersion[version].results[currentTest.file];
+      const currentTestResultOfVersion = newTestResultsByVersion[platform][version].results[currentTest.file];
       const currentPassedTest = currentTestResultOfVersion.passed_test ? '✅' : '❌';
       const currentErrorCode = currentTestResultOfVersion.did_run ? currentTestResultOfVersion.run_exit_code : currentTestResultOfVersion.compilation_exit_code;
       const currentExpectedErrorCode = currentTestResultOfVersion.expected_error_code;
@@ -231,7 +231,7 @@ const runTestSuitAndUpdate = async ({ github, context, exec, io }) => {
               /////////////////////////////////////////////
               // Add New Row
               let newFirstRow = '';
-              const testResultOfPreviousVersion = newTestResultsByVersion[oldToNewCompilerVersions[index-1]].results[currentTest.file];
+              const testResultOfPreviousVersion = newTestResultsByVersion[platform][oldToNewCompilerVersions[index-1]].results[currentTest.file];
               const addNewEntry = currentTestResultOfVersion.passed_test === false || (currentTestResultOfVersion.passed_test === true && testResultOfPreviousVersion.passed_test === false);
               if (replaceIndex === 0 && addNewEntry) {
                 replaceIndex++; // increment counter

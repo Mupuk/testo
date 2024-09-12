@@ -24,6 +24,11 @@ Test_Result_Set :: struct {
   results: [..] Test_Result;
 };
 
+Test_Result_Sets_Per_Platform :: struct {
+  windows: [..] Test_Result_Set;
+  linux: [..] Test_Result_Set;
+};
+
 
 #run 
 {
@@ -253,7 +258,13 @@ Test_Result_Set :: struct {
   }
 
   // Create and initialize object
-  success, test_result_sets := json_parse_file("test_results.json", [..] Test_Result_Set);
+  success, test_result_sets_per_platform := json_parse_file("test_results.json", Test_Result_Sets_Per_Platform);
+
+#if OS == .WINDOWS {
+  test_result_sets := *test_result_sets_per_platform.windows;
+} else #if OS == .LINUX {
+  test_result_sets := *test_result_sets_per_platform.linux;
+}
 
   current_result_set := Test_Result_Set.{
     version = version,
@@ -266,7 +277,7 @@ Test_Result_Set :: struct {
   // replace result set
   same_version_index := -1;
   smallest_version_index := -1;
-  for test_result_sets
+  for test_result_sets.*
   {
     if it.version == version
     {
@@ -284,26 +295,27 @@ Test_Result_Set :: struct {
   // version already exists, replace it
   if same_version_index != -1
   {
-    test_result_sets[same_version_index] = current_result_set;
+    test_result_sets.*[same_version_index] = current_result_set;
   }
   // if not yet 3 results, add it
   else if test_result_sets.count < 3 // @todo if we ever change this theres other places that break!!!
   {
-    array_add(*test_result_sets, current_result_set);
+    array_add(test_result_sets, current_result_set);
   }
   // new version, replace the oldest version
   else if smallest_version_index != -1
   {
-    other_version := parse_version(test_result_sets[smallest_version_index].version);
+    other_version := parse_version(test_result_sets.*[smallest_version_index].version);
     assert(compare_version(versionInfo, other_version) > 0, "Version that is supposed to get replaced is not smaller");
-    test_result_sets[smallest_version_index] = current_result_set;
+    test_result_sets.*[smallest_version_index] = current_result_set;
   }
   else
   {
     assert(false, "Could not find a version to replace");
   }
 
-  success = json_write_file("test_results.json", test_result_sets, indent_char = "  ");
+
+  success = json_write_file("test_results.json", test_result_sets_per_platform, indent_char = "  ");
   assert(success, "Could not write test_results.json");
 
 

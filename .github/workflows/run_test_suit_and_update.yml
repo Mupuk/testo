@@ -6,9 +6,6 @@ on:
     branches:
       - master
 
-# update test_results.json structure, add new dimension for platform
-# run all tests gather changes of issue
-
 jobs:
   run_test_suit:
     strategy:
