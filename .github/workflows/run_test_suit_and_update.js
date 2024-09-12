@@ -257,8 +257,8 @@ const runTestSuitAndUpdate = async ({ github, context, exec, io }) => {
     issueEntry.issueId = issueId;
     issueEntry.newLabels = [...new Set(newLabels)]; // remove duplicates
     issueEntry.newCommentBody = newCommentBody;
-    testSuitOutput['issues'] ||= [];
-    testSuitOutput['issues'].push(issueEntry);
+    testSuitOutput.issues ||= [];
+    testSuitOutput.issues.push(issueEntry);
     // await createLabels({github, context, labelNames: newLabels});
 
     // // @todo instead up update here, pass result to updater
@@ -365,8 +365,8 @@ const runTestSuitAndUpdate = async ({ github, context, exec, io }) => {
     issueEntry.newLabels = [...new Set(newLabels)]; // remove duplicates
     issueEntry.newCommentBody = newCommentBody;
     issueEntry.newIssueState = newIssueState;
-    testSuitOutput['issues'] ||= [];
-    testSuitOutput['issues'].push(issueEntry);
+    testSuitOutput.issues ||= [];
+    testSuitOutput.issues.push(issueEntry);
 
     // newLabels = [...new Set(newLabels)]; // remove duplicates
     // await createLabels({github, context, labelNames: newLabels});
@@ -406,7 +406,7 @@ const runTestSuitAndUpdate = async ({ github, context, exec, io }) => {
 const updateGithubIssuesAndFiles = async ({ github, context, exec, io, testSuitOutputs }) => {
   const fs = require('fs');
   const { createLabels } = require('./create_label.js');
-  console.log(testSuitOutputs);
+  console.log(JSON.stringify(testSuitOutputs));
 
   // Update Issues
   for (const platform in testSuitOutputs) {
