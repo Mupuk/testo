@@ -385,7 +385,7 @@ const runTestSuitAndUpdate = async ({ github, context, exec, io }) => {
 
 
   // @todo instead up update here, pass result to updater
-  const testSuitOutput = { test: 'working'};
+  const testSuitOutput = { test: 'working ' + platform };
   return testSuitOutput;
 };
 
