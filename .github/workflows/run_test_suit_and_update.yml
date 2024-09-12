@@ -31,7 +31,7 @@ jobs:
           script: |
             const { runTestSuitAndUpdate } = require('./.github/workflows/run_test_suit_and_update.js');
             const testSuitOutput = await runTestSuitAndUpdate({ github, context, exec, io });
-            core.exportVariable('${{ matrix.platform }}', testSuitOutput);
+            core.setOutput('${{ matrix.platform }}', testSuitOutput);
 
       # @todo check if we can overwrite it or else delete it below!
       - name: Upload build artifact
