@@ -231,7 +231,7 @@ const runTestSuitAndUpdate = async ({ github, context, exec, io }) => {
               /////////////////////////////////////////////
               // Add New Row
               let newFirstRow = '';
-              const testResultOfPreviousVersion = newTestResultsByVersion[oldToNewCompilerVersions[index-1]].results[currentTest.file];
+              const testResultOfPreviousVersion = newTestResultsByVersion[oldToNewCompilerVersions[index-1]]?.results[currentTest.file];
               // index === 0 means there is already a history, but only of other platforms, so we need to add all the results of this platform
               const addNewEntry = index === 0 || currentTestResultOfVersion.passed_test === false || (currentTestResultOfVersion.passed_test === true && testResultOfPreviousVersion.passed_test === false);
               if (replaceIndex === 0 && addNewEntry) {
