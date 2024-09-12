@@ -204,11 +204,11 @@ const runTestSuitAndUpdate = async ({ github, context, exec, io }) => {
     })
 
     // since its a new issue, the history should be empty, all platforms in the matrix only get the original state and it will be udpated after all of them ran
-    if (parseIssueHistoryRegex.test(newCommentBody)) {
-      console.error('History already exists in issue:', issueId);
-      //process.exit(1); // Should never happen
-      continue;
-    }
+    // if (parseIssueHistoryRegex.test(newCommentBody)) {
+    //   console.error('History already exists in issue:', issueId);
+    //   //process.exit(1); // Should never happen
+    //   continue;
+    // }
 
     // Go over all versions of the test run and change the history accordingly
     oldToNewCompilerVersions.forEach((version, index) => {
@@ -221,7 +221,7 @@ const runTestSuitAndUpdate = async ({ github, context, exec, io }) => {
         newLabels.push(version, platform);
       }
 
-      if (index === 0) {
+      if (index === 0 && !parseIssueHistoryRegex.test(newCommentBody)) { // only if its first entry and no history exists
         // Just append since the history is still empty
         newCommentBody = newCommentBody.trimEnd() + `\n| ${currentPassedTest} | ${platform} | ${currentDate} | ${version} | ${currentErrorCode} - Expected ${currentExpectedErrorCode} |`;
       } else {
