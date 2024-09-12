@@ -400,6 +400,7 @@ const runTestSuitAndUpdate = async ({ github, context, exec, io }) => {
 
 
   // @todo instead up update here, pass result to updater
+  testSuitOutput['blubbi'] = 'blubbi ' + platform;
   return testSuitOutput;
 };
 
