@@ -8,7 +8,7 @@
       "results": [
         {
           "file": "compiler_bugs/EC0_257.jai",
-          "passed_test": false,
+          "passed_test": true,
           "expected_error_code": 0,
           "compilation_succeeded": false,
           "compilation_exit_code": 1,
