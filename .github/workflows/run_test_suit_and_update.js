@@ -390,7 +390,7 @@ const runTestSuitAndUpdate = async ({ github, context, exec, io }) => {
 };
 
 
-const updateGithubIssuesAndFiles = async ({ github, context, exec, io, testSuitOutput }) => {
+const updateGithubIssuesAndFiles = async ({ github, context, exec, io, testSuitOutputs }) => {
   console.log(testSuitOutputs);
 }
 
