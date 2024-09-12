@@ -381,18 +381,18 @@ const runTestSuitAndUpdate = async ({ github, context, exec, io }) => {
     // });
   }
   
-  const { data } = await github.rest.repos.getContent({...context.repo, path: 'test_results.json'}).catch(() => ({ data: null }));
+  // const { data } = await github.rest.repos.getContent({...context.repo, path: 'test_results.json'}).catch(() => ({ data: null }));
 
-  // Commit test_results.json
-  // @todo only do it once aswell
-  await github.rest.repos.createOrUpdateFileContents({
-    ...context.repo,
-    path: 'test_results.json',
-    message: '[CI] Update test results',
-    content: Buffer.from(newTestResultsFileContent || '').toString('base64'),
-    branch: 'master',
-    ...(data ? { sha: data.sha } : {})
-  });
+  // // Commit test_results.json
+  // // @todo only do it once aswell
+  // await github.rest.repos.createOrUpdateFileContents({
+  //   ...context.repo,
+  //   path: 'test_results.json',
+  //   message: '[CI] Update test results',
+  //   content: Buffer.from(newTestResultsFileContent || '').toString('base64'),
+  //   branch: 'master',
+  //   ...(data ? { sha: data.sha } : {})
+  // });
 
   // Don't think we need to handle removed tests
   // for (const currentTest of removedTests) {
@@ -420,6 +420,31 @@ const updateGithubIssuesAndFiles = async ({ github, context, exec, io, testSuitO
       labels: issue.newLabels
     });
   }
+
+  // Update test_results.json
+  const { data: oldData } = await github.rest.repos.getContent({...context.repo, path: 'test_results.json'}).catch(() => ({ data: null }));
+
+  const windowsTestResultContent = fs.readFileSync('windows/test_results.json', 'utf8');
+  const windowsTestResults = JSON.parse(windowsTestResultContent);
+
+  const linuxTestResultContent = fs.readFileSync('linux/test_results.json', 'utf8');
+  const linuxTestResults = JSON.parse(linuxTestResultContent);
+
+  const newTestResults = {
+    windows: windowsTestResults.windows,
+    linux: linuxTestResults.linux
+  };
+
+  // Commit test_results.json
+  // @todo only do it once aswell
+  await github.rest.repos.createOrUpdateFileContents({
+    ...context.repo,
+    path: 'test_results.json',
+    message: '[CI] Update test results',
+    content: Buffer.from(JSON.stringify(newTestResults)).toString('base64'),
+    branch: 'master',
+    ...(oldData ? { sha: oldData.sha } : {})
+  });
 }
 
 module.exports = {
