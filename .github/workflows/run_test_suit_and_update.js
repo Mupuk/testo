@@ -445,6 +445,8 @@ const updateGithubIssuesAndFiles = async ({ github, context, exec, io, testSuitO
     return;
   }
 
+  // @todo fix up issue header status
+
   // Commit new test_results.json
   await github.rest.repos.createOrUpdateFileContents({
     ...context.repo,
