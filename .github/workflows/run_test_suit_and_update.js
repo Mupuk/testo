@@ -365,7 +365,8 @@ const runTestSuitAndUpdate = async ({ github, context, exec, io }) => {
     issue.newLabels = [...new Set(newLabels)]; // remove duplicates
     issue.newCommentBody = newCommentBody;
     issue.newIssueState = newIssueState;
-    (testSuitOutput['issues'] || (testSuitOutput['issues'] = [])).push(issueEntry);
+    testSuitOutput['issues'] ||= [];
+    testSuitOutput['issues'].push(issueEntry);
 
     // newLabels = [...new Set(newLabels)]; // remove duplicates
     // await createLabels({github, context, labelNames: newLabels});
