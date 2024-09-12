@@ -257,8 +257,8 @@ const runTestSuitAndUpdate = async ({ github, context, exec, io }) => {
     issue.issueId = issueId;
     issue.newLabels = [...new Set(newLabels)]; // remove duplicates
     issue.newCommentBody = newCommentBody;
-
-    (testSuitOutput['issues'] || (testSuitOutput['issues'] = [])).push(issueEntry);
+    testSuitOutput['issues'] ||= [];
+    testSuitOutput['issues'].push(issueEntry);
     // await createLabels({github, context, labelNames: newLabels});
 
     // // @todo instead up update here, pass result to updater
