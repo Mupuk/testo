@@ -1,7 +1,5 @@
 {
   "windows": [
-  ],
-  "linux": [
     {
       "version": "beta-0.1.092",
       "succeeded_count": 0,
@@ -54,5 +52,7 @@
         }
       ]
     }
+  ],
+  "linux": [
   ]
 }
