@@ -411,7 +411,7 @@ const updateGithubIssuesAndFiles = async ({ github, context, exec, io, testSuitO
   // Update Issues
   for (const platform in testSuitOutputs) {
     console.log('platform', platform);
-    for (const issue of testSuitOutputs[platform].issues) {
+    for (const issue of (testSuitOutputs[platform]?.issues || [])) {
       console.log('issue', JSON.stringify(issue, null, 2));
       await createLabels({github, context, labelNames: issue.newLabels});
 
