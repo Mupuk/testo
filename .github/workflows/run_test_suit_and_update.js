@@ -385,13 +385,13 @@ const runTestSuitAndUpdate = async ({ github, context, exec, io }) => {
 
 
   // @todo instead up update here, pass result to updater
-  const testSuitOutput = { test: 'working ' + platform };
+  const testSuitOutput = { test: 'wor\'king ' + platform };
   return testSuitOutput;
 };
 
 
-const updateGithubIssuesAndFiles = async ({ github, context, exec, io }) => {
-
+const updateGithubIssuesAndFiles = async ({ github, context, exec, io, testSuitOutput }) => {
+  console.log(testSuitOutputs);
 }
 
 module.exports = {
