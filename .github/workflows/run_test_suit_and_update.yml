@@ -67,10 +67,3 @@ jobs:
             };
             const { updateGithubIssuesAndFiles } = require('./.github/workflows/run_test_suit_and_update.js');
             await updateGithubIssuesAndFiles({ github, context, exec, io, testSuitOutputs });
-
-      # @todo
-      # - name: Download artifact to specific directory
-      #   uses: actions/download-artifact@v3
-      #   with:
-      #     name: test_results_macos
-      #     path: macos
