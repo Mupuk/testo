@@ -440,8 +440,8 @@ const updateGithubIssuesAndFiles = async ({ github, context, exec, io, testSuitO
   };
   const newTestResultsContent = JSON.stringify(newTestResults, null, 2);
 
-  console.log('oldContent', oldData.content)
-  console.log('newContent', Buffer.from(newTestResultsContent).toString('base64'))
+  console.log('oldContent', atob(oldData.content))
+  console.log('newContent', newTestResultsContent)
   if (oldData && oldData.content === Buffer.from(newTestResultsContent).toString('base64')) {
     console.log('No changes in test results, skipping update');
     return;
