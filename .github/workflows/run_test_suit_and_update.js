@@ -417,6 +417,7 @@ const updateGithubIssuesAndFiles = async ({ github, context, exec, io, testSuitO
       ...(issue.newIssueState ? { state: issue.newIssueState, state_reason: issue.newIssueState === 'open' ? 'reopened' : 'completed' } : {}),
       labels: issue.newLabels
     });
+  }
 }
 
 module.exports = {
