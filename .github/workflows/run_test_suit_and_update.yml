@@ -23,7 +23,7 @@ jobs:
         uses: actions/github-script@v7
         with:
           script: |
-            const runTestSuitAndUpdate = require('./.github/workflows/run_test_suit_and_update.js');
+            const { runTestSuitAndUpdate } = require('./.github/workflows/run_test_suit_and_update.js');
             await runTestSuitAndUpdate({ github, context, exec, io });
 
       # @todo check if we can overwrite it or else delete it below!
@@ -55,15 +55,8 @@ jobs:
         uses: actions/github-script@v7
         with:
           script: |
-            const fs = require('fs');
-            fs.readdirSync('./windows').forEach(file => {
-              console.log('========== Windows ===========');
-              console.log(file);
-            });
-            fs.readdirSync('./linux').forEach(file => {
-              console.log('========== Linux ===========');
-              console.log(file);
-            });
+            const { updateGithubIssuesAndFiles } = require('./.github/workflows/run_test_suit_and_update.js');
+            await updateGithubIssuesAndFiles({ github, context, exec, io });
 
       # @todo
       # - name: Download artifact to specific directory

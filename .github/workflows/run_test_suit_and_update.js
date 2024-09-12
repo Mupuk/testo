@@ -368,6 +368,7 @@ const runTestSuitAndUpdate = async ({ github, context, exec, io }) => {
   const { data } = await github.rest.repos.getContent({...context.repo, path: 'test_results.json'}).catch(() => ({ data: null }));
 
   // Commit test_results.json
+  // @todo only do it once aswell
   await github.rest.repos.createOrUpdateFileContents({
     ...context.repo,
     path: 'test_results.json',
@@ -386,4 +387,12 @@ const runTestSuitAndUpdate = async ({ github, context, exec, io }) => {
   return 'updated row';
 };
 
-module.exports = runTestSuitAndUpdate;
+
+const updateGithubIssuesAndFiles = async ({ github, context, exec, io }) => {
+
+}
+
+module.exports = {
+  runTestSuitAndUpdate,
+  updateGithubIssuesAndFiles
+}
