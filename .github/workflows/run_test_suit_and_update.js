@@ -409,31 +409,34 @@ const updateGithubIssuesAndFiles = async ({ github, context, exec, io, testSuitO
   console.log(testSuitOutputs);
 
   // Update Issues
-  for (const issue in testSuitOutputs.issues) {
-    await createLabels({github, context, labelNames: issue.newLabels});
+  for (const platform in testSuitOutputs) {
+    console.log('platform', platform);
+    for (const issue in testSuitOutputs.issues) {
+      await createLabels({github, context, labelNames: issue.newLabels});
 
-    await github.rest.issues.update({
-      ...context.repo,
-      issue_number: issue.issueId,
-      body: issue.newCommentBody,
-      ...(issue.newIssueState ? { state: issue.newIssueState, state_reason: issue.newIssueState === 'open' ? 'reopened' : 'completed' } : {}),
-      labels: issue.newLabels
-    });
+      await github.rest.issues.update({
+        ...context.repo,
+        issue_number: issue.issueId,
+        body: issue.newCommentBody,
+        ...(issue.newIssueState ? { state: issue.newIssueState, state_reason: issue.newIssueState === 'open' ? 'reopened' : 'completed' } : {}),
+        labels: issue.newLabels
+      });
+    }
+
+    // Update test_results.json
+    const { data: oldData } = await github.rest.repos.getContent({...context.repo, path: 'test_results.json'}).catch(() => ({ data: null }));
+
+    const windowsTestResultContent = fs.readFileSync('windows/test_results.json', 'utf8');
+    const windowsTestResults = JSON.parse(windowsTestResultContent);
+
+    const linuxTestResultContent = fs.readFileSync('linux/test_results.json', 'utf8');
+    const linuxTestResults = JSON.parse(linuxTestResultContent);
+
+    const newTestResults = {
+      windows: windowsTestResults.windows,
+      linux: linuxTestResults.linux
+    };
   }
-
-  // Update test_results.json
-  const { data: oldData } = await github.rest.repos.getContent({...context.repo, path: 'test_results.json'}).catch(() => ({ data: null }));
-
-  const windowsTestResultContent = fs.readFileSync('windows/test_results.json', 'utf8');
-  const windowsTestResults = JSON.parse(windowsTestResultContent);
-
-  const linuxTestResultContent = fs.readFileSync('linux/test_results.json', 'utf8');
-  const linuxTestResults = JSON.parse(linuxTestResultContent);
-
-  const newTestResults = {
-    windows: windowsTestResults.windows,
-    linux: linuxTestResults.linux
-  };
 
   // Commit test_results.json
   // @todo only do it once aswell
