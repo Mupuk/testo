@@ -187,6 +187,7 @@ const runTestSuitAndUpdate = async ({ github, context, exec, io }) => {
       continue;
     }
 
+    // In theorie there could already exist a history from other platforms
     const { data: issue } = await github.rest.issues.get({
       ...context.repo,
       issue_number: issueId
@@ -384,7 +385,8 @@ const runTestSuitAndUpdate = async ({ github, context, exec, io }) => {
 
 
   // @todo instead up update here, pass result to updater
-  return 'updated row';
+  const testSuitOutput = { test: 'working'};
+  return testSuitOutput;
 };
 
 

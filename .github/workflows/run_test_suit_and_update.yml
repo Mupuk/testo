@@ -11,20 +11,27 @@ jobs:
     strategy:
       matrix:
         platform: [windows, linux]
+
+    outputs:
+      test_suit_output_windows: ${{ steps.run-bug-suit.outputs.windows }}
+      test_suit_output_linux: ${{ steps.run-bug-suit.outputs.linux }}
+
     runs-on: 
      - self-hosted
      - ${{ matrix.platform }}
-
+     
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
 
       - name: Run Bug Suit
+        id: run-bug-suit
         uses: actions/github-script@v7
         with:
           script: |
             const { runTestSuitAndUpdate } = require('./.github/workflows/run_test_suit_and_update.js');
-            await runTestSuitAndUpdate({ github, context, exec, io });
+            const testSuitOutput = await runTestSuitAndUpdate({ github, context, exec, io });
+            core.exportVariable('${{ matrix.platform }}', testSuitOutput);
 
       # @todo check if we can overwrite it or else delete it below!
       - name: Upload build artifact
@@ -33,9 +40,8 @@ jobs:
           name: test_results_${{ matrix.platform }}
           path: test_results.json
           retention-days: 1 # we only need this for the next job
-          # overwrite: true
 
-  update_issues:
+  update_github_files_and_issues:
     needs: run_test_suit
     runs-on: [self-hosted]
     steps:
@@ -51,10 +57,15 @@ jobs:
           name: test_results_linux
           path: linux
 
-      - name: Update Issues
+      - name: Update Github Files and Issues
         uses: actions/github-script@v7
         with:
           script: |
+            const testsuit = {
+              windows: JSON.parse(${{ needs.run_test_suit.outputs.test_suit_output_windows }}),
+              linux: JSON.parse(${{ needs.run_test_suit.outputs.test_suit_output_linux }}),
+            };
+            console.log(testsuit);
             const { updateGithubIssuesAndFiles } = require('./.github/workflows/run_test_suit_and_update.js');
             await updateGithubIssuesAndFiles({ github, context, exec, io });
 
