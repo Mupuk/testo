@@ -99,7 +99,7 @@ const runTestSuitAndUpdate = async ({ github, context, exec, io }) => {
     }, {});
 
     return acc;
-  }, {});
+  }, {}) || [];
 
   const newTestResultsByVersion = newTestResults?.reduce((acc, item) => {
     acc[item.version] = item;
@@ -110,7 +110,7 @@ const runTestSuitAndUpdate = async ({ github, context, exec, io }) => {
     }, {});
 
     return acc;
-  }, {});
+  }, {}) || [];
 
   // console.log('new test res', newTestResults);
   // console.log('newTestResultsByVersion', newTestResultsByVersion);
