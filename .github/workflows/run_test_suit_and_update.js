@@ -90,7 +90,7 @@ const runTestSuitAndUpdate = async ({ github, context, exec, io }) => {
   console.log('newTestResults', newTestResults);
 
   // make test results available via version, and results via name
-  const oldTestResultsByVersion = oldTestResults[platform].reduce((acc, item) => {
+  const oldTestResultsByVersion = oldTestResults[platform]?.reduce((acc, item) => {
     acc[item.version] = item;
     // also reduce the results
     acc[item.version].results = item.results.reduce((acc, item) => {
@@ -101,7 +101,7 @@ const runTestSuitAndUpdate = async ({ github, context, exec, io }) => {
     return acc;
   }, {});
 
-  const newTestResultsByVersion = newTestResults.reduce((acc, item) => {
+  const newTestResultsByVersion = newTestResults?.reduce((acc, item) => {
     acc[item.version] = item;
     // also reduce the results
     acc[item.version].results = item.results.reduce((acc, item) => {
