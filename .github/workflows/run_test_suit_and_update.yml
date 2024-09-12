@@ -51,6 +51,20 @@ jobs:
           name: test_results_linux
           path: linux
 
+      - name: Update Issues
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const fs = require('fs');
+            fs.readdirSync('./windows').forEach(file => {
+              console.log('========== Windows ===========');
+              console.log(file);
+            });
+            fs.readdirSync('./linux').forEach(file => {
+              console.log('========== Linux ===========');
+              console.log(file);
+            });
+
       # @todo
       # - name: Download artifact to specific directory
       #   uses: actions/download-artifact@v3
