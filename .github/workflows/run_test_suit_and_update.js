@@ -466,7 +466,7 @@ const updateGithubIssuesAndFiles = async ({ github, context, exec, io, testSuitO
     }
   }
 
-  for (const issueId of mergedIssuesHistory) {
+  for (const issueId in mergedIssuesHistory) {
     const issue = mergedIssuesHistory[issueId];
 
     // Remove duplicates from history, and merge entries when all fields except platforms are the same
