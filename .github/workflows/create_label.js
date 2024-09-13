@@ -4,6 +4,7 @@ const createLabel = async ({github, context, labelName}) => {
 }
 
 const createLabels = async ({ github, context, labelNames }) => {
+  console.log('creating Labels', labelNames);
   // Fetch all existing labels
   const { data: labels } = await github.rest.issues.listLabelsForRepo({
     owner: context.repo.owner,
