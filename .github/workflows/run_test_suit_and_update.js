@@ -27,12 +27,15 @@ const decrementVersionString = (version, count = 1) => {
   return `${versionSplit[1]}${newMajor}.${newMinor}.${newMicro.toString().padStart(3, '0')}`
 }
 
+const parseIssueHeaderStatusRegex = /(?<=\| :-.*\s)\| (?<emailedIn>.*?) \| (?<lastBrokenPlatforms>.*?) \| (?<lastEncounteredVersion>.*?) \| (?<fixVersion>.*?) \|/im;
+const parseIssueHistoryRegex = /(?<=History$\s(?:.*$\s){2,})\| (?<passedTest>.*?) \| (?<platforms>.*?) \| (?<date>.*?) \| (?<version>.*?) \| (?<errorCode>\d+) - Expected (?<expectedErrorCode>\d+) \|/img;
+
 const runTestSuitAndUpdate = async ({ github, context, exec, io }) => {
   const path = require('path');
   const fs = require('fs');
   const { createLabels } = require('./create_label.js');
 
-  const testSuitOutput = { };
+  const testSuitOutput = {};
 
   // Jai Version
   const { isDeepEqual, jaiVersion: getJaiVersion } = require('./utils.js');
@@ -57,12 +60,12 @@ const runTestSuitAndUpdate = async ({ github, context, exec, io }) => {
   // This will fail on windows because we already have the real path
   try {
     compilerPath = fs.readlinkSync(compilerPath);
-  } catch (err) {} // ignore error
+  } catch (err) { } // ignore error
 
   console.log('compilerPath', compilerPath);
   let suffix = '';
-  if (platform === 'linux')    suffix = '-linux';
-  if (platform === 'macos')     suffix = '-macos';
+  if (platform === 'linux') suffix = '-linux';
+  if (platform === 'macos') suffix = '-macos';
 
   const extension = path.extname(compilerPath);
   await exec.exec(`${compilerPath} bug_suit.jai`, [], options);
@@ -154,7 +157,7 @@ const runTestSuitAndUpdate = async ({ github, context, exec, io }) => {
   const changedTests = Object.values(newTestResultsByVersion[currentVersion].results).filter(
     obj1 => obj1.file in newTestResultsByVersion[previousVersion].results  // if the file exists in previous version, this should be redundant?
       && !isDeepEqual(obj1, newTestResultsByVersion[previousVersion].results[obj1.file]) // if the test results are different
-      && !newTests.some( (test) => test.file === obj1.file) // if the test is not new
+      && !newTests.some((test) => test.file === obj1.file) // if the test is not new
   )
   console.log('changedTests\n', changedTests);
 
@@ -176,9 +179,7 @@ const runTestSuitAndUpdate = async ({ github, context, exec, io }) => {
 
   const oldToNewCompilerVersions = newTestResults[platform].map(item => item.version).sort()
   const currentDate = new Date().toISOString().split('T')[0];
-  
-  const parseIssueHeaderStatusRegex = /(?<=\| :-.*\s)\| (?<emailedIn>.*?) \| (?<lastBrokenPlatforms>.*?) \| (?<lastEncounteredVersion>.*?) \| (?<fixVersion>.*?) \|/im;
-  const parseIssueHistoryRegex = /(?<=History$\s(?:.*$\s){2,})\| (?<passedTest>.*?) \| (?<platforms>.*?) \| (?<date>.*?) \| (?<version>.*?) \| (?<errorCode>\d+) - Expected (?<expectedErrorCode>\d+) \|/img;
+
 
   // Handle all new Tests
   for (const currentTest of newTests) {
@@ -229,25 +230,25 @@ const runTestSuitAndUpdate = async ({ github, context, exec, io }) => {
         newCommentBody = newCommentBody.trimEnd() + `\n| ${currentPassedTest} | ${platform} | ${currentDate} | ${version} | ${currentErrorCode} - Expected ${currentExpectedErrorCode} |`;
       } else {
         // Update history via regex, only works if at least one is there
-          let replaceIndex = 0;
-          newCommentBody = newCommentBody.replace(parseIssueHistoryRegex, (match, passedTest, platforms, date, oldVersion, errorCode, expectedErrorCode, i) => {
-              /////////////////////////////////////////////
-              // Add New Row
-              let newFirstRow = '';
-              const testResultOfPreviousVersion = newTestResultsByVersion[oldToNewCompilerVersions[index-1]]?.results[currentTest.file];
-              // index === 0 means there is already a history, but only of other platforms, so we need to add all the results of this platform
-              const addNewEntry = index === 0 || currentTestResultOfVersion.passed_test === false || (currentTestResultOfVersion.passed_test === true && testResultOfPreviousVersion.passed_test === false);
-              if (replaceIndex === 0 && addNewEntry) {
-                replaceIndex++; // increment counter
-                newFirstRow = `| ${currentPassedTest} | ${platform} | ${currentDate} | ${version} | ${currentErrorCode} - Expected ${currentExpectedErrorCode} |\n`
-              }
+        let replaceIndex = 0;
+        newCommentBody = newCommentBody.replace(parseIssueHistoryRegex, (match, passedTest, platforms, date, oldVersion, errorCode, expectedErrorCode) => {
+          /////////////////////////////////////////////
+          // Add New Row
+          let newFirstRow = '';
+          const testResultOfPreviousVersion = newTestResultsByVersion[oldToNewCompilerVersions[index - 1]]?.results[currentTest.file];
+          // index === 0 means there is already a history, but only of other platforms, so we need to add all the results of this platform
+          const addNewEntry = index === 0 || currentTestResultOfVersion.passed_test === false || (currentTestResultOfVersion.passed_test === true && testResultOfPreviousVersion.passed_test === false);
+          if (replaceIndex === 0 && addNewEntry) {
+            replaceIndex++; // increment counter
+            newFirstRow = `| ${currentPassedTest} | ${platform} | ${currentDate} | ${version} | ${currentErrorCode} - Expected ${currentExpectedErrorCode} |\n`
+          }
 
-              /////////////////////////////////////////////
-              // Overwrite Old Row
-              replaceIndex++; // increment counter
-              let oldRow = `| ${passedTest} | ${platforms} | ${date} | ${oldVersion} | ${errorCode} - Expected ${expectedErrorCode} |`
-              return `${newFirstRow}${oldRow}`;
-            })
+          /////////////////////////////////////////////
+          // Overwrite Old Row
+          replaceIndex++; // increment counter
+          let oldRow = `| ${passedTest} | ${platforms} | ${date} | ${oldVersion} | ${errorCode} - Expected ${expectedErrorCode} |`
+          return `${newFirstRow}${oldRow}`;
+        })
 
       }
     });
@@ -298,7 +299,7 @@ const runTestSuitAndUpdate = async ({ github, context, exec, io }) => {
     // Get last history entry of current platform
     const lastHistoryEntryOfPCurrentlatform = [...newCommentBody.matchAll(parseIssueHistoryRegex)]
       .map(match => match.groups) // Extract groups
-      .reduce ((acc, item, i) => { // Reduce to last entry per platform
+      .reduce((acc, item, i) => { // Reduce to last entry per platform
         const platforms = item.platforms.split(',').map(p => p.trim()); // In case platforms are comma-separated
         platforms.forEach(platform => {
           if (!acc[platform]) {
@@ -323,14 +324,14 @@ const runTestSuitAndUpdate = async ({ github, context, exec, io }) => {
         replaceIndex++; // Increment counter
         newFirstRow = `| ${currentTest.passed_test ? '✅' : '❌'} | ${platform} | ${currentDate} | ${currentVersion} | ${currentTest.did_run ? currentTest.run_exit_code : currentTest.compilation_exit_code} - Expected ${currentTest.expected_error_code} |\n`
       }
-      
+
       /////////////////////////////////////////////
       // Overwrite Old Row
       replaceIndex++; // increment counter
       let oldRow = `| ${passedTest} | ${platforms} | ${date} | ${oldVersion} | ${errorCode} - Expected ${expectedErrorCode} |`
       return `${newFirstRow}${oldRow}`;
     })
-    
+
     // @todo update header and comment only after all platforms test have run
     let newIssueState;
     // Update header status
@@ -380,7 +381,7 @@ const runTestSuitAndUpdate = async ({ github, context, exec, io }) => {
     //   labels: newLabels
     // });
   }
-  
+
   // const { data } = await github.rest.repos.getContent({...context.repo, path: 'test_results.json'}).catch(() => ({ data: null }));
 
   // // Commit test_results.json
@@ -405,28 +406,109 @@ const runTestSuitAndUpdate = async ({ github, context, exec, io }) => {
 
 const updateGithubIssuesAndFiles = async ({ github, context, exec, io, testSuitOutputs }) => {
   const fs = require('fs');
+  const { isDeepEqual } = require('./utils.js');
   const { createLabels } = require('./create_label.js');
   console.log('testSuitOutput', JSON.stringify(testSuitOutputs, null, 2));
 
-  // Update Issues
+  const mergedIssuesHistory = {
+    // issueId: {
+    //   newLabels: [],
+    //   historyEntries: [
+    //     {
+    //        passedTest: '✅',
+    //        platforms: 'windows, linux',
+    //        date: '2021-09-07',
+    //        version: '0.1.093',
+    //        errorCode: '0',
+    //        expectedErrorCode: '0'
+    //     }
+    //   ]
+    // }
+  };
+
+  // Update Issues and Merge Platform changes
   for (const platform in testSuitOutputs) {
     console.log('platform', platform);
     for (const issue of (testSuitOutputs[platform]?.issues || [])) {
       console.log('issue', JSON.stringify(issue, null, 2));
-      await createLabels({github, context, labelNames: issue.newLabels});
 
-      await github.rest.issues.update({
-        ...context.repo,
-        issue_number: issue.issueId,
-        body: issue.newCommentBody,
-        ...(issue.newIssueState ? { state: issue.newIssueState, state_reason: issue.newIssueState === 'open' ? 'reopened' : 'completed' } : {}),
-        labels: issue.newLabels
+      // All issues contain the updated history for each platform, we need to merge them
+      // to do that, we combine them into one object and then reduce them to the last entry per platform.
+      // While doing that, we also remove dublicates, and merge entries when possible
+
+      issues.newCommentBody.matchAll(parseIssueHistoryRegex).forEach((match, passedTest, platforms, date, oldVersion, errorCode, expectedErrorCode) => {
+        mergedIssuesHistory[issue.issueId] ||= { newLabels: [], historyEntries: [] };
+        mergedIssuesHistory[issue.issueId].historyEntries.push({ passedTest, platforms, date, oldVersion, errorCode, expectedErrorCode });
+        mergedIssuesHistory[issue.issueId].newLabels.push(...platforms.split(',').map(p => p.trim().filter(p => p !== '-'))).sort();
       });
+
+
+      // const lastHistoryEntryOfPCurrentlatform = [...issue.newCommentBody.matchAll(parseIssueHistoryRegex)]
+      //   .map(match => match.groups) // Extract groups
+      //   .reduce((acc, item, i) => { // Reduce to last entry per platform
+      //     const platforms = item.platforms.split(',').map(p => p.trim()); // In case platforms are comma-separated
+      //     platforms.forEach(platform => {
+      //       if (!acc[platform]) {
+      //         acc[platform] = item;
+      //         acc[platform]['index'] = i; // Add row index for later use
+      //       }
+      //     });
+      //     return acc;
+      //   }, {})[platform];
+
+      // issue.newCommentBody = issue.newCommentBody.replace(parseIssueHeaderStatusRegex, (match, emailedIn, lastBrokenPlatforms, lastEncounteredVersion, fixVersion) => {
+      //   lastBrokenPlatforms = platform;
+      //   // Since its a new bug, we know the latest version is broken so we use it here
+      //   lastEncounteredVersion = currentVersion;
+      //   return `| ${emailedIn} | ${lastBrokenPlatforms} | ${lastEncounteredVersion} | ${fixVersion} |`;
+      // })
+
     }
   }
 
+  for (const issueId of mergedIssuesHistory) {
+    const issue = mergedIssuesHistory[issueId];
+
+    // Remove duplicates from history, and merge entries when all fields except platforms are the same
+    const mergedHistoryEntries = issue.historyEntries.reduce((acc, item) => {
+      const existingEntry = acc.find(e => e.passedTest === item.passedTest
+        && e.date === item.date
+        && e.version === item.version
+        && e.errorCode === item.errorCode
+        && e.expectedErrorCode === item.expectedErrorCode);
+
+      if (existingEntry) {
+        // If they are the same, skip, otherwise merge platforms
+        if (existingEntry.platforms !== item.platforms) {
+          // Merge platforms
+          existingEntry.platforms = [...new Set(existingEntry.platforms.split(',').concat(item.platforms.split(',')))].filter(p => p !== '-').sort().join(', ');
+          if (existingEntry.platforms === '') existingEntry.platforms = '-';
+        }
+      } else {
+        acc.push(item);
+      }
+      return acc;
+    }, []);
+
+    mergedHistoryEntries.sort((a, b) => new Date(a.date) - new Date(b.date));
+
+    console.log('mergedHistoryEntries', issueId, JSON.stringify(mergedHistoryEntries, null, 2));
+
+    // Create Labels
+    await createLabels({ github, context, labelNames: [...new Set(issue.newLabels)] });
+
+    // Update Body
+    await github.rest.issues.update({
+      ...context.repo,
+      issue_number: issue.issueId,
+      body: issue.newCommentBody,
+      ...(issue.newIssueState ? { state: issue.newIssueState, state_reason: issue.newIssueState === 'open' ? 'reopened' : 'completed' } : {}),
+      labels: issue.newLabels
+    });
+  }
+
   // Update test_results.json
-  const { data: oldData } = await github.rest.repos.getContent({...context.repo, path: 'test_results.json'}).catch(() => ({ data: null }));
+  const { data: oldData } = await github.rest.repos.getContent({ ...context.repo, path: 'test_results.json' }).catch(() => ({ data: null }));
 
   const windowsTestResultContent = fs.readFileSync('windows/test_results.json', 'utf8');
   const windowsTestResults = JSON.parse(windowsTestResultContent);
