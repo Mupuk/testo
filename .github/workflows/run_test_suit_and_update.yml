@@ -45,6 +45,9 @@ jobs:
     needs: run_test_suit
     runs-on: [self-hosted]
     steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
       - name: Download Windows test results
         uses: actions/download-artifact@v4
         with:
