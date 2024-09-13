@@ -426,13 +426,15 @@ const updateGithubIssuesAndFiles = async ({ github, context, exec, io, testSuitO
     // }
   };
 
-  // Update Issues and Merge Platform changes
+  // Gather all isssue data from all platforms
   for (const platform in testSuitOutputs) {
     console.log('platform', platform);
     for (const issue of (testSuitOutputs[platform]?.issues || [])) {
       // All issues contain the updated history for each platform, we need to merge them
       // to do that, we combine them into one object and then reduce them to the last entry per platform.
       // While doing that, we also remove dublicates, and merge entries when possible
+      mergedIssuesHistory[issue.issueId] ||= { newLabels: [], historyEntries: [] };
+      mergedIssuesHistory[issue.issueId].newLabels.push(issue.newLabels);
 
       [...issue.newCommentBody.matchAll(parseIssueHistoryRegex)].map(e => e.groups).forEach((g) => {
         const passedTest = g.passedTest;
@@ -442,10 +444,7 @@ const updateGithubIssuesAndFiles = async ({ github, context, exec, io, testSuitO
         const errorCode = g.errorCode;
         const expectedErrorCode = g.expectedErrorCode;
 
-        console.log('platforms', platforms);
-        mergedIssuesHistory[issue.issueId] ||= { newLabels: [], historyEntries: [] };
         mergedIssuesHistory[issue.issueId].historyEntries.push({ passedTest, platforms, date, oldVersion, errorCode, expectedErrorCode });
-        mergedIssuesHistory[issue.issueId].newLabels.push(...platforms.split(',').map(p => p.trim()).filter(p => p !== '-'));
       });
 
 
@@ -472,6 +471,7 @@ const updateGithubIssuesAndFiles = async ({ github, context, exec, io, testSuitO
     }
   }
 
+  // Update merged issue bodies
   for (const issueId in mergedIssuesHistory) {
     const issue = mergedIssuesHistory[issueId];
 
@@ -508,7 +508,8 @@ const updateGithubIssuesAndFiles = async ({ github, context, exec, io, testSuitO
       ...context.repo,
       issue_number: issue.issueId,
       body: issue.newCommentBody,
-      ...(issue.newIssueState ? { state: issue.newIssueState, state_reason: issue.newIssueState === 'open' ? 'reopened' : 'completed' } : {}),
+      // @todo
+      // ...(issue.newIssueState ? { state: issue.newIssueState, state_reason: issue.newIssueState === 'open' ? 'reopened' : 'completed' } : {}),
       labels: issue.newLabels
     });
   }
