@@ -502,6 +502,7 @@ const updateGithubIssuesAndFiles = async ({ github, context, exec, io, testSuitO
     console.log('mergedHistoryEntries', issueId, JSON.stringify(mergedHistoryEntries, null, 2));
 
     // Create Labels
+    console.log('###newLabels', issue.newLabels);
     await createLabels({ github, context, labelNames: [...new Set(issue.newLabels)] });
 
     // Update Body
