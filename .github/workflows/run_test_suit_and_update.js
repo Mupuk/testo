@@ -445,7 +445,7 @@ const updateGithubIssuesAndFiles = async ({ github, context, exec, io, testSuitO
         console.log('platforms', platforms);
         mergedIssuesHistory[issue.issueId] ||= { newLabels: [], historyEntries: [] };
         mergedIssuesHistory[issue.issueId].historyEntries.push({ passedTest, platforms, date, oldVersion, errorCode, expectedErrorCode });
-        mergedIssuesHistory[issue.issueId].newLabels.push(...platforms.split(',').map(p => p.trim().filter(p => p !== '-'))).sort();
+        mergedIssuesHistory[issue.issueId].newLabels.push(...platforms.split(',').map(p => p.trim()).filter(p => p !== '-')).sort();
       });
 
 
