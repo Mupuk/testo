@@ -434,7 +434,14 @@ const updateGithubIssuesAndFiles = async ({ github, context, exec, io, testSuitO
       // to do that, we combine them into one object and then reduce them to the last entry per platform.
       // While doing that, we also remove dublicates, and merge entries when possible
 
-      [...issue.newCommentBody.matchAll(parseIssueHistoryRegex)].forEach((match, passedTest, platforms, date, oldVersion, errorCode, expectedErrorCode) => {
+      [...issue.newCommentBody.matchAll(parseIssueHistoryRegex)].map(e => e.groups).forEach((g) => {
+        const passedTest = g.passedTest;
+        const platforms = g.platforms;
+        const date = g.date;
+        const oldVersion = g.version;
+        const errorCode = g.errorCode;
+        const expectedErrorCode = g.expectedErrorCode;
+
         console.log('platforms', platforms);
         mergedIssuesHistory[issue.issueId] ||= { newLabels: [], historyEntries: [] };
         mergedIssuesHistory[issue.issueId].historyEntries.push({ passedTest, platforms, date, oldVersion, errorCode, expectedErrorCode });
