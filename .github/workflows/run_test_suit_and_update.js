@@ -474,6 +474,7 @@ const updateGithubIssuesAndFiles = async ({ github, context, exec, io, testSuitO
   // Update merged issue bodies
   for (const issueId in mergedIssuesHistory) {
     const issue = mergedIssuesHistory[issueId];
+    console.log('issue', issueId, JSON.stringify(issue, null, 2));
 
     // Remove duplicates from history, and merge entries when all fields except platforms are the same
     const mergedHistoryEntries = issue.historyEntries.reduce((acc, item) => {
