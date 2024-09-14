@@ -482,11 +482,13 @@ const updateGithubIssuesAndFiles = async ({ github, context, exec, io, testSuitO
         && e.date === item.date
         && e.version === item.version
         && e.errorCode === item.errorCode
-        && e.expectedErrorCode === item.expectedErrorCode);
+        && e.expectedErrorCode === item.expectedErrorCode
+        && e.plaforms === item.platforms);
 
       if (existingEntry) {
         // If they are the same, skip, otherwise merge platforms
         if (existingEntry.platforms !== item.platforms) {
+          console.log('merging plats');
           // Merge platforms
           existingEntry.platforms = [...new Set(existingEntry.platforms.split(', ').concat(item.platforms.split(', ')))].filter(p => p !== '-').sort().join(', ');
           if (existingEntry.platforms === '') existingEntry.platforms = '-';
