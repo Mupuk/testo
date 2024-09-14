@@ -1,5 +1,6 @@
+const versionRegex = /(beta.)(\d+).(\d+).(\d+)/
+
 const decrementVersionString = (version, count = 1) => {
-  const versionRegex = /(beta.)(\d+).(\d+).(\d+)/
   const versionSplit = version.match(versionRegex);
 
   let newMicro = parseInt(versionSplit[4]);
@@ -40,6 +41,10 @@ const runTestSuitAndUpdate = async ({ github, context, exec, io }) => {
   // Jai Version
   const { isDeepEqual, jaiVersion: getJaiVersion } = require('./utils.js');
   const currentVersion = await getJaiVersion({ exec });
+  if (versionRegex.test(currentVersion) === false) {
+    console.error('The version format has changed! Please update all places that break, like the IssueTrackers histories sorting with mixed version formats of the old and new one.', currentVersion);
+    process.exit(1);
+  }
   let tempVersion = currentVersion
 
   const platform = process.env.RUNNER_OS.toLowerCase();
@@ -332,7 +337,6 @@ const runTestSuitAndUpdate = async ({ github, context, exec, io }) => {
       return `${newFirstRow}${oldRow}`;
     })
 
-    // @todo update header and comment only after all platforms test have run
     let newIssueState;
     // Update header status
     newCommentBody = newCommentBody.replace(parseIssueHeaderStatusRegex, (match, emailedIn, lastBrokenPlatforms, lastEncounteredVersion, fixVersion) => {
@@ -340,14 +344,14 @@ const runTestSuitAndUpdate = async ({ github, context, exec, io }) => {
       let newEmailIn;
       if (testToggled && currentTest.passed_test) {
         // Test passed, remove platform from broken list
-        brokenPlatforms = lastBrokenPlatforms.split(', ').filter(p => p !== platform).join(', ') || '-'; // remove current platform from list
+        brokenPlatforms = '-'; // lastBrokenPlatforms.split(', ').filter(p => p !== platform).join(', ') || '-'; // remove current platform from list
         fixVersion = currentVersion;
         newEmailIn = '✅';
         newIssueState = 'closed';
         newLabels = newLabels.filter((p) => p !== platform);
       } else if (testToggled && !currentTest.passed_test) {
         // Test failed, add platform to broken list
-        brokenPlatforms = [... new Set(lastBrokenPlatforms.split(', ').filter(p => p !== '-').concat(platform))].sort().join(', '); // add current platform to list
+        brokenPlatforms = platform; // [... new Set(lastBrokenPlatforms.split(', ').filter(p => p !== '-').concat(platform))].sort().join(', '); // add current platform to list
         lastEncounteredVersion = [lastEncounteredVersion, currentVersion].sort().reverse()[0]
         fixVersion = '-'; // no fix version yet
         newEmailIn = '❌';
@@ -534,11 +538,31 @@ const updateGithubIssuesAndFiles = async ({ github, context, exec, io, testSuitO
       }, {});
     console.log('lastHistoryEntryOfPCurrentlatform', lastHistoryEntryOfPCurrentlatform);
 
-    console.log('newCommentBody', issue.newCommentBodies.reduce((acc, item) => {
+    const statusHeaders = issue.newCommentBodies.reduce((acc, item) => {
       acc.push(item.match(parseIssueHeaderStatusRegex).groups);
       return acc;
-    }, []));
+    }, []).reduce((acc, item) => { // Make it SOA
+      acc.emailedIn.push(item.emailedIn);
+      acc.lastBrokenPlatforms.push(item.lastBrokenPlatforms);
+      acc.lastEncounteredVersion.push(item.lastEncounteredVersion);
+      acc.fixVersion.push(item.fixVersion);
+      return acc;
+    }, {
+      emailedIn: [],
+      lastBrokenPlatforms: [],
+      lastEncounteredVersion: [],
+      fixVersion: []
+    });
+    console.log('statusHeaders', statusHeaders);
 
+    // Update header by merging the status of all platforms
+    newCommentBody = newCommentBody.replace(parseIssueHeaderStatusRegex, (match, emailedIn, lastBrokenPlatforms, lastEncounteredVersion, fixVersion) => {
+      const newLastBrokenPlatforms = statusHeaders.filter(p => p !== '-').sort().join(', ') || '-';
+      const newLastEncounteredVersion = statusHeaders.lastEncounteredVersion.sort().reverse()[0]; // Take latest
+      const newFixVersion = statusHeaders.every(v => v === '-') ? '-' : statusHeaders.fixVersion.filter(v => v !== '-').sort().reverse()[0];
+      const emailedIn = statusHeaders.emailedIn.every(v => v === '✅') ? '✅' : '❌';
+      return `| ${newEmailedIn} | ${newLastBrokenPlatforms} | ${newLastEncounteredVersion} | ${newFixVersion} |`;
+    });
 
     // Create Labels
     const uniqueLabels = [...new Set(issue.newLabels)]; // remove duplicates
