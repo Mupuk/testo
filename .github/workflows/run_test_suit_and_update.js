@@ -560,7 +560,7 @@ const updateGithubIssuesAndFiles = async ({ github, context, exec, io, testSuitO
       const newLastBrokenPlatforms = statusHeaders.filter(p => p !== '-').sort().join(', ') || '-';
       const newLastEncounteredVersion = statusHeaders.lastEncounteredVersion.sort().reverse()[0]; // Take latest
       const newFixVersion = statusHeaders.every(v => v === '-') ? '-' : statusHeaders.fixVersion.filter(v => v !== '-').sort().reverse()[0];
-      const emailedIn = statusHeaders.emailedIn.every(v => v === '✅') ? '✅' : '❌';
+      const newEmailedIn = statusHeaders.emailedIn.every(v => v === '✅') ? '✅' : '❌';
       return `| ${newEmailedIn} | ${newLastBrokenPlatforms} | ${newLastEncounteredVersion} | ${newFixVersion} |`;
     });
 
