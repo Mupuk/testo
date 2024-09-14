@@ -511,6 +511,8 @@ const updateGithubIssuesAndFiles = async ({ github, context, exec, io, testSuitO
 
     console.log('mergedHistoryEntries', issueId, JSON.stringify(mergedHistoryEntries, null, 2));
 
+    console.log('###issue', issueId, JSON.stringify(issue, null, 2));
+    console.log('###body', issue.newCommentBody);
     // Remove all history entries from the body
     issue.newCommentBody = issue.newCommentBody.replace(/(?<=History$\s(?:.*$\s){2,})\|.*\s?/img, '');
     // Add all updated history entries
