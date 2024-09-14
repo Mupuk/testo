@@ -485,6 +485,8 @@ const updateGithubIssuesAndFiles = async ({ github, context, exec, io, testSuitO
         && e.expectedErrorCode === item.expectedErrorCode
         && e.plaforms === item.platforms);
 
+      console.log('existingEntry', existingEntry);
+
       if (existingEntry) {
         // If they are the same, skip, otherwise merge platforms
         if (existingEntry.platforms !== item.platforms) {
