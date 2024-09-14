@@ -435,6 +435,7 @@ const updateGithubIssuesAndFiles = async ({ github, context, exec, io, testSuitO
       // While doing that, we also remove dublicates, and merge entries when possible
       mergedIssuesHistory[issue.issueId] ||= { newLabels: [], historyEntries: [] };
       mergedIssuesHistory[issue.issueId].newLabels.push(...issue.newLabels);
+      mergedIssuesHistory[issue.issueId].newCommentBody = issue.newCommentBody;
 
       [...issue.newCommentBody.matchAll(parseIssueHistoryRegex)].map(e => e.groups).forEach((g) => {
         const passedTest = g.passedTest;
