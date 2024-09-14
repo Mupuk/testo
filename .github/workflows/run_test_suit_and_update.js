@@ -559,7 +559,7 @@ const updateGithubIssuesAndFiles = async ({ github, context, exec, io, testSuitO
     newCommentBody = newCommentBody.replace(parseIssueHeaderStatusRegex, (match, emailedIn, lastBrokenPlatforms, lastEncounteredVersion, fixVersion) => {
       const newLastBrokenPlatforms = statusHeaders.lastBrokenPlatforms.filter(p => p !== '-').sort().join(', ') || '-';
       const newLastEncounteredVersion = statusHeaders.lastEncounteredVersion.sort().reverse()[0]; // Take latest
-      const newFixVersion = statusHeaders.newFixVersion.every(v => v === '-') ? '-' : statusHeaders.fixVersion.filter(v => v !== '-').sort().reverse()[0];
+      const newFixVersion = statusHeaders.fixVersion.every(v => v === '-') ? '-' : statusHeaders.fixVersion.filter(v => v !== '-').sort().reverse()[0];
       const newEmailedIn = statusHeaders.emailedIn.every(v => v === '✅') ? '✅' : '❌';
       return `| ${newEmailedIn} | ${newLastBrokenPlatforms} | ${newLastEncounteredVersion} | ${newFixVersion} |`;
     });
