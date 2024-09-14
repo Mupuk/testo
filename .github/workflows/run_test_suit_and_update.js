@@ -520,7 +520,6 @@ const updateGithubIssuesAndFiles = async ({ github, context, exec, io, testSuitO
     });
 
     // Get last history entry of current platform
-    const platform = process.env.RUNNER_OS.toLowerCase();
     const lastHistoryEntryOfPCurrentlatform = [...newCommentBody.matchAll(parseIssueHistoryRegex)]
       .map(match => match.groups) // Extract groups
       .reduce((acc, item, i) => { // Reduce to last entry per platform
@@ -532,7 +531,7 @@ const updateGithubIssuesAndFiles = async ({ github, context, exec, io, testSuitO
           }
         });
         return acc;
-      }, {})[platform];
+      }, {});
     console.log('lastHistoryEntryOfPCurrentlatform', lastHistoryEntryOfPCurrentlatform);
 
     console.log('newCommentBody', issue.newCommentBodies.reduce((acc, item) => {
