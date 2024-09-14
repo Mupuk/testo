@@ -479,7 +479,7 @@ const updateGithubIssuesAndFiles = async ({ github, context, exec, io, testSuitO
     // Remove duplicates from history, and merge entries when all fields except platforms are the same
     const mergedHistoryEntries = issue.historyEntries.reduce((acc, item) => {
       const existingEntry = acc.find(e => e.passedTest === item.passedTest
-        && e.date === item.date
+        // && e.date === item.date
         && e.version === item.version
         && e.errorCode === item.errorCode
         && e.expectedErrorCode === item.expectedErrorCode

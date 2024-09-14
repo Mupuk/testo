@@ -15,7 +15,6 @@ const createLabels = async ({ github, context, labelNames }) => {
   // Loop through the array of label names and create any that don't exist
   for (const labelName of labelNames) {
     const labelExists = labels.some(label => label.name.toLowerCase() === labelName.toLowerCase());
-    console.log(`${labelName} : ${labelExists}`);
 
     // If the label doesn't exist, create it
     if (!labelExists) {
