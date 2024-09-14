@@ -491,7 +491,6 @@ const updateGithubIssuesAndFiles = async ({ github, context, exec, io, testSuitO
       if (existingEntry) {
         // If they are the same, skip, otherwise merge platforms
         if (existingEntry.platforms !== item.platforms) {
-          console.log('merging plats');
           // Merge platforms
           existingEntry.platforms = [...new Set(existingEntry.platforms.split(', ').concat(item.platforms.split(', ')))].filter(p => p !== '-').sort().join(', ');
           if (existingEntry.platforms === '') existingEntry.platforms = '-';
@@ -511,6 +510,13 @@ const updateGithubIssuesAndFiles = async ({ github, context, exec, io, testSuitO
     });
 
     console.log('mergedHistoryEntries', issueId, JSON.stringify(mergedHistoryEntries, null, 2));
+
+    // Remove all history entries from the body
+    issue.newCommentBody = issue.newCommentBody.replace(/(?<=History$\s(?:.*$\s){2,})\|.*\s?/img, '');
+    // Add all updated history entries
+    mergedHistoryEntries.forEach((entry) => {
+      issue.newCommentBody = issue.newCommentBody.trimEnd() + `\n| ${entry.passedTest} | ${entry.platforms} | ${entry.date} | ${entry.version} | ${entry.errorCode} - Expected ${entry.expectedErrorCode} |`;
+    });
 
     const uniqueLabels = [...new Set(issue.newLabels)]; // remove duplicates
 
