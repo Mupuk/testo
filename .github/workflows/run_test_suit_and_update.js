@@ -440,11 +440,11 @@ const updateGithubIssuesAndFiles = async ({ github, context, exec, io, testSuitO
         const passedTest = g.passedTest;
         const platforms = g.platforms;
         const date = g.date;
-        const oldVersion = g.version;
+        const version = g.version;
         const errorCode = g.errorCode;
         const expectedErrorCode = g.expectedErrorCode;
 
-        mergedIssuesHistory[issue.issueId].historyEntries.push({ passedTest, platforms, date, oldVersion, errorCode, expectedErrorCode });
+        mergedIssuesHistory[issue.issueId].historyEntries.push({ passedTest, platforms, date, version, errorCode, expectedErrorCode });
       });
 
 
@@ -483,7 +483,8 @@ const updateGithubIssuesAndFiles = async ({ github, context, exec, io, testSuitO
         && e.version === item.version
         && e.errorCode === item.errorCode
         && e.expectedErrorCode === item.expectedErrorCode
-        && e.plaforms === item.platforms);
+        && e.plaforms === item.platforms
+        );
 
       console.log('existingEntry', existingEntry);
 
