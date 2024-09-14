@@ -33,7 +33,6 @@ jobs:
             const testSuitOutput = await runTestSuitAndUpdate({ github, context, exec, io });
             core.setOutput('${{ matrix.platform }}', testSuitOutput);
 
-      # @todo check if we can overwrite it or else delete it below!
       - name: Upload build artifact
         uses: actions/upload-artifact@v4
         with:
