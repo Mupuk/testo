@@ -483,7 +483,7 @@ const updateGithubIssuesAndFiles = async ({ github, context, exec, io, testSuitO
         && e.version === item.version
         && e.errorCode === item.errorCode
         && e.expectedErrorCode === item.expectedErrorCode
-        && e.platforms === item.platforms
+        // && e.platforms === item.platforms
         );
 
       console.log('existingEntry', existingEntry);
