@@ -511,7 +511,7 @@ const updateGithubIssuesAndFiles = async ({ github, context, exec, io, testSuitO
     // Update Body
     await github.rest.issues.update({
       ...context.repo,
-      issue_number: issue.issueId,
+      issue_number: issueId,
       body: issue.newCommentBody,
       // @todo
       // ...(issue.newIssueState ? { state: issue.newIssueState, state_reason: issue.newIssueState === 'open' ? 'reopened' : 'completed' } : {}),
