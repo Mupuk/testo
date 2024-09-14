@@ -506,6 +506,8 @@ const updateGithubIssuesAndFiles = async ({ github, context, exec, io, testSuitO
     // Create Labels
     await createLabels({ github, context, labelNames: uniqueLabels });
 
+    // @todo fix up issue header status
+
     // Update Body
     await github.rest.issues.update({
       ...context.repo,
@@ -516,6 +518,8 @@ const updateGithubIssuesAndFiles = async ({ github, context, exec, io, testSuitO
       labels: uniqueLabels
     });
   }
+
+
 
   // Update test_results.json
   const { data: oldData } = await github.rest.repos.getContent({ ...context.repo, path: 'test_results.json' }).catch(() => ({ data: null }));
@@ -536,8 +540,6 @@ const updateGithubIssuesAndFiles = async ({ github, context, exec, io, testSuitO
     console.log('No changes in test results, skipping update');
     return;
   }
-
-  // @todo fix up issue header status
 
   // Commit new test_results.json
   // await github.rest.repos.createOrUpdateFileContents({
