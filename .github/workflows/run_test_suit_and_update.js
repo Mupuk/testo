@@ -435,7 +435,7 @@ const updateGithubIssuesAndFiles = async ({ github, context, exec, io, testSuitO
       // While doing that, we also remove dublicates, and merge entries when possible
       mergedIssuesHistory[issue.issueId] ||= { newLabels: [], historyEntries: [] };
       mergedIssuesHistory[issue.issueId].newLabels.push(...issue.newLabels);
-      mergedIssuesHistory[issue.issueId].newCommentBody = issue.newCommentBody;
+      mergedIssuesHistory[issue.issueId].newCommentBody = issue.newCommentBody; // we only need one of them, to replace header and history later
 
       [...issue.newCommentBody.matchAll(parseIssueHistoryRegex)].map(e => e.groups).forEach((g) => {
         const passedTest = g.passedTest;
@@ -480,7 +480,7 @@ const updateGithubIssuesAndFiles = async ({ github, context, exec, io, testSuitO
     // Remove duplicates from history, and merge entries when all fields except platforms are the same
     const mergedHistoryEntries = issue.historyEntries.reduce((acc, item) => {
       const existingEntry = acc.find(e => e.passedTest === item.passedTest
-        // && e.date === item.date
+        && e.date === item.date
         && e.version === item.version
         && e.errorCode === item.errorCode
         && e.expectedErrorCode === item.expectedErrorCode
@@ -512,8 +512,6 @@ const updateGithubIssuesAndFiles = async ({ github, context, exec, io, testSuitO
 
     console.log('mergedHistoryEntries', issueId, JSON.stringify(mergedHistoryEntries, null, 2));
 
-    console.log('###issue', issueId, JSON.stringify(issue, null, 2));
-    console.log('###body', issue.newCommentBody);
     // Remove all history entries from the body
     issue.newCommentBody = issue.newCommentBody.replace(/(?<=History$\s(?:.*$\s){2,})\|.*\s?/img, '');
     // Add all updated history entries
