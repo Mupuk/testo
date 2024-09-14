@@ -433,9 +433,9 @@ const updateGithubIssuesAndFiles = async ({ github, context, exec, io, testSuitO
       // All issues contain the updated history for each platform, we need to merge them
       // to do that, we combine them into one object and then reduce them to the last entry per platform.
       // While doing that, we also remove dublicates, and merge entries when possible
-      mergedIssuesHistory[issue.issueId] ||= { newLabels: [], historyEntries: [] };
+      mergedIssuesHistory[issue.issueId] ||= { newLabels: [], historyEntries: [], newCommentBodies: [] };
       mergedIssuesHistory[issue.issueId].newLabels.push(...issue.newLabels);
-      mergedIssuesHistory[issue.issueId].newCommentBody = issue.newCommentBody; // we only need one of them, to replace header and history later
+      mergedIssuesHistory[issue.issueId].newCommentBody.push(issue.newCommentBody);
 
       [...issue.newCommentBody.matchAll(parseIssueHistoryRegex)].map(e => e.groups).forEach((g) => {
         const passedTest = g.passedTest;
@@ -484,7 +484,6 @@ const updateGithubIssuesAndFiles = async ({ github, context, exec, io, testSuitO
         && e.version === item.version
         && e.errorCode === item.errorCode
         && e.expectedErrorCode === item.expectedErrorCode
-        // && e.platforms === item.platforms
         );
 
       console.log('existingEntry', existingEntry);
@@ -512,25 +511,45 @@ const updateGithubIssuesAndFiles = async ({ github, context, exec, io, testSuitO
 
     console.log('mergedHistoryEntries', issueId, JSON.stringify(mergedHistoryEntries, null, 2));
 
+    const newCommentBody = issue.newCommentBodies[0];
     // Remove all history entries from the body
-    issue.newCommentBody = issue.newCommentBody.replace(/(?<=History$\s(?:.*$\s){2,})\|.*\s?/img, '');
+    newCommentBody = newCommentBody.replace(/(?<=History$\s(?:.*$\s){2,})\|.*\s?/img, '');
     // Add all updated history entries
     mergedHistoryEntries.forEach((entry) => {
-      issue.newCommentBody = issue.newCommentBody.trimEnd() + `\n| ${entry.passedTest} | ${entry.platforms} | ${entry.date} | ${entry.version} | ${entry.errorCode} - Expected ${entry.expectedErrorCode} |`;
+      newCommentBody = newCommentBody.trimEnd() + `\n| ${entry.passedTest} | ${entry.platforms} | ${entry.date} | ${entry.version} | ${entry.errorCode} - Expected ${entry.expectedErrorCode} |`;
     });
 
-    const uniqueLabels = [...new Set(issue.newLabels)]; // remove duplicates
+    // Get last history entry of current platform
+    const lastHistoryEntryOfPCurrentlatform = [...newCommentBody.matchAll(parseIssueHistoryRegex)]
+      .map(match => match.groups) // Extract groups
+      .reduce((acc, item, i) => { // Reduce to last entry per platform
+        const platforms = item.platforms.split(',').map(p => p.trim()); // In case platforms are comma-separated
+        platforms.forEach(platform => {
+          if (!acc[platform]) {
+            acc[platform] = item;
+            acc[platform]['index'] = i; // Add row index for later use
+          }
+        });
+        return acc;
+      }, {})[platform];
+    console.log('lastHistoryEntryOfPCurrentlatform', lastHistoryEntryOfPCurrentlatform);
+
+    console.log('newCommentBody', issue.newCommentBodies.reduce((acc, item) => {
+      acc.push(item.match(parseIssueHeaderStatusRegex).groups);
+      return acc;
+    }, []));
+
 
     // Create Labels
+    const uniqueLabels = [...new Set(issue.newLabels)]; // remove duplicates
     await createLabels({ github, context, labelNames: uniqueLabels });
 
-    // @todo fix up issue header status
 
     // Update Body
     await github.rest.issues.update({
       ...context.repo,
       issue_number: issueId,
-      body: issue.newCommentBody,
+      body: newCommentBody,
       // @todo
       // ...(issue.newIssueState ? { state: issue.newIssueState, state_reason: issue.newIssueState === 'open' ? 'reopened' : 'completed' } : {}),
       labels: uniqueLabels
