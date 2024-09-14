@@ -505,7 +505,7 @@ const updateGithubIssuesAndFiles = async ({ github, context, exec, io, testSuitO
     // Sort latest date first and then by version
     mergedHistoryEntries.sort((a, b) => {
       if (a.date === b.date) {
-        return a.version.localeCompare(b.version);
+        return b.version.localeCompare(a.version);
       }
       return b.date.localeCompare(a.date);
     });
