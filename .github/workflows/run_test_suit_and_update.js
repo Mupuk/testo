@@ -501,8 +501,10 @@ const updateGithubIssuesAndFiles = async ({ github, context, exec, io, testSuitO
 
     console.log('mergedHistoryEntries', issueId, JSON.stringify(mergedHistoryEntries, null, 2));
 
+    const uniqueLabels = [...new Set(issue.newLabels)]; // remove duplicates
+
     // Create Labels
-    await createLabels({ github, context, labelNames: [...new Set(issue.newLabels)] });
+    await createLabels({ github, context, labelNames: uniqueLabels });
 
     // Update Body
     await github.rest.issues.update({
@@ -511,7 +513,7 @@ const updateGithubIssuesAndFiles = async ({ github, context, exec, io, testSuitO
       body: issue.newCommentBody,
       // @todo
       // ...(issue.newIssueState ? { state: issue.newIssueState, state_reason: issue.newIssueState === 'open' ? 'reopened' : 'completed' } : {}),
-      labels: issue.newLabels
+      labels: uniqueLabels
     });
   }
 
