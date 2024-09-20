@@ -482,7 +482,7 @@ const updateGithubIssuesAndFiles = async ({ github, context, exec, io, testSuitO
 
     // Remove duplicates from history, and merge entries when all fields except platforms are the same
     const mergedHistoryEntries = issue.historyEntries.reduce((acc, item) => {
-      const existingEntry = acc.find(e => e.passedTest === item.passedTest
+      const existingEntry = acc.reverse().find(e => e.passedTest === item.passedTest
         // && e.date === item.date
         && e.version === item.version
         && e.errorCode === item.errorCode
@@ -496,7 +496,6 @@ const updateGithubIssuesAndFiles = async ({ github, context, exec, io, testSuitO
         if (existingEntry.platforms !== item.platforms) {
           // Merge platforms
           existingEntry.platforms = [...new Set(existingEntry.platforms.split(', ').concat(item.platforms.split(', ')))].filter(p => p !== '-').sort().join(', ');
-          if (existingEntry.platforms === '') existingEntry.platforms = '-';
         }
       } else {
         acc.push(item);
