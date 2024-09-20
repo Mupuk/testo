@@ -31,10 +31,9 @@ const decrementVersionString = (version, count = 1) => {
 const parseIssueHeaderStatusRegex = /(?<=\| :-.*\s)\| (?<emailedIn>.*?) \| (?<lastBrokenPlatforms>.*?) \| (?<lastEncounteredVersion>.*?) \| (?<fixVersion>.*?) \|/im;
 const parseIssueHistoryRegex = /(?<=History$\s(?:.*$\s){2,})\| (?<passedTest>.*?) \| (?<platforms>.*?) \| (?<date>.*?) \| (?<version>.*?) \| (?<errorCode>\d+) - Expected (?<expectedErrorCode>\d+) \|/img;
 
-const runTestSuitAndUpdate = async ({ github, context, exec, io }) => {
+const runTestSuitAndGatherOutput = async ({ github, context, exec, io }) => {
   const path = require('path');
   const fs = require('fs');
-  const { createLabels } = require('./create_label.js');
 
   const testSuitOutput = {};
 
@@ -414,7 +413,7 @@ const updateGithubIssuesAndFiles = async ({ github, context, exec, io, testSuitO
   const { createLabels } = require('./create_label.js');
   console.log('testSuitOutput', JSON.stringify(testSuitOutputs, null, 2));
 
-  const mergedIssuesHistory = {
+  const mergedPlatformIssues = {
     // issueId: {
     //   newLabels: [],
     //   historyEntries: [
@@ -437,9 +436,9 @@ const updateGithubIssuesAndFiles = async ({ github, context, exec, io, testSuitO
       // All issues contain the updated history for each platform, we need to merge them
       // to do that, we combine them into one object and then reduce them to the last entry per platform.
       // While doing that, we also remove dublicates, and merge entries when possible
-      mergedIssuesHistory[issue.issueId] ||= { newLabels: [], historyEntries: [], newCommentBodies: [] };
-      mergedIssuesHistory[issue.issueId].newLabels.push(...issue.newLabels);
-      mergedIssuesHistory[issue.issueId].newCommentBodies.push(issue.newCommentBody);
+      mergedPlatformIssues[issue.issueId] ||= { newLabels: [], historyEntries: [], newCommentBodies: [] };
+      mergedPlatformIssues[issue.issueId].newLabels.push(...issue.newLabels);
+      mergedPlatformIssues[issue.issueId].newCommentBodies.push(issue.newCommentBody);
 
       [...issue.newCommentBody.matchAll(parseIssueHistoryRegex)].map(e => e.groups).forEach((g) => {
         const passedTest = g.passedTest;
@@ -449,7 +448,7 @@ const updateGithubIssuesAndFiles = async ({ github, context, exec, io, testSuitO
         const errorCode = g.errorCode;
         const expectedErrorCode = g.expectedErrorCode;
 
-        mergedIssuesHistory[issue.issueId].historyEntries.push({ passedTest, platforms, date, version, errorCode, expectedErrorCode });
+        mergedPlatformIssues[issue.issueId].historyEntries.push({ passedTest, platforms, date, version, errorCode, expectedErrorCode });
       });
 
 
@@ -476,9 +475,9 @@ const updateGithubIssuesAndFiles = async ({ github, context, exec, io, testSuitO
     }
   }
 
-  // Update merged issue bodies
-  for (const issueId in mergedIssuesHistory) {
-    const issue = mergedIssuesHistory[issueId];
+  // Merge all information and update issues accordingly
+  for (const issueId in mergedPlatformIssues) {
+    const issue = mergedPlatformIssues[issueId];
     console.log('issue', issueId, JSON.stringify(issue, null, 2));
 
     // Remove duplicates from history, and merge entries when all fields except platforms are the same
@@ -614,6 +613,6 @@ const updateGithubIssuesAndFiles = async ({ github, context, exec, io, testSuitO
 }
 
 module.exports = {
-  runTestSuitAndUpdate,
+  runTestSuitAndGatherOutput,
   updateGithubIssuesAndFiles
 }

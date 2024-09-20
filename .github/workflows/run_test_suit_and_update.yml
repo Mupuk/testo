@@ -29,8 +29,8 @@ jobs:
         uses: actions/github-script@v7
         with:
           script: |
-            const { runTestSuitAndUpdate } = require('./.github/workflows/run_test_suit_and_update.js');
-            const testSuitOutput = await runTestSuitAndUpdate({ github, context, exec, io });
+            const { runTestSuitAndGatherOutput } = require('./.github/workflows/run_test_suit_and_update.js');
+            const testSuitOutput = await runTestSuitAndGatherOutput({ github, context, exec, io });
             core.setOutput('${{ matrix.platform }}', testSuitOutput);
 
       - name: Upload build artifact

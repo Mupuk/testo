@@ -8,6 +8,8 @@ on:
 jobs:
   workflow-modification-check:
     runs-on: [ubuntu-latest]
+
+    # @todo Make sure same version gets checked out that was previously checked. Race condition
     steps:
       - name: Check if '.github' folder was modified
         uses: actions/github-script@v7
@@ -61,7 +63,7 @@ jobs:
 
     steps:
       # https://docs.github.com/en/actions/writing-workflows/choosing-when-your-workflow-runs/events-that-trigger-workflows#pull_request_target
-      # since this is pull_request_target it will checkout the base branch
+      # this is pull_request_target it will checkout the base branch
       - name: Checkout repository
         uses: actions/checkout@v4
 
