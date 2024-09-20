@@ -548,7 +548,7 @@ const updateGithubIssuesAndFiles = async ({ github, context, exec, io, testSuitO
       return acc;
     }, []).reduce((acc, item) => { // Make it SOA
       acc.emailedIn.push(item.emailedIn);
-      acc.lastBrokenPlatforms.push(item.lastBrokenPlatforms);
+      acc.lastBrokenPlatforms.push(...item.lastBrokenPlatforms.split(', '));
       acc.lastEncounteredVersion.push(item.lastEncounteredVersion);
       acc.fixVersion.push(item.fixVersion);
       return acc;
@@ -572,7 +572,7 @@ const updateGithubIssuesAndFiles = async ({ github, context, exec, io, testSuitO
 
     // Update header by merging the status of all platforms
     newCommentBody = newCommentBody.replace(parseIssueHeaderStatusRegex, (match, emailedIn, lastBrokenPlatforms, lastEncounteredVersion, fixVersion) => {
-      const newLastBrokenPlatforms = statusHeaders.lastBrokenPlatforms.filter(p => p !== '-').sort().join(', ') || '-';
+      const newLastBrokenPlatforms = [...new Set(statusHeaders.lastBrokenPlatforms)].filter(p => p !== '-').sort().join(', ') || '-';
       const newLastEncounteredVersion = statusHeaders.lastEncounteredVersion.sort().reverse()[0]; // Take latest
       const newFixVersion = statusHeaders.fixVersion.some(v => v === '-') ? '-' : statusHeaders.fixVersion.filter(v => v !== '-').sort().reverse()[0];
       const newEmailedIn = mergedHeaderState === 'open' ? '❌' : mergedHeaderState === 'closed' ? '✅' : emailedIn;
