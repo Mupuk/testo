@@ -90,7 +90,7 @@ const runTestSuitAndGatherOutput = async ({ github, context, exec, io }) => {
   let newTestResultsFileContent;
   let newTestResults = [];
   try {
-    newTestResultsFileContent = fs.readFileSync('test_results.json', 'utf8');
+    newTestResultsFileContent = fs.readFileSync('temp_test_results.json', 'utf8');
     newTestResults = JSON.parse(newTestResultsFileContent);
   } catch (err) {
     console.error("Error reading file:", err);
@@ -601,14 +601,14 @@ const updateGithubIssuesAndFiles = async ({ github, context, exec, io, testSuitO
   }
 
   // Commit new test_results.json
-  await github.rest.repos.createOrUpdateFileContents({
-    ...context.repo,
-    path: 'test_results.json',
-    message: '[CI] Update test results',
-    content: Buffer.from(JSON.stringify(newTestResults, null, 2)).toString('base64'),
-    branch: 'master',
-    ...(oldData ? { sha: oldData.sha } : {})
-  });
+  // await github.rest.repos.createOrUpdateFileContents({
+  //   ...context.repo,
+  //   path: 'test_results.json',
+  //   message: '[CI] Update test results',
+  //   content: Buffer.from(JSON.stringify(newTestResults, null, 2)).toString('base64'),
+  //   branch: 'master',
+  //   ...(oldData ? { sha: oldData.sha } : {})
+  // });
 }
 
 module.exports = {
