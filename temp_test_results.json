@@ -8,8 +8,8 @@
       "results": [
         {
           "file": "compiler_bugs/EC0_263.jai",
-          "passed_test": true,
-          "expected_error_code": 0,
+          "passed_test": false,
+          "expected_error_code": 2,
           "compilation_succeeded": false,
           "compilation_exit_code": 1,
           "did_run": false,
