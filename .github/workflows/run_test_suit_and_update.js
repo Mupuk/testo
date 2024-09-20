@@ -96,7 +96,7 @@ const runTestSuitAndGatherOutput = async ({ github, context, exec, io }) => {
     console.error("Error reading file:", err);
     newTestResultsFileContent = undefined;
   }
-  console.log('newTestResults', newTestResults);
+  console.log('newTestResults', JSON.stringify(newTestResults, null, 2));
 
   // make test results available via version, and results via name
   const oldTestResultsByVersion = oldTestResults[platform]?.reduce((acc, item) => {
