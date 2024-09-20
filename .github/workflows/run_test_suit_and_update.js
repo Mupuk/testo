@@ -323,7 +323,11 @@ const runTestSuitAndGatherOutput = async ({ github, context, exec, io }) => {
       // Add New Row
       let newFirstRow = '';
       // only add new entry if status changed, or if the test still failes on a newer version
-      const addNewEntry = testToggled || !testToggled && lastHistoryEntryOfPCurrentlatform.version !== currentVersion && currentTest.passed_test === false;
+      const addNewEntry = testToggled || (!testToggled 
+                                          && (lastHistoryEntryOfPCurrentlatform.version !== currentVersion 
+                                              || lastHistoryEntryOfPCurrentlatform.errorCode !== errorCode 
+                                              || lastHistoryEntryOfPCurrentlatform.expectedErrorCode !== expectedErrorCode
+                                          ) && currentTest.passed_test === false);
       if (replaceIndex === 0 && addNewEntry) {
         replaceIndex++; // Increment counter
         newFirstRow = `| ${currentTest.passed_test ? '✅' : '❌'} | ${platform} | ${currentDate} | ${currentVersion} | ${currentTest.did_run ? currentTest.run_exit_code : currentTest.compilation_exit_code} - Expected ${currentTest.expected_error_code} |\n`
