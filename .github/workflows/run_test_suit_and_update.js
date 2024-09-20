@@ -528,8 +528,8 @@ const updateGithubIssuesAndFiles = async ({ github, context, exec, io, testSuitO
       newCommentBody = newCommentBody.trimEnd() + `\n| ${entry.passedTest} | ${entry.platforms} | ${entry.date} | ${entry.version} | ${entry.errorCode} - Expected ${entry.expectedErrorCode} |`;
     });
 
-    // Get last history entry of current platform
-    const lastHistoryEntryOfPCurrentlatform = [...newCommentBody.matchAll(parseIssueHistoryRegex)]
+    // Get last history entry of every platform
+    const lastHistoryEntryByPlatform = [...newCommentBody.matchAll(parseIssueHistoryRegex)]
       .map(match => match.groups) // Extract groups
       .reduce((acc, item, i) => { // Reduce to last entry per platform
         const platforms = item.platforms.split(',').map(p => p.trim()); // In case platforms are comma-separated
@@ -541,7 +541,7 @@ const updateGithubIssuesAndFiles = async ({ github, context, exec, io, testSuitO
         });
         return acc;
       }, {});
-    console.log('lastHistoryEntryOfPCurrentlatform', lastHistoryEntryOfPCurrentlatform);
+    console.log('lastHistoryEntryByPlatform', lastHistoryEntryByPlatform);
 
     const statusHeaders = issue.newCommentBodies.reduce((acc, item) => {
       acc.push(item.match(parseIssueHeaderStatusRegex).groups);
@@ -563,7 +563,7 @@ const updateGithubIssuesAndFiles = async ({ github, context, exec, io, testSuitO
     let mergedHeaderState;
     if (issue.newIssueStates.some(v => v === 'open')) { // newly failed on any platform
       mergedHeaderState = 'open';
-    } else if (issue.newIssueStates.some(v => v === 'closed') && statusHeaders.emailedIn.every(v => v === '✅')) {  // newly fixed on all platforms
+    } else if (issue.newIssueStates.some(v => v === 'closed') && lastHistoryEntryByPlatform.map(i => .every(v => v === '✅')) {  // newly fixed on all platforms
       mergedHeaderState = 'closed';
     } else {
       mergedHeaderState = undefined; // even if some closed, its irrelevant if not all are closed
