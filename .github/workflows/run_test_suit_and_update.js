@@ -442,7 +442,8 @@ const updateGithubIssuesAndFiles = async ({ github, context, exec, io, testSuitO
       // to do that, we combine them into one object and then reduce them to the last entry per platform.
       // While doing that, we also remove dublicates, and merge entries when possible
       mergedPlatformIssues[issue.issueId] ||= { newLabels: [], historyEntries: [], newCommentBodies: [] };
-      mergedPlatformIssues[issue.issueId].newLabels.push(...issue.newLabels);
+      // Add all labels except those of other platforms, because they could be outdated
+      mergedPlatformIssues[issue.issueId].newLabels.push(...issue.newLabels.filter(l => !Object.keys(testSuitOutputs).filter(l => l !== platform).includes(l)));
       mergedPlatformIssues[issue.issueId].newCommentBodies.push(issue.newCommentBody);
 
       [...issue.newCommentBody.matchAll(parseIssueHistoryRegex)].map(e => e.groups).forEach((g) => {
