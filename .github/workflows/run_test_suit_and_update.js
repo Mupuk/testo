@@ -561,9 +561,9 @@ const updateGithubIssuesAndFiles = async ({ github, context, exec, io, testSuitO
     console.log('statusHeaders', statusHeaders);
 
     let mergedHeaderState;
-    if (statusHeaders.newIssueStates.some(v => v === 'open')) { // newly failed on any platform
+    if (issue.newIssueStates.some(v => v === 'open')) { // newly failed on any platform
       mergedHeaderState = 'open';
-    } else if (statusHeaders.newIssueStates.some(v => v === 'closed') && statusHeaders.emailedIn.every(v => v === '✅')) {  // newly fixed on all platforms
+    } else if (issue.newIssueStates.some(v => v === 'closed') && statusHeaders.emailedIn.every(v => v === '✅')) {  // newly fixed on all platforms
       mergedHeaderState = 'closed';
     } else {
       mergedHeaderState = undefined; // even if some closed, its irrelevant if not all are closed
@@ -588,7 +588,6 @@ const updateGithubIssuesAndFiles = async ({ github, context, exec, io, testSuitO
       ...context.repo,
       issue_number: issueId,
       body: newCommentBody,
-      // @todo
       ...(mergedHeaderState ? { state: mergedHeaderState, state_reason: mergedHeaderState === 'open' ? 'reopened' : 'completed' } : {}),
       labels: uniqueLabels
     });
