@@ -601,14 +601,14 @@ const updateGithubIssuesAndFiles = async ({ github, context, exec, io, testSuitO
   }
 
   // Commit new test_results.json
-  // await github.rest.repos.createOrUpdateFileContents({
-  //   ...context.repo,
-  //   path: 'test_results.json',
-  //   message: '[CI] Update test results',
-  //   content: Buffer.from(JSON.stringify(newTestResults, null, 2)).toString('base64'),
-  //   branch: 'master',
-  //   ...(oldData ? { sha: oldData.sha } : {})
-  // });
+  await github.rest.repos.createOrUpdateFileContents({
+    ...context.repo,
+    path: 'test_results.json',
+    message: '[CI] Update test results',
+    content: Buffer.from(JSON.stringify(newTestResults, null, 2)).toString('base64'),
+    branch: 'master',
+    ...(oldData ? { sha: oldData.sha } : {})
+  });
 }
 
 module.exports = {
