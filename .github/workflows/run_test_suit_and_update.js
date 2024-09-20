@@ -340,7 +340,7 @@ const runTestSuitAndGatherOutput = async ({ github, context, exec, io }) => {
       return `${newFirstRow}${oldRow}`;
     })
 
-    let newIssueState;
+    let newIssueState = undefined;
     // Update header status
     newCommentBody = newCommentBody.replace(parseIssueHeaderStatusRegex, (match, emailedIn, lastBrokenPlatforms, lastEncounteredVersion, fixVersion) => {
       let brokenPlatforms;
@@ -441,10 +441,11 @@ const updateGithubIssuesAndFiles = async ({ github, context, exec, io, testSuitO
       // All issues contain the updated history for each platform, we need to merge them
       // to do that, we combine them into one object and then reduce them to the last entry per platform.
       // While doing that, we also remove dublicates, and merge entries when possible
-      mergedPlatformIssues[issue.issueId] ||= { newLabels: [], historyEntries: [], newCommentBodies: [] };
+      mergedPlatformIssues[issue.issueId] ||= { newLabels: [], newIssueStates: [], historyEntries: [], newCommentBodies: [] };
       // Add all labels except those of other platforms, because they could be outdated
       mergedPlatformIssues[issue.issueId].newLabels.push(...issue.newLabels.filter(l => !Object.keys(testSuitOutputs).filter(l => l !== platform).includes(l)));
       mergedPlatformIssues[issue.issueId].newCommentBodies.push(issue.newCommentBody);
+      mergedPlatformIssues[issue.issueId].newIssueStates.push(issue.newIssueState);
 
       [...issue.newCommentBody.matchAll(parseIssueHistoryRegex)].map(e => e.groups).forEach((g) => {
         const passedTest = g.passedTest;
@@ -555,16 +556,25 @@ const updateGithubIssuesAndFiles = async ({ github, context, exec, io, testSuitO
       emailedIn: [],
       lastBrokenPlatforms: [],
       lastEncounteredVersion: [],
-      fixVersion: []
+      fixVersion: [],
     });
     console.log('statusHeaders', statusHeaders);
+
+    let mergedHeaderState;
+    if (statusHeaders.newIssueStates.some(v => v === 'open')) { // newly failed on any platform
+      mergedHeaderState = 'open';
+    } else if (statusHeaders.newIssueStates.some(v => v === 'closed') && statusHeaders.emailedIn.every(v => v === '✅')) {  // newly fixed on all platforms
+      mergedHeaderState = 'closed';
+    } else {
+      mergedHeaderState = undefined; // even if some closed, its irrelevant if not all are closed
+    }
 
     // Update header by merging the status of all platforms
     newCommentBody = newCommentBody.replace(parseIssueHeaderStatusRegex, (match, emailedIn, lastBrokenPlatforms, lastEncounteredVersion, fixVersion) => {
       const newLastBrokenPlatforms = statusHeaders.lastBrokenPlatforms.filter(p => p !== '-').sort().join(', ') || '-';
       const newLastEncounteredVersion = statusHeaders.lastEncounteredVersion.sort().reverse()[0]; // Take latest
-      const newFixVersion = statusHeaders.fixVersion.every(v => v === '-') ? '-' : statusHeaders.fixVersion.filter(v => v !== '-').sort().reverse()[0];
-      const newEmailedIn = statusHeaders.emailedIn.every(v => v === '✅') ? '✅' : '❌';
+      const newFixVersion = statusHeaders.fixVersion.some(v => v === '-') ? '-' : statusHeaders.fixVersion.filter(v => v !== '-').sort().reverse()[0];
+      const newEmailedIn = mergedHeaderState === 'open' ? '❌' : mergedHeaderState === 'closed' ? '✅' : emailedIn;
       return `| ${newEmailedIn} | ${newLastBrokenPlatforms} | ${newLastEncounteredVersion} | ${newFixVersion} |`;
     });
 
@@ -579,7 +589,7 @@ const updateGithubIssuesAndFiles = async ({ github, context, exec, io, testSuitO
       issue_number: issueId,
       body: newCommentBody,
       // @todo
-      // ...(issue.newIssueState ? { state: issue.newIssueState, state_reason: issue.newIssueState === 'open' ? 'reopened' : 'completed' } : {}),
+      ...(mergedHeaderState ? { state: mergedHeaderState, state_reason: mergedHeaderState === 'open' ? 'reopened' : 'completed' } : {}),
       labels: uniqueLabels
     });
   }
