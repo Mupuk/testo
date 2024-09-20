@@ -568,6 +568,7 @@ const updateGithubIssuesAndFiles = async ({ github, context, exec, io, testSuitO
     } else {
       mergedHeaderState = undefined; // even if some closed, its irrelevant if not all are closed
     }
+    console.log('mergedHeaderState', mergedHeaderState);
 
     // Update header by merging the status of all platforms
     newCommentBody = newCommentBody.replace(parseIssueHeaderStatusRegex, (match, emailedIn, lastBrokenPlatforms, lastEncounteredVersion, fixVersion) => {
