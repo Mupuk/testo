@@ -7,6 +7,7 @@
 # [ ] make issue/pr mention use link instead of message?
 # [ ] test big repo pipeline
 # [ ] think about complete revamp
+# [ ] add note about not outputting exe when run-time is not needed/wanted
 # [x] Create Label on Issue, PR, and (??test suit??) if not exist
 # [x] Add label on Issue/PR create
 # [x] Jai Version Task
