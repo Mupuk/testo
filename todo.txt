@@ -7,6 +7,7 @@
 # [ ] make issue/pr mention use link instead of message?
 # [ ] test big repo pipeline
 # [ ] think about complete revamp
+# [ ] add note about not outputting exe when run-time is not needed/wanted
 # [x] Create Label on Issue, PR, and (??test suit??) if not exist
 # [x] Add label on Issue/PR create
 # [x] Jai Version Task
@@ -58,29 +59,3 @@
 #     [ ] column ordering?
 #     [ ] recently fixed section (last 2 compiler versions?)
 
-
-
-
-
-
-[ add new test in source ] -> only need validate_PR_and_merge_automation. No anomalies in history
-    - issue tracker was already created by workflow
-    - 
-    -> treat as normal issue NOTE: history empty 
-
-[ changed new test in source ] -> breaks old test on older versions. Dont rewrite history on issue tracker
-    - changing source, would break old compiler versions
-    1) we could say we never change tests. -> manually close old test, create new test
-
-[ removed new test in source ] -> orphant tracker, need new workflow, no anomalies in history
-    - @investigate how expensive this is, maybe do once a day or so?
-        1) we could compare all files to open issues trackers, and close all others
-        2) we could compare to ALL issue trackers, and delete them (would delete history)
-
-
-
-
-[ ] add new test -> no history problem
-    [ ] create github issue tracker with blank values
-    [ ] backtrack tests for older versions and simply add all results to 
-        the tracker. 
