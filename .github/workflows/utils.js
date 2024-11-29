@@ -19,7 +19,6 @@ const jaiVersion = async ({ exec }) => {
     }
   };
 
-  // Replace 'your-executable' with the command you want to run
   // currently this is a bug in jai so we need the workaround script
   await exec.exec('jai jai_version_workaround.jai', [], options);
 
