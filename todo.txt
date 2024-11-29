@@ -1,4 +1,7 @@
-# [ ] cross platform support
+# [ ] make the independent platforms run, even when others crash?
+# [ ] think about what happens when a breaking Change in syntax happens. We should not update old results? So we can update the test and pretend we never touched it?
+# [ ] SECURITY: Make sure same version gets checked out that was previously validated. Race condition
+# [ ] mac support 
 # [x] Create Label on Issue, PR, and (??test suit??) if not exist
 # [x] Add label on Issue/PR create
 # [x] Jai Version Task
@@ -20,7 +23,7 @@
 # [x] add broken platform info
 # [ ] label colors
 # [x] issue mention not working after PR create
-# [ ] assign original owner to issue tracker
+# [ ] assign original owner to issue tracker / Mention him and give him power?
 # [x] commit the test_result.json, is there any other way around that? we just 
     # use it to track new issues. Maybe we could check the issues history of the test
     # and do the things we need to do, when we see it doesnt have any entries?
@@ -44,7 +47,7 @@
 # [x] Update issue on test results
 #     [x] change state, dates, labels
 #     [x] how to map name to issue number? maybe we DO need an id
-# [ ] summary tracker design
+# [ ] summary tracker design (as txt because of size limitation?)
 # [ ] Update summary on test results
 #     [ ] link issue number
 #     [ ] foldable source code if single file, otherwise link
