@@ -38,7 +38,7 @@ jobs:
 
             const filePaths = data.map(file => file.filename);
 
-            // @todo not supported yet
+            // @todo pagination not supported yet
             if (filePaths.length >= 100) {
               await github.rest.issues.createComment({
                 ...context.repo,

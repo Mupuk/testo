@@ -1,6 +1,6 @@
 # [ ] make the independent platforms run, even when others crash?
 # [ ] think about what happens when a breaking Change in syntax happens. We should not update old results? So we can update the test and pretend we never touched it?
-# [ ] SECURITY: Make sure same version gets checked out that was previously validated. Race condition
+# [ ] SECURITY: Make sure same version gets checked out that was previously validated. Race condition. Also make sure pulls.listFiles uses same version. 
 # [ ] mac support 
 # [ ] label colors
 # [ ] assign original owner to issue tracker / Mention him and give him power?
