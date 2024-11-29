@@ -563,7 +563,7 @@ const updateGithubIssuesAndFiles = async ({ github, context, exec, io, testSuitO
     let mergedHeaderState;
     if (issue.newIssueStates.some(v => v === 'open')) { // newly failed on any platform
       mergedHeaderState = 'open';
-    } else if (issue.newIssueStates.some(v => v === 'closed') && lastHistoryEntryByPlatform.map(i => .every(v => v === '✅')) {  // newly fixed on all platforms
+    } else if (issue.newIssueStates.some(v => v === 'closed') && lastHistoryEntryByPlatform.map(i => i.every(v => v === '✅'))) {  // newly fixed on all platforms
       mergedHeaderState = 'closed';
     } else {
       mergedHeaderState = undefined; // even if some closed, its irrelevant if not all are closed
