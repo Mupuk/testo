@@ -2,6 +2,11 @@
 # [ ] think about what happens when a breaking Change in syntax happens. We should not update old results? So we can update the test and pretend we never touched it?
 # [ ] SECURITY: Make sure same version gets checked out that was previously validated. Race condition
 # [ ] mac support 
+# [ ] label colors
+# [ ] assign original owner to issue tracker / Mention him and give him power?
+# [ ] make issue/pr mention use link instead of message?
+# [ ] test big repo pipeline
+# [ ] think about complete revamp
 # [x] Create Label on Issue, PR, and (??test suit??) if not exist
 # [x] Add label on Issue/PR create
 # [x] Jai Version Task
@@ -15,15 +20,12 @@
 # [x] parse and add not emailed tag (also remove it on emiledin)
 # [x] parse code snippet if single file
 # [x] parse code description if single file
-# [~] jai dropdown and parsing of older version
 # [x] automated PR for single file 
 # [x] JonSaid add date
 # [x] close PR update to parse the things
 # [x] validate_PR_and_merge_automation
 # [x] add broken platform info
-# [ ] label colors
 # [x] issue mention not working after PR create
-# [ ] assign original owner to issue tracker / Mention him and give him power?
 # [x] commit the test_result.json, is there any other way around that? we just 
     # use it to track new issues. Maybe we could check the issues history of the test
     # and do the things we need to do, when we see it doesnt have any entries?
@@ -34,16 +36,16 @@
     # Scan all files, make sure its either a single file in bug dir, or a single folder. 
     # Otherwisse reject with comment.
 # [x] rethink needed fields in depth
-# [ ] make issue/pr mention use link instead of message?
 # [x] test security
+# [~] jai dropdown and parsing of older version
 # [-] test if you can edit the autocreated pr from external user. Make user the owner of the pr somehow?
-# [ ] test big repo pipeline
 
 # [x] Auto run Testsuit on push
 # [x] create test result json
 # [x] run for past 3-5 jai versions
 # [x] gather all test date, get it inot actions and do comparisons
 # [x] new issure tracker design
+# [x] Auto run testsuit on approval of PR to check it actually crashes
 # [x] Update issue on test results
 #     [x] change state, dates, labels
 #     [x] how to map name to issue number? maybe we DO need an id
@@ -55,4 +57,30 @@
 #         or reopen compiler version (!= last encounter, maybe change that?)
 #     [ ] column ordering?
 #     [ ] recently fixed section (last 2 compiler versions?)
-# [x] Auto run testsuit on approval of PR to check it actually crashes
+
+
+
+
+
+
+[ add new test in source ] -> only need validate_PR_and_merge_automation. No anomalies in history
+    - issue tracker was already created by workflow
+    - 
+    -> treat as normal issue NOTE: history empty 
+
+[ changed new test in source ] -> breaks old test on older versions. Dont rewrite history on issue tracker
+    - changing source, would break old compiler versions
+    1) we could say we never change tests. -> manually close old test, create new test
+
+[ removed new test in source ] -> orphant tracker, need new workflow, no anomalies in history
+    - @investigate how expensive this is, maybe do once a day or so?
+        1) we could compare all files to open issues trackers, and close all others
+        2) we could compare to ALL issue trackers, and delete them (would delete history)
+
+
+
+
+[ ] add new test -> no history problem
+    [ ] create github issue tracker with blank values
+    [ ] backtrack tests for older versions and simply add all results to 
+        the tracker.
