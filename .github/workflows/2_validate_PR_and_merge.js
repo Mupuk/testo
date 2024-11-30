@@ -103,7 +103,7 @@ const validateAddedTestAndMergeOnSuccess = async ({ github, exec, io, contextRep
 
   // @todo make this only be run once when the pr has only one commit?
   // but this hole thing here should only be run once, or error before?
-  const createTrackingIssueFromPR = require('./create_tracking_issue_from_PR.js');
+  const createTrackingIssueFromPR = require('./2.1_PR_to_tracking_issue.js');
   const trackingIssueNumber = await createTrackingIssueFromPR({ github, contextRepo, prNumber });
   
   // We already know that the structure is valid, so we can just take the first file

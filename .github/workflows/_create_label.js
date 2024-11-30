@@ -1,7 +1,7 @@
 // @todo add colors
-const createLabel = async ({github, context, labelName}) => {
-  await createLabels({github, context, labelNames: [labelName]})
-}
+const createLabel = async ({ github, context, labelName }) => {
+  await createLabels({ github, context, labelNames: [labelName] });
+};
 
 const createLabels = async ({ github, context, labelNames }) => {
   console.log('creating Labels', labelNames);
@@ -14,11 +14,13 @@ const createLabels = async ({ github, context, labelNames }) => {
 
   // Loop through the array of label names and create any that don't exist
   for (const labelName of labelNames) {
-    const labelExists = labels.some(label => label.name.toLowerCase() === labelName.toLowerCase());
+    const labelExists = labels.some(
+      (label) => label.name.toLowerCase() === labelName.toLowerCase(),
+    );
 
     // If the label doesn't exist, create it
     if (!labelExists) {
-      console.log("creating: ", labelName);
+      console.log('creating: ', labelName);
       await github.rest.issues.createLabel({
         owner: context.repo.owner,
         repo: context.repo.repo,
@@ -28,15 +30,15 @@ const createLabels = async ({ github, context, labelNames }) => {
   }
 };
 
-const createCurrentCompilerVersionLabel = async ({github, context, exec}) => {
-  const { jaiVersion: getJaiVersion } = require('./utils.js');
+const createCurrentCompilerVersionLabel = async ({ github, context, exec }) => {
+  const { jaiVersion: getJaiVersion } = require('./_utils.js');
   const jaiVersion = await getJaiVersion({ exec });
-  await createLabel({github, context, labelName: jaiVersion});
+  await createLabel({ github, context, labelName: jaiVersion });
   return jaiVersion;
-}
+};
 
 module.exports = {
   createLabel,
   createLabels,
-  createCurrentCompilerVersionLabel
+  createCurrentCompilerVersionLabel,
 };

@@ -32,13 +32,15 @@ Closes: #{issue_number}
 \`\`\`c
 {code}
 \`\`\`
-`.replace(/\r\n/g, '\n').replace(/\r/g, '\n');
+`
+  .replace(/\r\n/g, '\n')
+  .replace(/\r/g, '\n');
 
 function parseIssueBody(text) {
   const sections = text.split('### ').slice(1); // Split into sections by headings
   const parsedData = [];
 
-  sections.forEach(section => {
+  sections.forEach((section) => {
     const lines = section.trim().split('\n');
     const heading = lines.shift().trim(); // First line is the heading
     const content = lines.join('\n').trim(); // Remaining lines are the content
@@ -46,12 +48,12 @@ function parseIssueBody(text) {
     if (heading === 'General') {
       // Parse checkboxes
       const checkboxes = lines
-        .filter(line => line.trim().length > 0)
-        .map(line => {
+        .filter((line) => line.trim().length > 0)
+        .map((line) => {
           const isChecked = line.toLowerCase().includes('[x]');
           return {
             label: line.replace(/- \[.\]\s*/, '').trim(),
-            checked: isChecked
+            checked: isChecked,
           };
         });
       parsedData.push(checkboxes);
@@ -68,13 +70,13 @@ function parseIssueBody(text) {
   return parsedData;
 }
 
-const createPRFromSBIssue = async ({github, context, exec}) => {
-  const { format } = require('./utils.js');
+const createPRFromSBIssue = async ({ github, context, exec }) => {
+  const { format } = require('./_utils.js');
 
   // Get issue
   const { data: issue } = await github.rest.issues.get({
     ...context.repo,
-    issue_number: context.issue.number
+    issue_number: context.issue.number,
   });
   issue.body = issue.body.replace(/\r\n/g, '\n').replace(/\r/g, '\n');
 
@@ -94,27 +96,31 @@ const createPRFromSBIssue = async ({github, context, exec}) => {
     categories: parsedBody[2],
     description: parsedBody[3],
     workaround: parsedBody[4],
-    code: parsedBody[5]
-  }
+    code: parsedBody[5],
+  };
 
   const branchName = `issue-${context.issue.number}`;
   const baseBranch = 'master';
   const prTitle = issue.title;
-  const fileName = `compiler_bugs/EC${Number.parseInt(params.expected_error_code)}_${context.issue.number}.jai`;
+  const fileName = `compiler_bugs/EC${Number.parseInt(
+    params.expected_error_code,
+  )}_${context.issue.number}.jai`;
   const fileContent = Buffer.from(parsedBody[5]).toString('base64');
 
   const prBody = format(pullRequestTemplate, params);
 
   // Create a new branch from the base branch
-  const { data: { commit } } = await github.rest.repos.getBranch({
+  const {
+    data: { commit },
+  } = await github.rest.repos.getBranch({
     ...context.repo,
-    branch: baseBranch
+    branch: baseBranch,
   });
 
   await github.rest.git.createRef({
     ...context.repo,
     ref: `refs/heads/${branchName}`,
-    sha: commit.sha
+    sha: commit.sha,
   });
 
   await github.rest.repos.createOrUpdateFileContents({
@@ -122,10 +128,9 @@ const createPRFromSBIssue = async ({github, context, exec}) => {
     path: fileName,
     message: 'Add test',
     content: fileContent,
-    branch: branchName
+    branch: branchName,
   });
 
-  
   // not sure if we should convert it to PR or create new PR
   // Create a pull request
   const { data: pr } = await github.rest.pulls.create({
@@ -146,19 +151,18 @@ const createPRFromSBIssue = async ({github, context, exec}) => {
   //   issue: context.issue.number
   // });
 
-
   // Link PR to issue
   await github.rest.issues.createComment({
     ...context.repo,
     issue_number: context.issue.number,
-    body: `👋 Thanks for the contribution, please continue further discussion on this matter here: ${pr.html_url}!`
-  })
+    body: `👋 Thanks for the contribution, please continue further discussion on this matter here: ${pr.html_url}!`,
+  });
 
   // Not sure if we should close or lock the original issue
   await github.rest.issues.lock({
     ...context.repo,
     issue_number: context.issue.number,
-  })
+  });
 
   // await github.rest.issues.update({
   //   ...context.repo,
@@ -167,20 +171,19 @@ const createPRFromSBIssue = async ({github, context, exec}) => {
   //   state_reason: 'completed'
   // })
 
-  
   // Create Labels if they dont exist
-  const { createLabels } = require('./create_label.js');
+  const { createLabels } = require('./_create_label.js');
   const categoryLabels = params.categories.split(', ');
-  await createLabels({github, context, labelNames: categoryLabels});
+  await createLabels({ github, context, labelNames: categoryLabels });
 
   // Add labels to PR
   await github.rest.issues.addLabels({
     ...context.repo,
     issue_number: pr.number,
-    labels: [ ...categoryLabels ]
+    labels: [...categoryLabels],
   });
 
   return pr.number;
-}
+};
 
 module.exports = createPRFromSBIssue;
