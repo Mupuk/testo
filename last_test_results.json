@@ -1,6 +1,6 @@
 {
   "263": {
-    "beta-0.1.096": {
+    "beta-0.1.093": {
       "windows": {
         "compilation_exit_code": 0,
         "expected_compilation_exit_code": 0,
@@ -14,7 +14,7 @@
     "issue_number": 263
   },
   "264": {
-    "beta-0.1.096": {
+    "beta-0.1.093": {
       "windows": {
         "compilation_exit_code": 0,
         "expected_compilation_exit_code": 0,

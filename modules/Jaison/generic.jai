@@ -29,18 +29,12 @@ JSON_Value :: struct {
 JSON_Object :: Table(string, JSON_Value);
 
 json_free :: (using val: JSON_Value, indent_level := 0) {
-	for 1..(indent_level+1)*4		print(" ");
-	print("json_free called: %\n", indent_level);
 	if #complete type == {
 		case .NULL;
 		case .BOOLEAN;
 		case .NUMBER;
-			for 1..(indent_level+1)*4		print(" ");
-			print("free number: '%'\n", number);
 
 		case .STRING;
-			for 1..(indent_level+1)*4		print(" ");
-			print("free str: '%'\n", str);
 			free(str);
 		case .ARRAY;
 			for array {
@@ -49,16 +43,12 @@ json_free :: (using val: JSON_Value, indent_level := 0) {
 			array_free(array);
 		case .OBJECT;
 			for object {
-				for 1..(indent_level+1)*4		print(" ");
-				print("Freeing object % %\n", it_index, it);
 				free(it_index);
 				json_free(it, indent_level + 1);
 			}
 			deinit(object);
 
 			free(object);
-			for 1..(indent_level+1)*4		print(" ");
-			print("free object itself %\n", object);
 	}
 }
 

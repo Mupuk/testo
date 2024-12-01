@@ -3,9 +3,9 @@
 // Comiles all files in the 'compiler_bugs' directory and runs them if they compile
 // and produce a binary. If its a folder it has to contain a 'first.jai' file.
 //
+// Files must have a prefix of the form [C|R]EC<exit_code>_<issue_number>.jai
 // Files that start with "CEC" are expected to compile with the exit code that follows
 // Files that start with "REC" are expected to run with the exit code that follows
-// When a file does not have an expected exit code it is expected to compile and run without errors, having an exit code of 0
 
 Test_Result :: struct 
 {
@@ -22,25 +22,6 @@ Test_Result :: struct
   // run results
   expected_run_exit_code: int = 0;
   run_exit_code: int = -1;
-};
-
-Test_Results_Per_Version :: struct 
-{
-  version: string; // compiler version used for these results
-  windows: [..] Test_Result;
-  linux: [..] Test_Result;
-
-  windows.allocator = temp;
-  linux.allocator = temp;
-};
-
-Test_Results_Per_Issue :: struct 
-{
-  issue_number: int; // extracted from the file name
-  file_path: string; // relative file path like 'compiler_bugs/EC0_123.jai'
-  results: [..] Test_Results_Per_Version; // usually this will only have one entry, but for 'new' issues it will have multiple
-
-  results.allocator = temp;
 };
 
 
@@ -376,149 +357,50 @@ run_program :: (test_result: *Test_Result, program_path_to_run: string) -> (proc
 // Create the json file and write the results to it
 write_test_results :: (test_results: [..] Test_Result, filename: string)
 {
-  versionInfo: Version_Info;
-  current_compiler_version := compiler_get_version_info(*versionInfo);
+  current_compiler_version := compiler_get_version_info(null);
   found:, current_compiler_version = split_from_left(current_compiler_version, ",",, temp);
   current_compiler_version = replace(current_compiler_version, " ", "-",, temp);
-
-  // parse_version :: (version_string: string) -> Version_Info {
-  //   found, left, right := split_from_left(version_string, "-",, temp);
-  //   assert(found, "Could not parse version string: %", version_string);
-  //   versions := split(right, ".",, temp);
-  //   assert(versions.count == 3, "Invalid version string: %", version_string);
-  //   return .{
-  //     major = string_to_int(versions[0], 10, s32),
-  //     minor = string_to_int(versions[1], 10, s32),
-  //     micro = string_to_int(versions[2], 10, s32)
-  //   };
-  // }
-
-  test_results_all_issues: [..] Test_Results_Per_Issue;
-  defer array_free(test_results_all_issues);
-
-  for test_result: test_results
-  {
-    // Check if the issue already exists, could happen in case of an added test
-    // @performance could get sped up
-    found_index := -1;
-    for test_results_all_issues
-    {
-      if it.issue_number == test_result.issue_number
-      {
-        found_index = it_index;
-        break;
-      }
-    }
-
-    test_results_per_issue: *Test_Results_Per_Issue;
-    if found_index == -1
-    {
-      test_results_per_issue = array_add(*test_results_all_issues);
-      test_results_per_issue.issue_number = test_result.issue_number;
-      test_results_per_issue.file_path = test_result.file_path;
-    }
-    else
-    {
-      test_results_per_issue = *test_results_all_issues[found_index];
-    }
-    
-
-
-    // Check if the version already exists
-    // This is always fast since its a very small list, most of the time 1 entry
-    found_index = -1;
-    for test_results_per_issue.results
-    {
-      if it.version == current_compiler_version
-      {
-        found_index = it_index;
-        break;
-      }
-    }
-
-    test_results_per_version: *Test_Results_Per_Version;
-    if found_index == -1
-    {
-      test_results_per_version = array_add(*test_results_per_issue.results);
-      test_results_per_version.version = current_compiler_version;
-    }
-    else
-    {
-      test_results_per_version = *test_results_per_issue.results[found_index];
-    }
-
-
-    // populate platform specific results
-#if OS == .WINDOWS {
-    results := *test_results_per_version.windows;
-} else #if OS == .LINUX {
-    results := *test_results_per_version.linux;
-}
-    array_add(results, test_result);
-  }
-
-
-
 
 
   root_obj := New(JSON_Object);
   root_value := json_value(root_obj);
   defer { json_free(root_value); }
 
-  // for test_results_all_issues
-  // {
-  //   issue: JSON_Value;
-  //   issue_json_string := json_write_string(it,, temp);
-  //   success:, issue = json_parse_string(issue_json_string);
-  //   assert(success, "Could not parse json string. Should never happen.");
-  //   json_set(root_obj, sprint("%", it.issue_number), issue);
-  // }
-
   for test_results
   {
-    print("issue_number: %\n", it.issue_number);
-    // Get or create the issue object
+    // Create the issue object
     issue_obj := New(JSON_Object);
     issue_value := json_value(issue_obj);
     json_set(root_obj, sprint("%", it.issue_number), issue_value);
-
     // Add the issue number
     json_set(issue_obj, copy_string("issue_number"), .{type=.NUMBER, number=xx it.issue_number});
     // Add the file path
     json_set(issue_obj, copy_string("file_path"), json_value(copy_string(it.file_path)));
 
 
-    // Get or create the version object
+    // Create the version object
     version_obj := New(JSON_Object);
     version_value := json_value(version_obj);
     json_set(issue_obj, copy_string(current_compiler_version), version_value, true);
 
+    // Create the test result object under the current platform
 #if OS == .WINDOWS {
       current_platform := copy_string("windows");
 } else #if OS == .LINUX {
       current_platform := copy_string("linux");
 }
-    test_result_string := json_write_string(it);
+    test_result_string := json_write_string(it,, temp);
     success, test_result_value := json_parse_string(test_result_string);
     assert(success, "Could not parse json string. Should never happen.");
     json_set(version_value.object, current_platform, test_result_value);
   }
 
-  traverse_node(root_value, 0);
+  // traverse_node(root_value, 0);
 
   success := json_write_file(filename, root_value, indent_char = "  ");
   assert(success, "Could not write to file: '%'", filename);
 }
 
-
-get :: (json_val: JSON_Value, key: string, expected_type: JSON_Type) -> JSON_Value {
-  assert(json_val.type == .OBJECT);
-  table := json_val.object;
-  val, success := table_find(table, key);
-  if success  assert(val.type == expected_type);
-  else        json_set_null(*val);
-  return val;
-}
 
 traverse_node :: (node: JSON_Value, depth: int) 
 {
