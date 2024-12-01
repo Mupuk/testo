@@ -28,27 +28,37 @@ JSON_Value :: struct {
 
 JSON_Object :: Table(string, JSON_Value);
 
-json_free :: (using val: JSON_Value) {
+json_free :: (using val: JSON_Value, indent_level := 0) {
+	for 1..(indent_level+1)*4		print(" ");
+	print("json_free called: %\n", indent_level);
 	if #complete type == {
 		case .NULL;
 		case .BOOLEAN;
 		case .NUMBER;
+			for 1..(indent_level+1)*4		print(" ");
+			print("free number: '%'\n", number);
 
 		case .STRING;
+			for 1..(indent_level+1)*4		print(" ");
+			print("free str: '%'\n", str);
 			free(str);
 		case .ARRAY;
 			for array {
-				json_free(it);
+				json_free(it, indent_level + 1);
 			}
 			array_free(array);
 		case .OBJECT;
 			for object {
+				for 1..(indent_level+1)*4		print(" ");
+				print("Freeing object % %\n", it_index, it);
 				free(it_index);
-				json_free(it);
+				json_free(it, indent_level + 1);
 			}
 			deinit(object);
 
 			free(object);
+			for 1..(indent_level+1)*4		print(" ");
+			print("free object itself %\n", object);
 	}
 }
 
@@ -204,9 +214,9 @@ json_write_json_value :: (builder: *String_Builder, using val: JSON_Value, inden
 	}
 }
 
-json_set :: (obj: *JSON_Object, path: string, val: JSON_Value) -> bool {
+json_set :: (obj: *JSON_Object, path: string, val: JSON_Value, ignore_dot:=false) -> bool {
 	dotpos := find_index_from_left(path, #char ".");
-	if dotpos == -1 {
+	if ignore_dot || dotpos == -1 {
 		table_set(obj, path, val);
 		return true;
 	}

@@ -1,3 +1,42 @@
+#
+# REWORK TODO LIST
+#
+
+# [x] make bug_suit output new structure
+# [ ] checkout if its a problem that ECX refers to both run and compilation code
+# [ ] cleanup bugsuit
+# [ ] cleanup and rework (1)
+# [ ] cleanup and rework (2)
+# [ ] cleanup and rework (2.1)
+# [ ] cleanup and rework (3)
+# [ ] change emailed in handling and add lable for it
+# [ ] 
+# [ ] 
+# [ ] 
+# [ ] 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+#
+# OLD TODO LIST
+#
+
 # [ ] make the independent platforms run, even when others crash?
 # [ ] think about what happens when a breaking Change in syntax happens. We should not update old results? So we can update the test and pretend we never touched it?
 # [ ] SECURITY: Make sure same version gets checked out that was previously validated. Race condition. Also make sure pulls.listFiles uses same version. 

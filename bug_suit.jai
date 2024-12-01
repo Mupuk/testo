@@ -1,322 +1,178 @@
 
 //
-// Comiles all files in the compiler_bugs directory and runs them if they compile
-// If its a folder it does the same with the first.jai file inside the folder
+// Comiles all files in the 'compiler_bugs' directory and runs them if they compile
+// and produce a binary. If its a folder it has to contain a 'first.jai' file.
 //
-// Files that start with "EC" are expected to fail with the error code specified after "EC"
+// Files that start with "CEC" are expected to compile with the exit code that follows
+// Files that start with "REC" are expected to run with the exit code that follows
+// When a file does not have an expected exit code it is expected to compile and run without errors, having an exit code of 0
 
-Test_Result :: struct {
-  file: string;
-  passed_test: bool;
-  expected_error_code: int;
-  compilation_succeeded: bool;
-  compilation_exit_code: int;
-  did_run: bool;
-  run_succeeded: bool;
-  run_exit_code: int;
-};
-
-Test_Result_Set :: struct {
-  version: string;
-  succeeded_count: int;
-  failed_count: int;
-  total_count: int;
-  results: [..] Test_Result;
-};
-
-Test_Result_Sets_Per_Platform :: struct {
-  windows: [..] Test_Result_Set;
-  linux: [..] Test_Result_Set;
-};
-
-
-#run 
+Test_Result :: struct 
 {
-  // @todo platform specific
-  #assert OS == .WINDOWS || OS == .LINUX;
+  passed_test: bool = false; // ifx tried_to_run then run_exit_code == expected_run_exist_code else compilation_exit_code == expected_compilation_exist_code
+  file_path: string; @JsonIgnore
+  issue_number: int; @JsonIgnore
 
-  jai_path := get_path_of_running_executable();
+  is_runtime_test: bool = false; // if not we ignore runtime
+
+  // compilation results
+  expected_compilation_exit_code: int = 0;
+  compilation_exit_code: int = -1;
+
+  // run results
+  expected_run_exit_code: int = 0;
+  run_exit_code: int = -1;
+};
+
+Test_Results_Per_Version :: struct 
+{
+  version: string; // compiler version used for these results
+  windows: [..] Test_Result;
+  linux: [..] Test_Result;
+
+  windows.allocator = temp;
+  linux.allocator = temp;
+};
+
+Test_Results_Per_Issue :: struct 
+{
+  issue_number: int; // extracted from the file name
+  file_path: string; // relative file path like 'compiler_bugs/EC0_123.jai'
+  results: [..] Test_Results_Per_Version; // usually this will only have one entry, but for 'new' issues it will have multiple
+
+  results.allocator = temp;
+};
+
+
+
+#run {
+
+  // Don't output anything when triggered by lsp
+  #if #exists(JAILS_DIAGNOSTICS_BUILD) then return; 
 
   // Don't output anything
   set_build_options_dc(.{do_output=false, write_added_strings=false});
 
-  visitor :: (info: *File_Visit_Info, test_list: *[..] string) {
-    // Ignore directories starting with "_" or "."
-    if (info.short_name[0] == #char "_" 
-        || info.short_name[0] == #char "." 
-        || info.short_name == "modules"
-    )
-    { 
-      if info.is_directory 
-        info.descend_into_directory = false;
+  // Only those platforms are supported
+  #assert OS == .WINDOWS || OS == .LINUX;
+  
+  
+  // need to do it like this, so other deferes can be tracked
+  defer report_memory_leaks();
 
-      return;
-    }
 
-    extension, found := path_extension(info.short_name);
-    if !found && !info.is_directory return; // Skip files without extensions
-    if found && extension != "jai" return; // Skip files that are not .jai
+  print("\n\n");
 
-    if info.is_directory
-      array_add(test_list, tprint("%/first.jai", info.full_name));
-    else
-      array_add(test_list, copy_string(info.full_name,, temp));
 
-    // p(info.full_name);
-  }
+  jai_path := get_path_of_running_executable();
+
+
 
   // Stats
   succeeded := 0;
   failed := 0;
+  broken_tests: [..] string;
+  broken_tests.allocator = temp;
   test_results: [..] Test_Result;
-  array_free(test_results);
+  test_results.allocator = temp;
+
 
   // Get all the test file list
-  test_list: [..] string;
-  test_list.allocator = temp;
-  visit_files("compiler_bugs", false, *test_list, visitor, visit_directories=true);
+  test_file_list: [..] string;
+  defer {
+    for test_file_list     free(it);
+    array_free(test_file_list);
+  }
 
-  log("\n\n");
+  visit_files("compiler_bugs", false, *test_file_list, find_all_tests_visitor, visit_directories=true);
 
-  // Run the tests
-  for test_list
+  // Used for checking if issue numbers are unique
+  unique_issue_numbers: [..] int;
+  defer { array_free(unique_issue_numbers); }
+
+  // Compile and run all the test files
+  for file_path_to_compile: test_file_list
   {
-    test: Test_Result;
-    expected_error_code := 0;
-    name := path_filename(it);
-
-    // Program to run if it exists after compilation
-    // @todo platform specific
-#if OS == .WINDOWS {
-    program := tprint("%.exe", path_strip_extension(it));
-} else #if OS == .LINUX {
-    program := tprint("%", path_strip_extension(it));
-}
-
-    // If its a folder we need to check the folder name instead of file name
-    if starts_with(name, "first.jai") {
-      copy := path_strip_filename(it);
-      copy.count -= 1; // remove /
-      name = path_filename(copy);
-    }
-    
-    // We ignore the '!' so we can mark files that passed the test
-    if starts_with(name, "EC") || starts_with(name, "!EC")
+    test_result: Test_Result;
+    test_result.file_path = file_path_to_compile;
+    // Extract expected exit code from file name
     {
-      skip_count := ifx starts_with(name, "EC") then 2 else 3;
-      code, success := string_to_int(advance(name, skip_count));
-      if success  expected_error_code = code;
-    }
-
-    test.expected_error_code = expected_error_code;
-
-    // Compile Program
-    compile_process_result: Process_Result;  
-    {
-      command := tprint("% %", jai_path, it);
-      test.file = copy_string(it,, temp);
-      command_split := split(command, " ",, temp);
-      // command := split(tprint("echo %", test_list[0]), " ",, temp);
-      print("Compiling: 'jai %' ... ", it);
-
-      compile_process_result=, 
-      output_string, 
-      error_string, 
-      timeout_reached := run_command(..command_split, 
-                                    working_directory="", 
-                                    capture_and_return_output=true, 
-                                    print_captured_output=false,
-                                    timeout_ms = 5000 // avoid infinite loops
-                                    ,, temp);
-
-
-      if compile_process_result.type == .FAILED_TO_LAUNCH {
-          log_error("Could not run command: \"%\"", command);
-          continue;
+      filename := path_filename(file_path_to_compile);
+      // If its a folder we need to use the folder name instead of file name
+      if starts_with(filename, "first.jai")
+      {
+        file_path := path_strip_filename(file_path_to_compile);
+        file_path.count -= 1; // remove '/'
+        filename = path_filename(file_path);
       }
 
-      // log("Exit code: % (timeout reached: %)", process_result.exit_code, timeout_reached);
-
-      
-
-
-      exit_code_text := "";
-      // if compile_process_result.exit_code == {
-      //   case 0; exit_code_text = "0";
-      //   case 1; exit_code_text = "1 - (USER)";
-      //   case 3; exit_code_text = "3 (COMPILER)";
-      //   case; exit_code_text = tprint("(UNHANDLED %)", compile_process_result.exit_code);
-      // }
-
-      status_text := ifx compile_process_result.exit_code == expected_error_code 
-                    then "SUCCESS" 
-                    else tprint("FAILURE - Got Exit Code % (timeout reached: %), Expected %", 
-                                compile_process_result.exit_code, 
-                                timeout_reached,
-                                expected_error_code);
-      color := ifx compile_process_result.exit_code == expected_error_code then Console_Color.GREEN else .RED;
-      if !(expected_error_code == 0 && file_exists(program)) 
-        print_color(status_text, color=color);
-      print("\n");
-
-    }
-
-    // make sure this runs only when file exists and is expected to compile
-    if expected_error_code == 0 && file_exists(program) 
-    {
-      if compile_process_result.exit_code == 0
+      if starts_with(filename, "CEC") // expected compilation exit code
       {
-        print("   Running:     '%' ... ", program);
-        process_result, 
-        output_string, 
-        error_string, 
-        timeout_reached := run_command(program,
-                                      working_directory="", 
-                                      capture_and_return_output=true, 
-                                      print_captured_output=false,
-                                      timeout_ms = 5000 // avoid infinite loops
-                                      ,, temp);
+        expected_exit_code, success, remainder := string_to_int(advance(filename, 3));
+        if success then   test_result.expected_compilation_exit_code = expected_exit_code;
+        test_result.issue_number = string_to_int(advance(remainder, 1)); // skip '_'
 
-        if process_result.type == .FAILED_TO_LAUNCH {
-            log_error("Could not run command: \"%\"", program);
-            continue;
-        }
-
-        // log("Exit code: % (timeout reached: %)", process_result.exit_code, timeout_reached);
-
-        test.did_run = true;
-        test.run_exit_code = process_result.exit_code;
-        test.run_succeeded = process_result.exit_code == 0;
-
-        status_text := ifx process_result.exit_code == 0
-                      then "SUCCESS" 
-                      else tprint("FAILURE - Exit Code % (timeout reached: %)", process_result.exit_code, timeout_reached);
-        color := ifx process_result.exit_code == 0 then Console_Color.GREEN else .RED;
-        print_color(status_text, color=color);
-        print("\n");
-
-        // if there is a executable we just look at its result
-        if process_result.exit_code == 0 
-        {
-          succeeded += 1;
-          test.passed_test = true;
-        }
-        else
-        {
-          failed += 1;
-          test.passed_test = false;
-        }
+        newly_added := array_add_if_unique(*unique_issue_numbers, test_result.issue_number);
+        assert(newly_added, "Issue number % is not unique", test_result.issue_number);
       }
-    }
-    else
-    {
-      test.compilation_exit_code = compile_process_result.exit_code;
-      test.compilation_succeeded = compile_process_result.exit_code == expected_error_code;
-
-      // if there is no executable we just look at compile result
-      if compile_process_result.exit_code == expected_error_code 
+      else if starts_with(filename, "REC") // expected run exit code
       {
-        succeeded += 1;
-        test.passed_test = true;
+        test_result.is_runtime_test = true;
+        expected_exit_code, success, remainder := string_to_int(advance(filename, 3));
+        if success then   test_result.expected_run_exit_code = expected_exit_code;
+        test_result.issue_number = string_to_int(advance(remainder, 1)); // skip '_'
+
+        newly_added := array_add_if_unique(*unique_issue_numbers, test_result.issue_number);
+        assert(newly_added, "Issue number % is not unique", test_result.issue_number);
       }
       else
       {
-        failed += 1;
-        test.passed_test = false;
+        //@todo think about this
+        assert(false, "File name does not start with 'CEC' or 'REC'. File: '%'", filename);
       }
     }
 
-    array_add(*test_results, test);
+
+
+    //
+    // compile and run the program
+    //
+
+    compile_process_result, outputed_binary_path := compile_program(*test_result, jai_path);
+    if compile_process_result.type == .FAILED_TO_LAUNCH
+    {
+      array_add(*broken_tests, file_path_to_compile);
+      continue;
+    }
+
+    // make sure this runs only when file exists and is expected to compile
+    if test_result.is_runtime_test 
+    {
+      run_process_result := run_program(*test_result, outputed_binary_path);
+      if run_process_result.type == .FAILED_TO_LAUNCH
+      {
+        array_add(*broken_tests, file_path_to_compile);
+        continue;
+      }
+    }
+      
+
+    if test_result.passed_test
+      succeeded += 1;
+    else
+      failed += 1;
+
+    array_add(*test_results, test_result);
   }
+
+  
 
   //
   // output test result json
   //
 
-  versionInfo: Version_Info;
-  version := compiler_get_version_info(*versionInfo);
-  found:, version = split_from_left(version, ",",, temp);
-  version = replace(version, " ", "-",, temp);
+  write_test_results(test_results, "last_test_results.json");
 
-  parse_version :: (version_string: string) -> Version_Info {
-    found, left, right := split_from_left(version_string, "-",, temp);
-    assert(found, "Could not parse version string: %", version_string);
-    versions := split(right, ".",, temp);
-    assert(versions.count == 3, "Invalid version string: %", version_string);
-    return .{
-      major = string_to_int(versions[0], 10, s32),
-      minor = string_to_int(versions[1], 10, s32),
-      micro = string_to_int(versions[2], 10, s32)
-    };
-  }
-
-  compare_version :: (a: Version_Info, b: Version_Info) -> int {
-    if a.major != b.major return a.major - b.major;
-    if a.minor != b.minor return a.minor - b.minor;
-    if a.micro != b.micro return a.micro - b.micro;
-    return 0;
-  }
-
-  // Create and initialize object
-  success, test_result_sets_per_platform := json_parse_file("test_results.json", Test_Result_Sets_Per_Platform);
-
-#if OS == .WINDOWS {
-  test_result_sets := *test_result_sets_per_platform.windows;
-} else #if OS == .LINUX {
-  test_result_sets := *test_result_sets_per_platform.linux;
-}
-
-  current_result_set := Test_Result_Set.{
-    version = version,
-    succeeded_count = succeeded,
-    failed_count = failed,
-    total_count = test_list.count,
-    results = test_results
-  };
-
-  // replace result set
-  same_version_index := -1;
-  smallest_version_index := -1;
-  for test_result_sets.*
-  {
-    if it.version == version
-    {
-      same_version_index = it_index;
-      break;
-    }
-
-    other_version := parse_version(it.version);
-    if smallest_version_index == -1 || compare_version(versionInfo, other_version) > 0
-    {
-      smallest_version_index = it_index;
-    }
-  }
-
-  // version already exists, replace it
-  if same_version_index != -1
-  {
-    test_result_sets.*[same_version_index] = current_result_set;
-  }
-  // if not yet 3 results, add it
-  else if test_result_sets.count < 3 // @todo if we ever change this theres other places that break!!!
-  {
-    array_add(test_result_sets, current_result_set);
-  }
-  // new version, replace the oldest version
-  else if smallest_version_index != -1
-  {
-    other_version := parse_version(test_result_sets.*[smallest_version_index].version);
-    assert(compare_version(versionInfo, other_version) > 0, "Version that is supposed to get replaced is not smaller");
-    test_result_sets.*[smallest_version_index] = current_result_set;
-  }
-  else
-  {
-    assert(false, "Could not find a version to replace");
-  }
-
-
-  success = json_write_file("test_results.json", test_result_sets_per_platform, indent_char = "  ");
-  assert(success, "Could not write test_results.json");
 
 
   // Cleanup
@@ -359,11 +215,348 @@ Test_Result_Sets_Per_Platform :: struct {
   // Stats
   print_color("\n\nSUCCEEDED: %\n", succeeded, color=.GREEN);
   print_color("FAILED:    %\n", failed, color=.RED);
+  print_color("BROKEN:    %\n", broken_tests.count, color=.YELLOW);
   print_color("TOTAL:     ", color=.MAGENTA);
   print_color("%", succeeded, color=.GREEN);
-  print_color("/%\n", test_list.count, color=.MAGENTA);
+  print_color("/%\n", test_file_list.count - broken_tests.count, color=.MAGENTA);
+
+  if (broken_tests.count > 0)
+  {
+    print("\n\n BROKEN TESTS: \n");
+    for broken_tests    print("    %\n", it);
+  }
+
+
 }
 
+// Visitor to find all test files to run
+find_all_tests_visitor :: (info: *File_Visit_Info, test_list: *[..] string) 
+{
+  // Ignore directories starting with "_" or "." or "modules" folder
+  if (info.short_name[0] == #char "_" 
+      || info.short_name[0] == #char "." 
+      || info.short_name == "modules"
+  )
+  { 
+    if info.is_directory then info.descend_into_directory = false;
+    return;
+  }
+
+  extension, found := path_extension(info.short_name);
+  if !found && !info.is_directory return; // Skip files without extensions
+  if found && extension != "jai" return; // Skip files that are not .jai
+
+  if info.is_directory
+  {
+    entry_file := tprint("%/first.jai", info.full_name);
+    if (file_exists(entry_file))
+      array_add(test_list, entry_file);
+    else
+      print("No 'first.jai' file found in directory '%'. Skipping ...", info.full_name);
+  }
+  else
+    array_add(test_list, copy_string(info.full_name));
+}
+
+
+// Compiles the program.
+//
+// The exit_code will always be 0, when 'outputed_binary_path' is non empty. 
+compile_program :: (test_result: *Test_Result, jai_path: string) -> (compile_process_result: Process_Result, outputed_binary_path: string)
+{
+  command := tprint("% %", jai_path, test_result.file_path);
+  command_split := split(command, " ",, temp);
+  // command := split(tprint("echo %", test_list[0]), " ",, temp);
+  print("Compiling: 'jai %' ... ", test_result.file_path);
+
+  // exit_code 
+  //    0 = success
+  //    1 = user error in source code
+  //    3 = internal compiler error
+  compile_process_result, 
+  output_string, 
+  error_string, 
+  timeout_reached := run_command(..command_split, 
+                                working_directory="", 
+                                capture_and_return_output=true, 
+                                print_captured_output=false,
+                                timeout_ms = 5000 // avoid infinite loops
+                                ,, temp);
+
+
+  if compile_process_result.type == .FAILED_TO_LAUNCH {
+      print_color("Could not run command: '%'\n", command, color=.RED);
+      return compile_process_result, "";
+  }
+
+  // Update test_result
+  test_result.compilation_exit_code = compile_process_result.exit_code;
+  passed_compilation_as_expected := compile_process_result.exit_code == test_result.expected_compilation_exit_code;
+  test_result.passed_test = passed_compilation_as_expected;
+  
+
+  // Only print if its a compiletime test
+  if !test_result.is_runtime_test
+  {
+    status_text := ifx passed_compilation_as_expected
+                  then "SUCCESS" 
+                  else tprint("FAILURE - Got Exit Code % (timeout reached: %), Expected %", 
+                              compile_process_result.exit_code, 
+                              timeout_reached,
+                              test_result.expected_compilation_exit_code);
+    color := ifx passed_compilation_as_expected then Console_Color.GREEN else .RED;
+    print_color(status_text, color=color);
+  }
+
+  print("\n"); // newline after status text or for runtime tests
+
+
+  // @todo remove this and move it to run_program, also remove its argumetn 
+  // Program to run if it exists after compilation
+#if OS == .WINDOWS {
+    program_path_to_run := tprint("%.exe", path_strip_extension(test_result.file_path));
+} else #if OS == .LINUX {
+    program_path_to_run := tprint("%", path_strip_extension(test_result.file_path));
+}
+
+  program_does_exist := file_exists(program_path_to_run);
+  // ignore outputed binary if its a compilation test
+  outputed_binary_path := ifx test_result.is_runtime_test && program_does_exist then program_path_to_run else "";
+  return compile_process_result, outputed_binary_path;
+}
+
+
+// runs the outputed binary and returns the results
+run_program :: (test_result: *Test_Result, program_path_to_run: string) -> (process_result: Process_Result)
+{
+  print("   Running:     '%' ... ", program_path_to_run);
+  if program_path_to_run == ""
+  {
+    print_color("ERROR: No executable found to run. Check that your test is corect.\n", color=.RED);
+    return .{};
+  }
+
+  process_result, 
+  output_string, 
+  error_string, 
+  timeout_reached := run_command(program_path_to_run,
+                                working_directory="", 
+                                capture_and_return_output=true, 
+                                print_captured_output=false,
+                                timeout_ms = 5000 // avoid infinite loops
+                                ,, temp);
+
+  if process_result.type == .FAILED_TO_LAUNCH {
+      print_color("Could not run command: \"%\"", program_path_to_run, color=.RED);
+      return process_result;
+  }
+
+
+  // print("Exit code: % (timeout reached: %)", process_result.exit_code, timeout_reached);
+
+  // Update test_result
+  test_result.run_exit_code = process_result.exit_code;
+  passed_run_as_expected := process_result.exit_code == test_result.expected_run_exit_code;
+  passed_compilation_as_expected := test_result.compilation_exit_code == test_result.expected_compilation_exit_code;
+  test_result.passed_test = passed_compilation_as_expected && passed_run_as_expected;
+
+
+  status_text := ifx passed_run_as_expected
+                then "SUCCESS" 
+                else tprint("FAILURE - Exit Code % (timeout reached: %)", process_result.exit_code, timeout_reached);
+  color := ifx passed_run_as_expected then Console_Color.GREEN else .RED;
+  print_color(status_text, color=color);
+  print("\n");
+
+  return process_result;
+}
+
+
+
+// Create the json file and write the results to it
+write_test_results :: (test_results: [..] Test_Result, filename: string)
+{
+  versionInfo: Version_Info;
+  current_compiler_version := compiler_get_version_info(*versionInfo);
+  found:, current_compiler_version = split_from_left(current_compiler_version, ",",, temp);
+  current_compiler_version = replace(current_compiler_version, " ", "-",, temp);
+
+  // parse_version :: (version_string: string) -> Version_Info {
+  //   found, left, right := split_from_left(version_string, "-",, temp);
+  //   assert(found, "Could not parse version string: %", version_string);
+  //   versions := split(right, ".",, temp);
+  //   assert(versions.count == 3, "Invalid version string: %", version_string);
+  //   return .{
+  //     major = string_to_int(versions[0], 10, s32),
+  //     minor = string_to_int(versions[1], 10, s32),
+  //     micro = string_to_int(versions[2], 10, s32)
+  //   };
+  // }
+
+  test_results_all_issues: [..] Test_Results_Per_Issue;
+  defer array_free(test_results_all_issues);
+
+  for test_result: test_results
+  {
+    // Check if the issue already exists, could happen in case of an added test
+    // @performance could get sped up
+    found_index := -1;
+    for test_results_all_issues
+    {
+      if it.issue_number == test_result.issue_number
+      {
+        found_index = it_index;
+        break;
+      }
+    }
+
+    test_results_per_issue: *Test_Results_Per_Issue;
+    if found_index == -1
+    {
+      test_results_per_issue = array_add(*test_results_all_issues);
+      test_results_per_issue.issue_number = test_result.issue_number;
+      test_results_per_issue.file_path = test_result.file_path;
+    }
+    else
+    {
+      test_results_per_issue = *test_results_all_issues[found_index];
+    }
+    
+
+
+    // Check if the version already exists
+    // This is always fast since its a very small list, most of the time 1 entry
+    found_index = -1;
+    for test_results_per_issue.results
+    {
+      if it.version == current_compiler_version
+      {
+        found_index = it_index;
+        break;
+      }
+    }
+
+    test_results_per_version: *Test_Results_Per_Version;
+    if found_index == -1
+    {
+      test_results_per_version = array_add(*test_results_per_issue.results);
+      test_results_per_version.version = current_compiler_version;
+    }
+    else
+    {
+      test_results_per_version = *test_results_per_issue.results[found_index];
+    }
+
+
+    // populate platform specific results
+#if OS == .WINDOWS {
+    results := *test_results_per_version.windows;
+} else #if OS == .LINUX {
+    results := *test_results_per_version.linux;
+}
+    array_add(results, test_result);
+  }
+
+
+
+
+
+  root_obj := New(JSON_Object);
+  root_value := json_value(root_obj);
+  defer { json_free(root_value); }
+
+  // for test_results_all_issues
+  // {
+  //   issue: JSON_Value;
+  //   issue_json_string := json_write_string(it,, temp);
+  //   success:, issue = json_parse_string(issue_json_string);
+  //   assert(success, "Could not parse json string. Should never happen.");
+  //   json_set(root_obj, sprint("%", it.issue_number), issue);
+  // }
+
+  for test_results
+  {
+    print("issue_number: %\n", it.issue_number);
+    // Get or create the issue object
+    issue_obj := New(JSON_Object);
+    issue_value := json_value(issue_obj);
+    json_set(root_obj, sprint("%", it.issue_number), issue_value);
+
+    // Add the issue number
+    json_set(issue_obj, copy_string("issue_number"), .{type=.NUMBER, number=xx it.issue_number});
+    // Add the file path
+    json_set(issue_obj, copy_string("file_path"), json_value(copy_string(it.file_path)));
+
+
+    // Get or create the version object
+    version_obj := New(JSON_Object);
+    version_value := json_value(version_obj);
+    json_set(issue_obj, copy_string(current_compiler_version), version_value, true);
+
+#if OS == .WINDOWS {
+      current_platform := copy_string("windows");
+} else #if OS == .LINUX {
+      current_platform := copy_string("linux");
+}
+    test_result_string := json_write_string(it);
+    success, test_result_value := json_parse_string(test_result_string);
+    assert(success, "Could not parse json string. Should never happen.");
+    json_set(version_value.object, current_platform, test_result_value);
+  }
+
+  traverse_node(root_value, 0);
+
+  success := json_write_file(filename, root_value, indent_char = "  ");
+  assert(success, "Could not write to file: '%'", filename);
+}
+
+
+get :: (json_val: JSON_Value, key: string, expected_type: JSON_Type) -> JSON_Value {
+  assert(json_val.type == .OBJECT);
+  table := json_val.object;
+  val, success := table_find(table, key);
+  if success  assert(val.type == expected_type);
+  else        json_set_null(*val);
+  return val;
+}
+
+traverse_node :: (node: JSON_Value, depth: int) 
+{
+  INDENTATION :: 4;
+  print("% ", node.type);
+
+  if node.type == 
+  {
+    case .NULL;
+      print("\n");
+    case .BOOLEAN;
+      print("%\n", node.boolean);
+    case .NUMBER;
+      print("%\n", node.number);
+    case .STRING;
+      print("%\n", node.str);
+
+    case .OBJECT;
+      print("{\n");
+      for node.object
+      {
+        for 1..(depth+1)*INDENTATION		print(" ");
+        print("%: ", it_index);
+        traverse_node(it, depth+1);
+      }
+      for 1..depth*INDENTATION		print(" ");
+      print("}\n");
+
+    case .ARRAY;
+      print("[\n");
+      for node.array {
+        for 1..(depth+1)*INDENTATION		print(" ");
+          traverse_node(it, depth + 1);
+      }
+      for 1..depth*INDENTATION		print(" ");
+      print("]\n");
+  }
+}
 
 #import "Jaison";
 #import "Compiler";
@@ -372,5 +565,6 @@ Test_Result_Sets_Per_Platform :: struct {
 #import "Process";
 #import "String";
 #import "Print_Color";
-#import "Basic";
+#import "Basic"()(MEMORY_DEBUGGER=true);
 #import "System";
+#import "Hash_Table";

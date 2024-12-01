@@ -1,0 +1,30 @@
+{
+  "263": {
+    "beta-0.1.096": {
+      "windows": {
+        "compilation_exit_code": 0,
+        "expected_compilation_exit_code": 0,
+        "expected_run_exit_code": 0,
+        "is_runtime_test": false,
+        "passed_test": true,
+        "run_exit_code": -1
+      }
+    },
+    "file_path": "compiler_bugs/CEC0_263.jai",
+    "issue_number": 263
+  },
+  "264": {
+    "beta-0.1.096": {
+      "windows": {
+        "compilation_exit_code": 0,
+        "expected_compilation_exit_code": 0,
+        "expected_run_exit_code": 0,
+        "is_runtime_test": true,
+        "passed_test": false,
+        "run_exit_code": 1
+      }
+    },
+    "file_path": "compiler_bugs/REC0_264.jai",
+    "issue_number": 264
+  }
+}
