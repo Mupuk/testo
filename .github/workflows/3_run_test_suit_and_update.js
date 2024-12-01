@@ -196,7 +196,6 @@ const runTestSuitAndGatherOutput = async ({ github, context, exec, io }) => {
   } catch (err) {
     console.error('Error reading file:', err);
   }
-  console.log('newTestResults', JSON.stringify(newTestResults, null, 2));
 
 
   const oldTestIssueNumbers = Object.keys(oldTestResults);
@@ -206,6 +205,8 @@ const runTestSuitAndGatherOutput = async ({ github, context, exec, io }) => {
   const newIssueNumbers = newTestIssueNumbers.filter(
     (item) => !oldTestIssueNumbers.includes(item),
   );
+
+  console.log('newIssueNumbers', JSON.stringify(newIssueNumbers, null, 2));
 
   // // Find all tests that were removed
   // const removedIssueNumbers = oldTestIssueNumbers.filter(
@@ -834,7 +835,7 @@ const updateGithubIssuesAndFiles = async ({
 
   // Update test_results.json
   const { data: oldData } = await github.rest.repos
-    .getContent({ ...context.repo, path: 'test_results.json' })
+    .getContent({ ...context.repo, path: 'old_test_results.json' })
     .catch(() => ({ data: null }));
 
   const windowsTestResultContent = fs.readFileSync(
