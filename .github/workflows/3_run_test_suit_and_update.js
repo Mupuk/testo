@@ -579,6 +579,7 @@ const updateGithubIssuesAndFiles = async ({
   } catch (err) {
     console.error('Error reading file:', err);
   }
+  console.log('windowsTestResults', windowsTestResults, JSON.stringify(issue, null, 2));
 
   let linuxTestResults = {};
   try {
@@ -587,6 +588,7 @@ const updateGithubIssuesAndFiles = async ({
   } catch (err) {
     console.error('Error reading file:', err);
   }
+  console.log('linuxTestResults', linuxTestResults, JSON.stringify(issue, null, 2));
 
   let allTestResults = deepMerge(windowsTestResults, linuxTestResults);
   console.log('allTestResults', allTestResults, JSON.stringify(issue, null, 2));
