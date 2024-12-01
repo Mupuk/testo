@@ -379,11 +379,11 @@ const runTestSuitAndGatherOutput = async ({ github, context, exec, io }) => {
     try {
       const data = fs.readFileSync('test_results.json', 'utf8');
       newTestResults = JSON.parse(data);
-      console.log('Updated newTestResults', JSON.stringify(newTestResults, null, 2));
     } catch (err) {
       console.error('Error reading file:', err);
     }
   }
+  console.log('newTestResults', JSON.stringify(newTestResults, null, 2));
 
 
 
