@@ -635,7 +635,7 @@ const updateGithubIssuesAndFiles = async ({
     (issueNumber) => {
       // Only compare latest version
       const oldResults = oldTestResults[issueNumber][currentJaiVersion];
-      const newResults = newTestResults[issueNumber][currentJaiVersion];
+      const newResults = allTestResults[issueNumber][currentJaiVersion];
       return !isDeepEqual(oldResults, newResults);
     },
   );
