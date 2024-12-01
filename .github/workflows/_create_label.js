@@ -31,8 +31,8 @@ const createLabels = async ({ github, context, labelNames }) => {
 };
 
 const createCurrentCompilerVersionLabel = async ({ github, context, exec }) => {
-  const { jaiVersion: getJaiVersion } = require('./_utils.js');
-  const jaiVersion = await getJaiVersion({ exec });
+  const { getCurrentJaiVersion } = require('./_utils.js');
+  const jaiVersion = await getCurrentJaiVersion({ exec });
   await createLabel({ github, context, labelName: jaiVersion });
   return jaiVersion;
 };

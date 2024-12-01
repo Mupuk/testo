@@ -204,10 +204,16 @@ json_write_json_value :: (builder: *String_Builder, using val: JSON_Value, inden
 	}
 }
 
-json_set :: (obj: *JSON_Object, path: string, val: JSON_Value, ignore_dot:=false) -> bool {
-	dotpos := find_index_from_left(path, #char ".");
-	if ignore_dot || dotpos == -1 {
-		table_set(obj, path, val);
+json_set :: (obj: *JSON_Object, path: string, val: JSON_Value, dot_character: u8=#char ".") -> bool {
+	dotpos := find_index_from_left(path, dot_character);
+	if dotpos == -1 {
+		// Free old value so it doesnt get orphaned
+		old_value, success := table_find(obj, path);
+		if success then json_free(old_value);
+
+		// We only need to copy when we are adding a new value
+		key := ifx success then path else copy_string(path);
+		table_set(obj, key, val);
 		return true;
 	}
 
@@ -225,10 +231,10 @@ json_set :: (obj: *JSON_Object, path: string, val: JSON_Value, ignore_dot:=false
 		next_obj = cast(*JSON_Object) alloc(size_of(JSON_Object));
 		memset(next_obj, 0, size_of(JSON_Object));
 		next_value = json_value(next_obj);
-		table_add(obj, next, next_value);
+		table_add(obj, copy_string(next), next_value);
 	}
 
-	return json_set(next_obj, remainder, val);
+	return json_set(next_obj, remainder, val, dot_character);
 }
 
 get_as :: (val: JSON_Value, $T: Type) -> T {

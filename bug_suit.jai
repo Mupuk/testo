@@ -6,6 +6,12 @@
 // Files must have a prefix of the form [C|R]EC<exit_code>_<issue_number>.jai
 // Files that start with "CEC" are expected to compile with the exit code that follows
 // Files that start with "REC" are expected to run with the exit code that follows
+//
+// you can pass the test suit a single file to run, instead of running all tests
+//       jai bug_suit.jai - <file_to_run>
+//
+// The results are written to 'test_results.json'. If it already exists, existing 
+// results are overwritten - otherwise they will be appended.
 
 Test_Result :: struct 
 {
@@ -34,7 +40,7 @@ Test_Result :: struct
   // Don't output anything
   set_build_options_dc(.{do_output=false, write_added_strings=false});
 
-  // Only those platforms are supported
+  // Only those platforms are supported :platformSpecific
   #assert OS == .WINDOWS || OS == .LINUX;
   
   
@@ -46,6 +52,10 @@ Test_Result :: struct
 
 
   jai_path := get_path_of_running_executable();
+
+  
+  args := get_build_options().compile_time_command_line;
+  print("Running bug suit with args: %\n", args);
 
 
 
@@ -65,7 +75,12 @@ Test_Result :: struct
     array_free(test_file_list);
   }
 
-  visit_files("compiler_bugs", false, *test_file_list, find_all_tests_visitor, visit_directories=true);
+  // If no arguments are passed, run all the tests
+  // Otherwise run the test that was passed as an argument
+  if args.count == 0
+    visit_files("compiler_bugs", false, *test_file_list, find_all_tests_visitor, visit_directories=true);
+  else
+    array_add(*test_file_list, copy_string(args[0]));
 
   // Used for checking if issue numbers are unique
   unique_issue_numbers: [..] int;
@@ -108,7 +123,6 @@ Test_Result :: struct
       }
       else
       {
-        //@todo think about this
         assert(false, "File name does not start with 'CEC' or 'REC'. File: '%'", filename);
       }
     }
@@ -119,29 +133,34 @@ Test_Result :: struct
     // compile and run the program
     //
 
-    compile_process_result, outputed_binary_path := compile_program(*test_result, jai_path);
+    is_broken := false;
+
+    compile_process_result := compile_program(*test_result, jai_path);
     if compile_process_result.type == .FAILED_TO_LAUNCH
     {
       array_add(*broken_tests, file_path_to_compile);
-      continue;
+      is_broken = true;
     }
 
     // make sure this runs only when file exists and is expected to compile
     if test_result.is_runtime_test 
     {
-      run_process_result := run_program(*test_result, outputed_binary_path);
+      run_process_result := run_program(*test_result);
       if run_process_result.type == .FAILED_TO_LAUNCH
       {
         array_add(*broken_tests, file_path_to_compile);
-        continue;
+        is_broken = true;
       }
     }
       
 
-    if test_result.passed_test
-      succeeded += 1;
-    else
-      failed += 1;
+    if !is_broken 
+    {
+      if test_result.passed_test
+        succeeded += 1;
+      else
+        failed += 1;
+    }
 
     array_add(*test_results, test_result);
   }
@@ -152,14 +171,14 @@ Test_Result :: struct
   // output test result json
   //
 
-  write_test_results(test_results, "last_test_results.json");
+  write_test_results(test_results, "test_results.json");
 
 
 
   // Cleanup
   {
     DIRS_TO_DELETE_RECURSIVELY :: string.[".bin", ".build"];
-    EXTENSIONS_TO_DELETE_RECURSIVELY :: string.["exe", "obj", "pdb", "lib", "dll"]; // @todo platform specific
+    EXTENSIONS_TO_DELETE_RECURSIVELY :: string.["exe", "obj", "pdb", "lib", "dll"]; // :platformSpecific
 
     cleanup_visitor :: (info: *File_Visit_Info, data: *void) {
       // Ignore directories starting with "_" or ".", delete .bin and .build directories
@@ -229,7 +248,7 @@ find_all_tests_visitor :: (info: *File_Visit_Info, test_list: *[..] string)
 
   if info.is_directory
   {
-    entry_file := tprint("%/first.jai", info.full_name);
+    entry_file := sprint("%/first.jai", info.full_name);
     if (file_exists(entry_file))
       array_add(test_list, entry_file);
     else
@@ -243,7 +262,7 @@ find_all_tests_visitor :: (info: *File_Visit_Info, test_list: *[..] string)
 // Compiles the program.
 //
 // The exit_code will always be 0, when 'outputed_binary_path' is non empty. 
-compile_program :: (test_result: *Test_Result, jai_path: string) -> (compile_process_result: Process_Result, outputed_binary_path: string)
+compile_program :: (test_result: *Test_Result, jai_path: string) -> (compile_process_result: Process_Result)
 {
   command := tprint("% %", jai_path, test_result.file_path);
   command_split := split(command, " ",, temp);
@@ -267,7 +286,7 @@ compile_program :: (test_result: *Test_Result, jai_path: string) -> (compile_pro
 
   if compile_process_result.type == .FAILED_TO_LAUNCH {
       print_color("Could not run command: '%'\n", command, color=.RED);
-      return compile_process_result, "";
+      return compile_process_result;
   }
 
   // Update test_result
@@ -276,8 +295,16 @@ compile_program :: (test_result: *Test_Result, jai_path: string) -> (compile_pro
   test_result.passed_test = passed_compilation_as_expected;
   
 
+  // :platformSpecific
+#if OS == .WINDOWS {
+    program_path_to_run := tprint("%.exe", path_strip_extension(test_result.file_path));
+} else #if OS == .LINUX {
+    program_path_to_run := tprint("%", path_strip_extension(test_result.file_path));
+}
+  program_does_exist := file_exists(program_path_to_run);
+
   // Only print if its a compiletime test
-  if !test_result.is_runtime_test
+  if !test_result.is_runtime_test || test_result.is_runtime_test && !program_does_exist
   {
     status_text := ifx passed_compilation_as_expected
                   then "SUCCESS" 
@@ -291,31 +318,29 @@ compile_program :: (test_result: *Test_Result, jai_path: string) -> (compile_pro
 
   print("\n"); // newline after status text or for runtime tests
 
+  return compile_process_result;
+}
 
-  // @todo remove this and move it to run_program, also remove its argumetn 
-  // Program to run if it exists after compilation
+
+// runs the outputed binary and returns the results
+run_program :: (test_result: *Test_Result) -> (process_result: Process_Result)
+{
 #if OS == .WINDOWS {
     program_path_to_run := tprint("%.exe", path_strip_extension(test_result.file_path));
 } else #if OS == .LINUX {
     program_path_to_run := tprint("%", path_strip_extension(test_result.file_path));
 }
-
   program_does_exist := file_exists(program_path_to_run);
-  // ignore outputed binary if its a compilation test
-  outputed_binary_path := ifx test_result.is_runtime_test && program_does_exist then program_path_to_run else "";
-  return compile_process_result, outputed_binary_path;
-}
 
 
-// runs the outputed binary and returns the results
-run_program :: (test_result: *Test_Result, program_path_to_run: string) -> (process_result: Process_Result)
-{
-  print("   Running:     '%' ... ", program_path_to_run);
-  if program_path_to_run == ""
+  print("   Running:     ");
+  if !program_does_exist
   {
-    print_color("ERROR: No executable found to run. Check that your test is corect.\n", color=.RED);
-    return .{};
+    print_color("ERROR: '%' was not found. Make sure your test compiles.\n", program_path_to_run, color=.YELLOW);
+    return .{ type=.FAILED_TO_LAUNCH };
   }
+
+  print("'%' ... ", program_path_to_run);
 
   process_result, 
   output_string, 
@@ -357,87 +382,49 @@ run_program :: (test_result: *Test_Result, program_path_to_run: string) -> (proc
 // Create the json file and write the results to it
 write_test_results :: (test_results: [..] Test_Result, filename: string)
 {
-  current_compiler_version := compiler_get_version_info(null);
+  // Get the current compiler version
+  current_compiler_version := copy_temporary_string(compiler_get_version_info(null));
   found:, current_compiler_version = split_from_left(current_compiler_version, ",",, temp);
-  current_compiler_version = replace(current_compiler_version, " ", "-",, temp);
+  replace_chars(current_compiler_version, " ", #char "-");
 
-
-  root_obj := New(JSON_Object);
-  root_value := json_value(root_obj);
+  // Load file if possible, otherwise create a new one
+  parse_success, root_value := json_parse_file(filename);
+  root_obj := ifx parse_success then root_value.object else New(JSON_Object);
+  root_value = json_value(root_obj);
   defer { json_free(root_value); }
 
+  // Add all the test results to the json file, overwriting existing ones
   for test_results
   {
-    // Create the issue object
-    issue_obj := New(JSON_Object);
-    issue_value := json_value(issue_obj);
-    json_set(root_obj, sprint("%", it.issue_number), issue_value);
-    // Add the issue number
-    json_set(issue_obj, copy_string("issue_number"), .{type=.NUMBER, number=xx it.issue_number});
-    // Add the file path
-    json_set(issue_obj, copy_string("file_path"), json_value(copy_string(it.file_path)));
-
-
-    // Create the version object
-    version_obj := New(JSON_Object);
-    version_value := json_value(version_obj);
-    json_set(issue_obj, copy_string(current_compiler_version), version_value, true);
-
-    // Create the test result object under the current platform
+// :platformSpecific
 #if OS == .WINDOWS {
-      current_platform := copy_string("windows");
+      current_platform := "windows";
 } else #if OS == .LINUX {
-      current_platform := copy_string("linux");
+      current_platform := "linux";
 }
+    // File Path
+    json_set(root_obj, 
+             tprint("%!file_path", it.issue_number), 
+             json_value(copy_string(it.file_path)),
+             dot_character=#char "!"); // ignore dots from version number
+
+    // Issue Number
+    json_set(root_obj, 
+             tprint("%!issue_number", it.issue_number), 
+             .{ type=.NUMBER, number= xx it.issue_number },
+             dot_character=#char "!"); // ignore dots from version number
+
+    // Test Result
     test_result_string := json_write_string(it,, temp);
     success, test_result_value := json_parse_string(test_result_string);
-    assert(success, "Could not parse json string. Should never happen.");
-    json_set(version_value.object, current_platform, test_result_value);
+    json_set(root_obj, 
+             tprint("%!%!%", it.issue_number, current_compiler_version, current_platform), 
+             test_result_value,
+             dot_character=#char "!"); // ignore dots from version number
   }
-
-  // traverse_node(root_value, 0);
 
   success := json_write_file(filename, root_value, indent_char = "  ");
   assert(success, "Could not write to file: '%'", filename);
-}
-
-
-traverse_node :: (node: JSON_Value, depth: int) 
-{
-  INDENTATION :: 4;
-  print("% ", node.type);
-
-  if node.type == 
-  {
-    case .NULL;
-      print("\n");
-    case .BOOLEAN;
-      print("%\n", node.boolean);
-    case .NUMBER;
-      print("%\n", node.number);
-    case .STRING;
-      print("%\n", node.str);
-
-    case .OBJECT;
-      print("{\n");
-      for node.object
-      {
-        for 1..(depth+1)*INDENTATION		print(" ");
-        print("%: ", it_index);
-        traverse_node(it, depth+1);
-      }
-      for 1..depth*INDENTATION		print(" ");
-      print("}\n");
-
-    case .ARRAY;
-      print("[\n");
-      for node.array {
-        for 1..(depth+1)*INDENTATION		print(" ");
-          traverse_node(it, depth + 1);
-      }
-      for 1..depth*INDENTATION		print(" ");
-      print("]\n");
-  }
 }
 
 #import "Jaison";
@@ -447,6 +434,6 @@ traverse_node :: (node: JSON_Value, depth: int)
 #import "Process";
 #import "String";
 #import "Print_Color";
-#import "Basic"()(MEMORY_DEBUGGER=true);
+#import "Basic"()(MEMORY_DEBUGGER=true, TEMP_ALLOCATOR_POISON_FREED_MEMORY=true);
 #import "System";
 #import "Hash_Table";
