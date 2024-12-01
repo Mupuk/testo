@@ -3,14 +3,13 @@
 #
 
 # [x] make bug_suit output new structure
-# [ ] checkout if its a problem that ECX refers to both run and compilation code
-# [ ] cleanup bugsuit
+# [x] cleanup bugsuit
 # [ ] cleanup and rework (1)
 # [ ] cleanup and rework (2)
 # [ ] cleanup and rework (2.1)
 # [ ] cleanup and rework (3)
 # [ ] change emailed in handling and add lable for it
-# [ ] 
+# [ ] update issue template to support is_runtime_test
 # [ ] 
 # [ ] 
 # [ ] 
