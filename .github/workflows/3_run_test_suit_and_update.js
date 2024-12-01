@@ -133,10 +133,7 @@ const handleNewTests = ({ newTestResults, newTestIssueNumbers, platform, current
 const runTestSuitAndGatherOutput = async ({ github, context, exec, io }) => {
   const path = require('path');
   const fs = require('fs');
-  const { isDeepEqual, getCurrentJaiVersion, decrementVersionString } = require('./_utils.js');
-
-  // const testSuitOutput = {};
-
+  const { getCurrentJaiVersion, decrementVersionString } = require('./_utils.js');
 
   const platform = process.env.RUNNER_OS.toLowerCase();
   console.log(`Running on platform: ${platform}`);
@@ -187,6 +184,8 @@ const runTestSuitAndGatherOutput = async ({ github, context, exec, io }) => {
   // Run test suit 
   await exec.exec(`${compilerPath} bug_suit.jai`, [], options);
 
+
+
   // Get new test results
   // NOTE: this data could get extended in the handling code of new tests, to 
   //       add more results of older compiler versions!
@@ -206,8 +205,42 @@ const runTestSuitAndGatherOutput = async ({ github, context, exec, io }) => {
   const newIssueNumbers = newTestIssueNumbers.filter(
     (item) => !oldTestIssueNumbers.includes(item),
   );
-
   console.log('newIssueNumbers', JSON.stringify(newIssueNumbers, null, 2));
+
+  // Run the test suit for all older compiler versions for each new test
+  for (const currentIssueNumber of newIssueNumbers) {
+    console.log('handle newTest', JSON.stringify(newTestResults[currentIssueNumber], null, 2));
+
+    // Run older compiler versions for this test
+    let suffix = '';
+    if (platform === 'linux') suffix = '-linux';
+    if (platform === 'macos') suffix = '-macos';
+    let tempVersion = currentJaiVersion;
+    const filePath = newTestResults[currentIssueNumber].file_path;
+
+    while (true) {
+      const extension = path.extname(compilerPath);
+      tempVersion = decrementVersionString(tempVersion);
+      const newCompilerPath =
+      path.resolve(compilerPath, '..', '..', '..', `jai-${tempVersion}/bin`)
+      + `${path.sep}jai${suffix}${extension}`;
+      
+      if (!fs.existsSync(newCompilerPath))  break;
+      console.log('Running for version:', tempVersion);
+      console.log('newCompilerPath', newCompilerPath);
+      await exec.exec(`${newCompilerPath} bug_suit.jai - ${filePath}`, [], options);
+    }
+  }
+  
+  if (newIssueNumbers.length > 0) {
+    try {
+      const data = fs.readFileSync('test_results.json', 'utf8');
+      newTestResults = JSON.parse(data);
+    } catch (err) {
+      console.error('Error reading file:', err);
+    }
+  }
+  console.log('newTestResults', JSON.stringify(newTestResults, null, 2));
 
   // // Find all tests that were removed
   // const removedIssueNumbers = oldTestIssueNumbers.filter(
@@ -352,39 +385,6 @@ const runTestSuitAndGatherOutput = async ({ github, context, exec, io }) => {
 
   // Handle all new Tests
   // handleNewTests({ newTestResults, newTestIssueNumbers, platform, currentJaiVersion, github, context});
-  for (const currentIssueNumber of newIssueNumbers) {
-    console.log('handle newTest', JSON.stringify(newTestResults[currentIssueNumber], null, 2));
-
-    // Run older compiler versions for this test
-    let suffix = '';
-    if (platform === 'linux') suffix = '-linux';
-    if (platform === 'macos') suffix = '-macos';
-    let tempVersion = currentJaiVersion;
-    const filePath = newTestResults[currentIssueNumber].file_path;
-
-    while (true) {
-      const extension = path.extname(compilerPath);
-      tempVersion = decrementVersionString(tempVersion);
-      const newCompilerPath =
-      path.resolve(compilerPath, '..', '..', '..', `jai-${tempVersion}/bin`)
-      + `${path.sep}jai${suffix}${extension}`;
-      
-      if (!fs.existsSync(newCompilerPath))  break;
-      console.log('Running for version:', tempVersion);
-      console.log('newCompilerPath', newCompilerPath);
-      await exec.exec(`${newCompilerPath} bug_suit.jai - ${filePath}`, [], options);
-    }
-  }
-  
-  if (newIssueNumbers.length > 0) {
-    try {
-      const data = fs.readFileSync('test_results.json', 'utf8');
-      newTestResults = JSON.parse(data);
-    } catch (err) {
-      console.error('Error reading file:', err);
-    }
-  }
-  console.log('newTestResults', JSON.stringify(newTestResults, null, 2));
 
 
 
@@ -579,7 +579,7 @@ const updateGithubIssuesAndFiles = async ({
   } catch (err) {
     console.error('Error reading file:', err);
   }
-  console.log('windowsTestResults', JSON.stringify(windowsTestResults, null, 2));
+  // console.log('windowsTestResults', JSON.stringify(windowsTestResults, null, 2));
 
   let linuxTestResults = {};
   try {
@@ -588,10 +588,71 @@ const updateGithubIssuesAndFiles = async ({
   } catch (err) {
     console.error('Error reading file:', err);
   }
-  console.log('linuxTestResults', JSON.stringify(linuxTestResults, null, 2));
+  // console.log('linuxTestResults', JSON.stringify(linuxTestResults, null, 2));
 
   let allTestResults = deepMerge(windowsTestResults, linuxTestResults);
   console.log('allTestResults', JSON.stringify(allTestResults , null, 2));
+
+
+
+  //
+  // Find all new, changed and removed tests
+  //
+
+  let oldTestResults = {};
+  try {
+    const data = fs.readFileSync('old_test_results.json', 'utf8');
+    oldTestResults = JSON.parse(data);
+  } catch (err) {
+    console.error('Error reading file:', err);
+  }
+
+  const oldTestIssueNumbers = Object.keys(oldTestResults);
+  const newTestIssueNumbers = Object.keys(allTestResults);
+
+  // Find all tests that were added. We need this to gather extra results
+  const newIssueNumbers = newTestIssueNumbers.filter(
+    (item) => !oldTestIssueNumbers.includes(item),
+  );
+  console.log('newIssueNumbers', JSON.stringify(newIssueNumbers, null, 2));
+
+  // Find all tests that were removed
+  const removedIssueNumbers = oldTestIssueNumbers.filter(
+    (item) => !newTestIssueNumbers.includes(item),
+  );
+  console.log('removedIssueNumbers', JSON.stringify(removedIssueNumbers, null, 2));
+
+  // All issues that existed both in old and new test results
+  const commonIssueNumbers = oldTestIssueNumbers.filter(
+    (item) => newTestIssueNumbers.includes(item),
+  );
+  console.log('commonIssueNumbers', JSON.stringify(commonIssueNumbers, null, 2));
+  
+  // @todo think about how this will work. Can we expect that all platforms are present?
+  //       Maybe just compare one? Make sure theres as few api calls as possible
+  // Find all tests that had a new result in the new test results
+  const changedIssueNumbers = commonIssueNumbers.filter(
+    (issueNumber) => {
+      // Only compare latest version
+      const oldResults = oldTestResults[issueNumber][currentJaiVersion];
+      const newResults = newTestResults[issueNumber][currentJaiVersion];
+      return !isDeepEqual(oldResults, newResults);
+    },
+  );
+  console.log('changedIssueNumbers', JSON.stringify(changedIssueNumbers, null, 2));
+
+
+
+
+
+
+
+
+
+
+
+
+
 
   // const mergedPlatformIssues = {
   //   // issueId: {
