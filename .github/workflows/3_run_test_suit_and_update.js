@@ -144,6 +144,7 @@ const runTestSuitAndGatherOutput = async ({ github, context, exec, io }) => {
   // Jai Version
   const currentJaiVersion = await getCurrentJaiVersion({ exec });
 
+
   // Get old state of test results
   // FORMAT: 
   // {
@@ -565,301 +566,322 @@ const updateGithubIssuesAndFiles = async ({
   // testSuitOutputs,
 }) => {
   const fs = require('fs');
-  const { isDeepEqual } = require('./_utils.js');
+  const { isDeepEqual, deepMerge } = require('./_utils.js');
   const { createLabels } = require('./_create_label.js');
   // console.log('testSuitOutput', JSON.stringify(testSuitOutputs, null, 2));
 
-  const mergedPlatformIssues = {
-    // issueId: {
-    //   newLabels: [],
-    //   historyEntries: [
-    //     {
-    //        passedTest: '✅',
-    //        platforms: 'windows, linux',
-    //        date: '2021-09-07',
-    //        version: '0.1.093',
-    //        errorCode: '0',
-    //        expectedErrorCode: '0'
-    //     }
-    //   ]
-    // }
-  };
-
-  // Gather all isssue data from all platforms
-  for (const platform in testSuitOutputs) {
-    console.log('platform', platform);
-    for (const issue of testSuitOutputs[platform]?.issues || []) {
-      console.log('issue', issue);
-      // All issues contain the updated history for each platform, we need to merge them
-      // to do that, we combine them into one object and then reduce them to the last entry per platform.
-      // While doing that, we also remove dublicates, and merge entries when possible
-      mergedPlatformIssues[issue.issueId] ||= {
-        newLabels: [],
-        newIssueStates: [],
-        historyEntries: [],
-        newCommentBodies: [],
-      };
-      // Add all labels except those of other platforms, because they could be outdated
-      mergedPlatformIssues[issue.issueId].newLabels.push(
-        ...issue.newLabels.filter(
-          (l) =>
-            !Object.keys(testSuitOutputs)
-              .filter((l) => l !== platform)
-              .includes(l),
-        ),
-      );
-      mergedPlatformIssues[issue.issueId].newCommentBodies.push(
-        issue.newCommentBody,
-      );
-      mergedPlatformIssues[issue.issueId].newIssueStates.push(
-        issue.newIssueState,
-      );
-
-      [...issue.newCommentBody.matchAll(parseIssueHistoryRegex)]
-        .map((e) => e.groups)
-        .forEach((g) => {
-          const passedTest = g.passedTest;
-          const platforms = g.platforms;
-          const date = g.date;
-          const version = g.version;
-          const errorCode = g.errorCode;
-          const expectedErrorCode = g.expectedErrorCode;
-
-          mergedPlatformIssues[issue.issueId].historyEntries.push({
-            passedTest,
-            platforms,
-            date,
-            version,
-            errorCode,
-            expectedErrorCode,
-          });
-        });
-
-      // const lastHistoryEntryOfPCurrentlatform = [...issue.newCommentBody.matchAll(parseIssueHistoryRegex)]
-      //   .map(match => match.groups) // Extract groups
-      //   .reduce((acc, item, i) => { // Reduce to last entry per platform
-      //     const platforms = item.platforms.split(',').map(p => p.trim()); // In case platforms are comma-separated
-      //     platforms.forEach(platform => {
-      //       if (!acc[platform]) {
-      //         acc[platform] = item;
-      //         acc[platform]['index'] = i; // Add row index for later use
-      //       }
-      //     });
-      //     return acc;
-      //   }, {})[platform];
-
-      // issue.newCommentBody = issue.newCommentBody.replace(parseIssueHeaderStatusRegex, (match, emailedIn, lastBrokenPlatforms, lastEncounteredVersion, fixVersion) => {
-      //   lastBrokenPlatforms = platform;
-      //   // Since its a new bug, we know the latest version is broken so we use it here
-      //   lastEncounteredVersion = currentVersion;
-      //   return `| ${emailedIn} | ${lastBrokenPlatforms} | ${lastEncounteredVersion} | ${fixVersion} |`;
-      // })
-    }
+  
+  // Load all results from each platform, and merge them  :platformSpecific
+  let windowsTestResults = {};
+  try {
+    const data = fs.readFileSync('windows/test_results.json', 'utf8');
+    windowsTestResults = JSON.parse(data);
+  } catch (err) {
+    console.error('Error reading file:', err);
   }
 
-  // Merge all information and update issues accordingly
-  for (const issueId in mergedPlatformIssues) {
-    const issue = mergedPlatformIssues[issueId];
-    console.log('issue', issueId, JSON.stringify(issue, null, 2));
-
-    // Remove duplicates from history, and merge entries when all fields except platforms are the same
-    const mergedHistoryEntries = issue.historyEntries.reduce((acc, item) => {
-      const existingEntry = acc.reverse().find(
-        (e) =>
-          e.passedTest === item.passedTest &&
-          // && e.date === item.date
-          e.version === item.version &&
-          e.errorCode === item.errorCode &&
-          e.expectedErrorCode === item.expectedErrorCode,
-      );
-
-      console.log('existingEntry', existingEntry);
-
-      if (existingEntry) {
-        // If they are the same, skip, otherwise merge platforms
-        if (existingEntry.platforms !== item.platforms) {
-          // Merge platforms
-          existingEntry.platforms = [
-            ...new Set(
-              existingEntry.platforms
-                .split(', ')
-                .concat(item.platforms.split(', ')),
-            ),
-          ]
-            .filter((p) => p !== '-')
-            .sort()
-            .join(', ');
-        }
-      } else {
-        acc.push(item);
-      }
-      return acc;
-    }, []);
-
-    // Sort latest date first and then by version
-    mergedHistoryEntries.sort((a, b) => {
-      if (a.date === b.date) {
-        return b.version.localeCompare(a.version);
-      }
-      return b.date.localeCompare(a.date);
-    });
-
-    console.log(
-      'mergedHistoryEntries',
-      issueId,
-      JSON.stringify(mergedHistoryEntries, null, 2),
-    );
-
-    let newCommentBody = issue.newCommentBodies[0];
-    // Remove all history entries from the body
-    newCommentBody = newCommentBody.replace(
-      /(?<=History$\s(?:.*$\s){2,})\|.*\s?/gim,
-      '',
-    );
-    // Add all updated history entries
-    mergedHistoryEntries.forEach((entry) => {
-      newCommentBody =
-        newCommentBody.trimEnd() +
-        `\n| ${entry.passedTest} | ${entry.platforms} | ${entry.date} | ${entry.version} | ${entry.errorCode} - Expected ${entry.expectedErrorCode} |`;
-    });
-
-    // Get last history entry of every platform
-    const lastHistoryEntryByPlatform = [
-      ...newCommentBody.matchAll(parseIssueHistoryRegex),
-    ]
-      .map((match) => match.groups) // Extract groups
-      .reduce((acc, item, i) => {
-        // Reduce to last entry per platform
-        const platforms = item.platforms.split(',').map((p) => p.trim()); // In case platforms are comma-separated
-        platforms.forEach((platform) => {
-          if (!acc[platform]) {
-            acc[platform] = item;
-            acc[platform]['index'] = i; // Add row index for later use
-          }
-        });
-        return acc;
-      }, {});
-    console.log('lastHistoryEntryByPlatform', lastHistoryEntryByPlatform);
-
-    const statusHeaders = issue.newCommentBodies
-      .reduce((acc, item) => {
-        acc.push(item.match(parseIssueHeaderStatusRegex).groups);
-        return acc;
-      }, [])
-      .reduce(
-        (acc, item) => {
-          // Make it SOA
-          acc.emailedIn.push(item.emailedIn);
-          acc.lastBrokenPlatforms.push(...item.lastBrokenPlatforms.split(', '));
-          acc.lastEncounteredVersion.push(item.lastEncounteredVersion);
-          acc.fixVersion.push(item.fixVersion);
-          return acc;
-        },
-        {
-          emailedIn: [],
-          lastBrokenPlatforms: [],
-          lastEncounteredVersion: [],
-          fixVersion: [],
-        },
-      );
-    console.log('statusHeaders', statusHeaders);
-
-    let mergedHeaderState;
-    if (issue.newIssueStates.some((v) => v === 'open')) {
-      // newly failed on any platform
-      mergedHeaderState = 'open';
-    } else if (
-      issue.newIssueStates.some((v) => v === 'closed') &&
-      lastHistoryEntryByPlatform.map((i) => i.every((v) => v === '✅'))
-    ) {
-      // newly fixed on all platforms
-      mergedHeaderState = 'closed';
-    } else {
-      mergedHeaderState = undefined; // even if some closed, its irrelevant if not all are closed
-    }
-    console.log('mergedHeaderState', mergedHeaderState);
-
-    // Update header by merging the status of all platforms
-    newCommentBody = newCommentBody.replace(
-      parseIssueHeaderStatusRegex,
-      (
-        match,
-        emailedIn,
-        lastBrokenPlatforms,
-        lastEncounteredVersion,
-        fixVersion,
-      ) => {
-        const newLastBrokenPlatforms =
-          [...new Set(statusHeaders.lastBrokenPlatforms)]
-            .filter((p) => p !== '-')
-            .sort()
-            .join(', ') || '-';
-        const newLastEncounteredVersion = statusHeaders.lastEncounteredVersion
-          .sort()
-          .reverse()[0]; // Take latest
-        const newFixVersion = statusHeaders.fixVersion.some((v) => v === '-')
-          ? '-'
-          : statusHeaders.fixVersion
-              .filter((v) => v !== '-')
-              .sort()
-              .reverse()[0];
-        const newEmailedIn =
-          mergedHeaderState === 'open'
-            ? '❌'
-            : mergedHeaderState === 'closed'
-            ? '✅'
-            : emailedIn;
-        return `| ${newEmailedIn} | ${newLastBrokenPlatforms} | ${newLastEncounteredVersion} | ${newFixVersion} |`;
-      },
-    );
-
-    // Create Labels
-    const uniqueLabels = [...new Set(issue.newLabels)]; // remove duplicates
-    await createLabels({ github, context, labelNames: uniqueLabels });
-
-    // Update Body
-    await github.rest.issues.update({
-      ...context.repo,
-      issue_number: issueId,
-      body: newCommentBody,
-      ...(mergedHeaderState
-        ? {
-            state: mergedHeaderState,
-            state_reason:
-              mergedHeaderState === 'open' ? 'reopened' : 'completed',
-          }
-        : {}),
-      labels: uniqueLabels,
-    });
+  let linuxTestResults = {};
+  try {
+    const data = fs.readFileSync('linux/test_results.json', 'utf8');
+    windowsTestResults = JSON.parse(data);
+  } catch (err) {
+    console.error('Error reading file:', err);
   }
 
-  // Update test_results.json
-  const { data: oldData } = await github.rest.repos
-    .getContent({ ...context.repo, path: 'old_test_results.json' })
-    .catch(() => ({ data: null }));
+  let allTestResults = deepMerge(windowsTestResults, linuxTestResults);
+  print("allTestResults", allTestResults);
 
-  const windowsTestResultContent = fs.readFileSync(
-    'windows/test_results.json',
-    'utf8',
-  );
-  const windowsTestResults = JSON.parse(windowsTestResultContent);
+  // const mergedPlatformIssues = {
+  //   // issueId: {
+  //   //   newLabels: [],
+  //   //   historyEntries: [
+  //   //     {
+  //   //        passedTest: '✅',
+  //   //        platforms: 'windows, linux',
+  //   //        date: '2021-09-07',
+  //   //        version: '0.1.093',
+  //   //        errorCode: '0',
+  //   //        expectedErrorCode: '0'
+  //   //     }
+  //   //   ]
+  //   // }
+  // };
 
-  const linuxTestResultContent = fs.readFileSync(
-    'linux/test_results.json',
-    'utf8',
-  );
-  const linuxTestResults = JSON.parse(linuxTestResultContent);
+  // // Gather all isssue data from all platforms
+  // for (const platform in testSuitOutputs) {
+  //   console.log('platform', platform);
+  //   for (const issue of testSuitOutputs[platform]?.issues || []) {
+  //     console.log('issue', issue);
+  //     // All issues contain the updated history for each platform, we need to merge them
+  //     // to do that, we combine them into one object and then reduce them to the last entry per platform.
+  //     // While doing that, we also remove dublicates, and merge entries when possible
+  //     mergedPlatformIssues[issue.issueId] ||= {
+  //       newLabels: [],
+  //       newIssueStates: [],
+  //       historyEntries: [],
+  //       newCommentBodies: [],
+  //     };
+  //     // Add all labels except those of other platforms, because they could be outdated
+  //     mergedPlatformIssues[issue.issueId].newLabels.push(
+  //       ...issue.newLabels.filter(
+  //         (l) =>
+  //           !Object.keys(testSuitOutputs)
+  //             .filter((l) => l !== platform)
+  //             .includes(l),
+  //       ),
+  //     );
+  //     mergedPlatformIssues[issue.issueId].newCommentBodies.push(
+  //       issue.newCommentBody,
+  //     );
+  //     mergedPlatformIssues[issue.issueId].newIssueStates.push(
+  //       issue.newIssueState,
+  //     );
 
-  const newTestResults = {
-    windows: windowsTestResults.windows,
-    linux: linuxTestResults.linux,
-  };
-  const newTestResultsContent = JSON.stringify(newTestResults, null, 2);
+  //     [...issue.newCommentBody.matchAll(parseIssueHistoryRegex)]
+  //       .map((e) => e.groups)
+  //       .forEach((g) => {
+  //         const passedTest = g.passedTest;
+  //         const platforms = g.platforms;
+  //         const date = g.date;
+  //         const version = g.version;
+  //         const errorCode = g.errorCode;
+  //         const expectedErrorCode = g.expectedErrorCode;
 
-  if (oldData && atob(oldData.content) === newTestResultsContent) {
-    console.log('No changes in test results, skipping update');
-    return;
-  }
+  //         mergedPlatformIssues[issue.issueId].historyEntries.push({
+  //           passedTest,
+  //           platforms,
+  //           date,
+  //           version,
+  //           errorCode,
+  //           expectedErrorCode,
+  //         });
+  //       });
+
+  //     // const lastHistoryEntryOfPCurrentlatform = [...issue.newCommentBody.matchAll(parseIssueHistoryRegex)]
+  //     //   .map(match => match.groups) // Extract groups
+  //     //   .reduce((acc, item, i) => { // Reduce to last entry per platform
+  //     //     const platforms = item.platforms.split(',').map(p => p.trim()); // In case platforms are comma-separated
+  //     //     platforms.forEach(platform => {
+  //     //       if (!acc[platform]) {
+  //     //         acc[platform] = item;
+  //     //         acc[platform]['index'] = i; // Add row index for later use
+  //     //       }
+  //     //     });
+  //     //     return acc;
+  //     //   }, {})[platform];
+
+  //     // issue.newCommentBody = issue.newCommentBody.replace(parseIssueHeaderStatusRegex, (match, emailedIn, lastBrokenPlatforms, lastEncounteredVersion, fixVersion) => {
+  //     //   lastBrokenPlatforms = platform;
+  //     //   // Since its a new bug, we know the latest version is broken so we use it here
+  //     //   lastEncounteredVersion = currentVersion;
+  //     //   return `| ${emailedIn} | ${lastBrokenPlatforms} | ${lastEncounteredVersion} | ${fixVersion} |`;
+  //     // })
+  //   }
+  // }
+
+  // // Merge all information and update issues accordingly
+  // for (const issueId in mergedPlatformIssues) {
+  //   const issue = mergedPlatformIssues[issueId];
+  //   console.log('issue', issueId, JSON.stringify(issue, null, 2));
+
+  //   // Remove duplicates from history, and merge entries when all fields except platforms are the same
+  //   const mergedHistoryEntries = issue.historyEntries.reduce((acc, item) => {
+  //     const existingEntry = acc.reverse().find(
+  //       (e) =>
+  //         e.passedTest === item.passedTest &&
+  //         // && e.date === item.date
+  //         e.version === item.version &&
+  //         e.errorCode === item.errorCode &&
+  //         e.expectedErrorCode === item.expectedErrorCode,
+  //     );
+
+  //     console.log('existingEntry', existingEntry);
+
+  //     if (existingEntry) {
+  //       // If they are the same, skip, otherwise merge platforms
+  //       if (existingEntry.platforms !== item.platforms) {
+  //         // Merge platforms
+  //         existingEntry.platforms = [
+  //           ...new Set(
+  //             existingEntry.platforms
+  //               .split(', ')
+  //               .concat(item.platforms.split(', ')),
+  //           ),
+  //         ]
+  //           .filter((p) => p !== '-')
+  //           .sort()
+  //           .join(', ');
+  //       }
+  //     } else {
+  //       acc.push(item);
+  //     }
+  //     return acc;
+  //   }, []);
+
+  //   // Sort latest date first and then by version
+  //   mergedHistoryEntries.sort((a, b) => {
+  //     if (a.date === b.date) {
+  //       return b.version.localeCompare(a.version);
+  //     }
+  //     return b.date.localeCompare(a.date);
+  //   });
+
+  //   console.log(
+  //     'mergedHistoryEntries',
+  //     issueId,
+  //     JSON.stringify(mergedHistoryEntries, null, 2),
+  //   );
+
+  //   let newCommentBody = issue.newCommentBodies[0];
+  //   // Remove all history entries from the body
+  //   newCommentBody = newCommentBody.replace(
+  //     /(?<=History$\s(?:.*$\s){2,})\|.*\s?/gim,
+  //     '',
+  //   );
+  //   // Add all updated history entries
+  //   mergedHistoryEntries.forEach((entry) => {
+  //     newCommentBody =
+  //       newCommentBody.trimEnd() +
+  //       `\n| ${entry.passedTest} | ${entry.platforms} | ${entry.date} | ${entry.version} | ${entry.errorCode} - Expected ${entry.expectedErrorCode} |`;
+  //   });
+
+  //   // Get last history entry of every platform
+  //   const lastHistoryEntryByPlatform = [
+  //     ...newCommentBody.matchAll(parseIssueHistoryRegex),
+  //   ]
+  //     .map((match) => match.groups) // Extract groups
+  //     .reduce((acc, item, i) => {
+  //       // Reduce to last entry per platform
+  //       const platforms = item.platforms.split(',').map((p) => p.trim()); // In case platforms are comma-separated
+  //       platforms.forEach((platform) => {
+  //         if (!acc[platform]) {
+  //           acc[platform] = item;
+  //           acc[platform]['index'] = i; // Add row index for later use
+  //         }
+  //       });
+  //       return acc;
+  //     }, {});
+  //   console.log('lastHistoryEntryByPlatform', lastHistoryEntryByPlatform);
+
+  //   const statusHeaders = issue.newCommentBodies
+  //     .reduce((acc, item) => {
+  //       acc.push(item.match(parseIssueHeaderStatusRegex).groups);
+  //       return acc;
+  //     }, [])
+  //     .reduce(
+  //       (acc, item) => {
+  //         // Make it SOA
+  //         acc.emailedIn.push(item.emailedIn);
+  //         acc.lastBrokenPlatforms.push(...item.lastBrokenPlatforms.split(', '));
+  //         acc.lastEncounteredVersion.push(item.lastEncounteredVersion);
+  //         acc.fixVersion.push(item.fixVersion);
+  //         return acc;
+  //       },
+  //       {
+  //         emailedIn: [],
+  //         lastBrokenPlatforms: [],
+  //         lastEncounteredVersion: [],
+  //         fixVersion: [],
+  //       },
+  //     );
+  //   console.log('statusHeaders', statusHeaders);
+
+  //   let mergedHeaderState;
+  //   if (issue.newIssueStates.some((v) => v === 'open')) {
+  //     // newly failed on any platform
+  //     mergedHeaderState = 'open';
+  //   } else if (
+  //     issue.newIssueStates.some((v) => v === 'closed') &&
+  //     lastHistoryEntryByPlatform.map((i) => i.every((v) => v === '✅'))
+  //   ) {
+  //     // newly fixed on all platforms
+  //     mergedHeaderState = 'closed';
+  //   } else {
+  //     mergedHeaderState = undefined; // even if some closed, its irrelevant if not all are closed
+  //   }
+  //   console.log('mergedHeaderState', mergedHeaderState);
+
+  //   // Update header by merging the status of all platforms
+  //   newCommentBody = newCommentBody.replace(
+  //     parseIssueHeaderStatusRegex,
+  //     (
+  //       match,
+  //       emailedIn,
+  //       lastBrokenPlatforms,
+  //       lastEncounteredVersion,
+  //       fixVersion,
+  //     ) => {
+  //       const newLastBrokenPlatforms =
+  //         [...new Set(statusHeaders.lastBrokenPlatforms)]
+  //           .filter((p) => p !== '-')
+  //           .sort()
+  //           .join(', ') || '-';
+  //       const newLastEncounteredVersion = statusHeaders.lastEncounteredVersion
+  //         .sort()
+  //         .reverse()[0]; // Take latest
+  //       const newFixVersion = statusHeaders.fixVersion.some((v) => v === '-')
+  //         ? '-'
+  //         : statusHeaders.fixVersion
+  //             .filter((v) => v !== '-')
+  //             .sort()
+  //             .reverse()[0];
+  //       const newEmailedIn =
+  //         mergedHeaderState === 'open'
+  //           ? '❌'
+  //           : mergedHeaderState === 'closed'
+  //           ? '✅'
+  //           : emailedIn;
+  //       return `| ${newEmailedIn} | ${newLastBrokenPlatforms} | ${newLastEncounteredVersion} | ${newFixVersion} |`;
+  //     },
+  //   );
+
+  //   // Create Labels
+  //   const uniqueLabels = [...new Set(issue.newLabels)]; // remove duplicates
+  //   await createLabels({ github, context, labelNames: uniqueLabels });
+
+  //   // Update Body
+  //   await github.rest.issues.update({
+  //     ...context.repo,
+  //     issue_number: issueId,
+  //     body: newCommentBody,
+  //     ...(mergedHeaderState
+  //       ? {
+  //           state: mergedHeaderState,
+  //           state_reason:
+  //             mergedHeaderState === 'open' ? 'reopened' : 'completed',
+  //         }
+  //       : {}),
+  //     labels: uniqueLabels,
+  //   });
+  // }
+
+  // // Update test_results.json
+  // const { data: oldData } = await github.rest.repos
+  //   .getContent({ ...context.repo, path: 'old_test_results.json' })
+  //   .catch(() => ({ data: null }));
+
+  // const windowsTestResultContent = fs.readFileSync(
+  //   'windows/test_results.json',
+  //   'utf8',
+  // );
+  // const windowsTestResults = JSON.parse(windowsTestResultContent);
+
+  // const linuxTestResultContent = fs.readFileSync(
+  //   'linux/test_results.json',
+  //   'utf8',
+  // );
+  // const linuxTestResults = JSON.parse(linuxTestResultContent);
+
+  // const newTestResults = {
+  //   windows: windowsTestResults.windows,
+  //   linux: linuxTestResults.linux,
+  // };
+  // const newTestResultsContent = JSON.stringify(newTestResults, null, 2);
+
+  // if (oldData && atob(oldData.content) === newTestResultsContent) {
+  //   console.log('No changes in test results, skipping update');
+  //   return;
+  // }
 
   // Commit new test_results.json
   // await github.rest.repos.createOrUpdateFileContents({

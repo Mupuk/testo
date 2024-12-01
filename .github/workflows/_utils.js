@@ -122,9 +122,21 @@ const isDeepEqual = (object1, object2) => {
 
 
 
+function deepMerge(target, source) {
+  for (const key of Object.keys(source)) {
+    if (source[key] instanceof Object && key in target) {
+      Object.assign(source[key], deepMerge(target[key], source[key]));
+    }
+  }
+  return { ...target, ...source };
+}
+
+
+
 module.exports = {
   getCurrentJaiVersion,
   format,
   isDeepEqual,
+  deepMerge,
   decrementVersionString,
 }
