@@ -122,5 +122,6 @@ const isDeepEqual = (object1, object2) => {
 module.exports = {
   getCurrentJaiVersion,
   format,
-  isDeepEqual
+  isDeepEqual,
+  decrementVersionString,
 }

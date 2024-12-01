@@ -133,6 +133,7 @@ const handleNewTests = ({ newTestResults, newTestIssueNumbers, platform, current
 const runTestSuitAndGatherOutput = async ({ github, context, exec, io }) => {
   const path = require('path');
   const fs = require('fs');
+  const { isDeepEqual, getCurrentJaiVersion, decrementVersionString } = require('./_utils.js');
 
   // const testSuitOutput = {};
 
@@ -141,7 +142,6 @@ const runTestSuitAndGatherOutput = async ({ github, context, exec, io }) => {
   console.log(`Running on platform: ${platform}`);
 
   // Jai Version
-  const { isDeepEqual, getCurrentJaiVersion } = require('./_utils.js');
   const currentJaiVersion = await getCurrentJaiVersion({ exec });
 
   // Get old state of test results
