@@ -584,7 +584,7 @@ const updateGithubIssuesAndFiles = async ({
   let linuxTestResults = {};
   try {
     const data = fs.readFileSync('linux/test_results.json', 'utf8');
-    windowsTestResults = JSON.parse(data);
+    linuxTestResults = JSON.parse(data);
   } catch (err) {
     console.error('Error reading file:', err);
   }
