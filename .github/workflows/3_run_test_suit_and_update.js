@@ -174,13 +174,13 @@ const runTestSuitAndGatherOutput = async ({ github, context, exec, io }) => {
     console.error('Error reading file:', err);
   }
 
-  console.log('Running for version:', currentJaiVersion);
   const options = { silent: false };
   let compilerPath = await io.which('jai'); // we start with the current one
   try {
     // Get the real path, if its a symlink
     compilerPath = fs.readlinkSync(compilerPath);
   } catch (err) {} // ignore error
+  console.log('Running for version:', currentJaiVersion);
   console.log('compilerPath', compilerPath);
   
   // Run test suit 
@@ -363,12 +363,12 @@ const runTestSuitAndGatherOutput = async ({ github, context, exec, io }) => {
     while (true) {
       const extension = path.extname(compilerPath);
       tempVersion = decrementVersionString(tempVersion);
-      console.log('Running for version:', tempVersion);
       const newCompilerPath =
-        path.resolve(compilerPath, '..', '..', '..', `jai-${tempVersion}/bin`)
-          + `${path.sep}jai${suffix}${extension}`;
-
+      path.resolve(compilerPath, '..', '..', '..', `jai-${tempVersion}/bin`)
+      + `${path.sep}jai${suffix}${extension}`;
+      
       if (!fs.existsSync(newCompilerPath))  break;
+      console.log('Running for version:', tempVersion);
       console.log('newCompilerPath', newCompilerPath);
       await exec.exec(`${newCompilerPath} bug_suit.jai - ${filePath}`, [], options);
     }

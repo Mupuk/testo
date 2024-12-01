@@ -1,0 +1,44 @@
+{
+  "262": {
+    "beta-0.1.096": {
+      "windows": {
+        "compilation_exit_code": 0,
+        "expected_compilation_exit_code": 0,
+        "expected_run_exit_code": 0,
+        "is_runtime_test": false,
+        "passed_test": true,
+        "run_exit_code": -1
+      }
+    },
+    "file_path": "compiler_bugs/CEC0_262.jai",
+    "issue_number": 262
+  },
+  "264": {
+    "beta-0.1.096": {
+      "windows": {
+        "compilation_exit_code": 0,
+        "expected_compilation_exit_code": 0,
+        "expected_run_exit_code": 0,
+        "is_runtime_test": true,
+        "passed_test": false,
+        "run_exit_code": 1
+      }
+    },
+    "file_path": "compiler_bugs/REC0_264.jai",
+    "issue_number": 264
+  },
+  "999": {
+    "beta-0.1.096": {
+      "windows": {
+        "compilation_exit_code": 1,
+        "expected_compilation_exit_code": 0,
+        "expected_run_exit_code": 0,
+        "is_runtime_test": true,
+        "passed_test": false,
+        "run_exit_code": -1
+      }
+    },
+    "file_path": "compiler_bugs/REC0_999/first.jai",
+    "issue_number": 999
+  }
+}
