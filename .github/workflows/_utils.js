@@ -1,3 +1,6 @@
+// :versionChange
+const versionRegex = /(beta.)(\d+).(\d+).(\d+)/;
+
 const getCurrentJaiVersion = async ({ exec }) => {      
   let jaiVersionOutput = '';
 
@@ -27,10 +30,10 @@ const getCurrentJaiVersion = async ({ exec }) => {
 
 
   // Check if the version is in the correct format
-  const versionRegex = /(beta.)(\d+).(\d+).(\d+)/;
+  // :versionChange
   if (versionRegex.test(version) === false) {
     console.error(
-      'The version format has changed! Please update all places that break, like the IssueTrackers histories sorting with mixed version formats of the old and new one.',
+      'The version format has changed! Please update all places that break, like the IssueTrackers histories sorting with mixed version formats of the old and new one. :versionChange',
       version,
     );
     process.exit(1);
