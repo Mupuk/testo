@@ -138,7 +138,6 @@ const runTestSuitAndGatherOutput = async ({ github, context, exec, io }) => {
   const platform = process.env.RUNNER_OS.toLowerCase();
   console.log(`Running on platform: ${platform}`);
 
-  // Jai Version
   const currentJaiVersion = await getCurrentJaiVersion({ exec });
 
 
@@ -566,7 +565,7 @@ const updateGithubIssuesAndFiles = async ({
   // testSuitOutputs,
 }) => {
   const fs = require('fs');
-  const { isDeepEqual, deepMerge } = require('./_utils.js');
+  const { getCurrentJaiVersion, isDeepEqual, deepMerge } = require('./_utils.js');
   const { createLabels } = require('./_create_label.js');
   // console.log('testSuitOutput', JSON.stringify(testSuitOutputs, null, 2));
 
@@ -598,6 +597,7 @@ const updateGithubIssuesAndFiles = async ({
   //
   // Find all new, changed and removed tests
   //
+  const currentJaiVersion = await getCurrentJaiVersion({ exec });
 
   let oldTestResults = {};
   try {
