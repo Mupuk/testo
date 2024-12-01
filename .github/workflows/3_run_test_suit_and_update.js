@@ -365,7 +365,7 @@ const runTestSuitAndGatherOutput = async ({ github, context, exec, io }) => {
       tempVersion = decrementVersionString(tempVersion);
       console.log('Running for version:', tempVersion);
       const newCompilerPath =
-        path.resolve(newCompilerPath, '..', '..', '..', `jai-${tempVersion}/bin`)
+        path.resolve(compilerPath, '..', '..', '..', `jai-${tempVersion}/bin`)
           + `${path.sep}jai${suffix}${extension}`;
 
       if (!fs.existsSync(newCompilerPath))  break;
