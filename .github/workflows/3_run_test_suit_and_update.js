@@ -589,7 +589,7 @@ const updateGithubIssuesAndFiles = async ({
   }
 
   let allTestResults = deepMerge(windowsTestResults, linuxTestResults);
-  print("allTestResults", allTestResults);
+  console.log("allTestResults", allTestResults);
 
   // const mergedPlatformIssues = {
   //   // issueId: {
