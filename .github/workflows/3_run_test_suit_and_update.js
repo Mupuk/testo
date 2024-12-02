@@ -756,17 +756,13 @@ const updateGithubIssuesAndFiles = async ({
       const existingLabels = issue.labels.map(label => label.name);
 
 
-      // const match = newIssueBody.matchAll(regex);
-      // console.log([...match].map(m => m.groups));
-
-      // If the current testResult has only one version, we can just update the latest
-      // or append new one if version is not in history
+      // Update History
       let replaceIndex = -1;
+      // for all rows in the history
       newIssueBody = newIssueBody.replace(parseIssueHistoryRegex, (match, ...args) => {
         replaceIndex += 1;
-        const row = args.pop();
+        const row = args.pop(); // grep the groups object
         const columnNames = Object.keys(row);
-        if (columnNames.length === 0) return match;
         // When adding new rows that are not platforms :historyColumns
         const filteredColumnNames = columnNames.filter(c => c !== 'version');
         if (filteredColumnNames.length === 0) return match;
@@ -850,14 +846,19 @@ const updateGithubIssuesAndFiles = async ({
 
       console.log('newIssueBody', issueNumber, replaceIndex, JSON.stringify(newIssueBody, null, 2));  
 
-      // @todo add labels of broken platforms
+      var passedAllTests = true;
+      for (const platform of activePlatforms) {
+        const result = testResultForCurrentVersion[platform];
+        passedAllTests = passedAllTests && result.passed_test;
+      }
+
       // Update issue
       await github.rest.issues.update({
         ...context.repo,
         issue_number: issueNumber,
         body: newIssueBody,
-        // state: 'closed', // @todo
-        // labels: updatedUniqueLabels,
+        state: passedAllTests ? 'closed' : 'open',
+        labels: existingLabels, // @todo add labels of broken platforms
       });
       console.log('Updated Issue for newly added or changed test', issueNumber);
     } catch (error) {
