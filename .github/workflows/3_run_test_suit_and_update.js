@@ -684,6 +684,7 @@ const updateGithubIssuesAndFiles = async ({
         // Handle case 2)
         const oldResultForPlatform = oldResultsForCurrentVersion[platform];
         if (!oldResultForPlatform) {
+          console.log('change detected, because platform is missing in old results:', issueNumber, currentJaiVersion, platform);
           relevantResultSetsAreEqual = false;
           break;
         }
@@ -691,6 +692,9 @@ const updateGithubIssuesAndFiles = async ({
         // Compare the results
         const newResultForPlatform = newResultsForCurrentVersion[platform]; // garanteed to exist
         if (!isDeepEqual(oldResultForPlatform, newResultForPlatform)) {
+          console.log('change detected, because results are different:', issueNumber, currentJaiVersion, platform);
+          console.log('oldResultForPlatform', JSON.stringify(oldResultForPlatform, null, 2));
+          console.log('newResultForPlatform', JSON.stringify(newResultForPlatform, null, 2));
           relevantResultSetsAreEqual = false;
           break;
         }
@@ -708,7 +712,7 @@ const updateGithubIssuesAndFiles = async ({
   // Update all new and changed tests. All unchanged tests are already up to date
   for (const issueNumber of [...newIssueNumbers/*, ...changedIssueNumbers*/]) {
     const issue = allTestResults[issueNumber];
-    console.log('newOrChangedIssue', issue);
+    console.log('newOrChangedIssue', issueNumber, issue);
   }
 
 
@@ -716,7 +720,7 @@ const updateGithubIssuesAndFiles = async ({
   // Handle all removed tests
   for (const issueNumber of removedIssueNumbers) {
     const issue = oldTestResults[issueNumber];
-    console.log('removedIssue', issue);
+    console.log('removedIssue', issueNumber, issue);
   }
 
 
