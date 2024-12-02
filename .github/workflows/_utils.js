@@ -111,7 +111,6 @@ function makeExtendedRegExp(inputPatternStr, flags) {
   const cleanedPatternStr = inputPatternStr
     .replace(/(^|[^\\]) *#.*/g, '$1')
     .replace(/^\s+|\s+$|\n/gm, '');
-  console.log(cleanedPatternStr);
   return new RegExp(cleanedPatternStr, flags);
 }
 

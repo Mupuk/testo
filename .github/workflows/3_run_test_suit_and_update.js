@@ -780,10 +780,9 @@ const updateGithubIssuesAndFiles = async ({
 
         // Add new row since the current version should be the latest, and therefore the first!
         if (replaceIndex === 0 && row.version !== currentJaiVersion) {
-          const result = testResultForCurrentVersion[column];
           // Should be in order as the captured groups
           for (const column of columnNames) {
-            const value = result[column];
+            const value = testResultForCurrentVersion[column];
             output += `| ${value} `;
           }
           output += '|';
