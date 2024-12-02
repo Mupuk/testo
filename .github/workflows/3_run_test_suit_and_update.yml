@@ -45,11 +45,13 @@ jobs:
       # :platformSpecific
       - name: Download Windows test results
         uses: actions/download-artifact@v4
+        continue-on-error: true
         with:
           name: test_results_windows
           path: windows
 
       - name: Download Linux test results
+        continue-on-error: true
         uses: actions/download-artifact@v4
         with:
           name: test_results_linux
