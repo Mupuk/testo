@@ -568,7 +568,6 @@ const updateGithubIssuesAndFiles = async ({
   const fs = require('fs');
   const { getCurrentJaiVersion, isDeepEqual, deepMerge } = require('./_utils.js');
   const { createLabels } = require('./_create_label.js');
-  // console.log('testSuitOutput', JSON.stringify(testSuitOutputs, null, 2));
 
   const currentJaiVersion = await getCurrentJaiVersion({ exec });
 
@@ -585,8 +584,6 @@ const updateGithubIssuesAndFiles = async ({
       activePlatforms.push(platform);
     } catch (err) {
       console.log(`No results found for platform '${platform}'`);
-      // console.error('Error reading file:', err);
-      // throw new Error('Error reading file'); // Active platforms are enforced to run
     }
   }
   console.log('activePlatforms', activePlatforms);
