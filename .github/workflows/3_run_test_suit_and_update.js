@@ -761,8 +761,9 @@ const updateGithubIssuesAndFiles = async ({
 
       // If the current testResult has only one version, we can just update the latest
       // or append new one if version is not in history
-      let replaceIndex = 0;
+      let replaceIndex = -1;
       newIssueBody = newIssueBody.replace(parseIssueHistoryRegex, (match, ...args) => {
+        replaceIndex += 1;
         const row = args.pop();
         const columnNames = Object.keys(row);
         if (columnNames.length === 0) return match;
@@ -786,9 +787,6 @@ const updateGithubIssuesAndFiles = async ({
             output += `| ${value} `;
           }
           output += '|';
-
-          // To not force overwrite the *now* second row which was the first before
-          replaceIndex += 1; 
 
           // If its the very first entry in the history, we dont need to readd the 
           // empty template line
@@ -834,7 +832,6 @@ const updateGithubIssuesAndFiles = async ({
           output += ` ${value} |`;
         }
 
-        replaceIndex += 1;
         return output;
       });
 
