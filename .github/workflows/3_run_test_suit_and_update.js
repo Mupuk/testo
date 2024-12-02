@@ -580,11 +580,12 @@ const updateGithubIssuesAndFiles = async ({
     try {
       const data = fs.readFileSync(`${platform}/test_results.json`, 'utf8');
       const platformTestResults = JSON.parse(data);
-      console.log(`${platform}TestResults`, JSON.stringify(platformTestResults, null, 2));
+      // console.log(`${platform}TestResults`, JSON.stringify(platformTestResults, null, 2));
       allTestResults = deepMerge(allTestResults, platformTestResults);
       activePlatforms.push(platform);
     } catch (err) {
-      console.error('Error reading file:', err);
+      console.log(`No results found for platform '${platform}'`);
+      // console.error('Error reading file:', err);
       // throw new Error('Error reading file'); // Active platforms are enforced to run
     }
   }
