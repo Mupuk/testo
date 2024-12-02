@@ -752,7 +752,7 @@ const updateGithubIssuesAndFiles = async ({
         ...context.repo,
         issue_number: issueNumber,
       });
-      const newIssueBody = issue.body.replace(/\r\n/g, '\n').replace(/\r/g, '\n');
+      let newIssueBody = issue.body.replace(/\r\n/g, '\n').replace(/\r/g, '\n');
       const existingLabels = issue.labels.map(label => label.name);
 
 
