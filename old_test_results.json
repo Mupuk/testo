@@ -21,7 +21,7 @@
         "expected_run_exit_code": 0,
         "is_runtime_test": true,
         "passed_test": false,
-        "run_exit_code": 1
+        "run_exit_code": 3
       }
     },
     "file_path": "compiler_bugs/REC0_264.jai",
