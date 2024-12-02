@@ -628,14 +628,14 @@ const updateGithubIssuesAndFiles = async ({
   );
   console.log('commonIssueNumbers', JSON.stringify(commonIssueNumbers, null, 2));
   
-  // @todo think about how this will work. Can we expect that all platforms are present?
-  //       Maybe just compare one? Make sure theres as few api calls as possible
   // Find all tests that had a new result in the new test results
   const changedIssueNumbers = commonIssueNumbers.filter(
     (issueNumber) => {
       // Only compare latest version
-      const oldResults = oldTestResults[issueNumber][currentJaiVersion];
-      const newResults = allTestResults[issueNumber][currentJaiVersion];
+      const oldResults = oldTestResults[issueNumber]?.[currentJaiVersion];
+      oldResults ||= {};
+      const newResults = allTestResults[issueNumber]?.[currentJaiVersion];
+      newResults ||= {};
       return !isDeepEqual(oldResults, newResults);
     },
   );
