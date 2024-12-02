@@ -783,7 +783,14 @@ const updateGithubIssuesAndFiles = async ({
           console.log('Add new row', issueNumber);
           // Should be in order as the captured groups
           for (const column of columnNames) {
-            const value = testResultForCurrentVersion[column];
+            let value = '';
+            if (column === 'version') {
+              value = currentJaiVersion; //  :historyColumns
+            } else {
+              const t = testResultForCurrentVersion[column];
+              if (t) value = t.passed_test ? '✅' : '❌';
+              else   value = '-';
+            }
             output += `| ${value} `;
           }
           output += '|\n';
