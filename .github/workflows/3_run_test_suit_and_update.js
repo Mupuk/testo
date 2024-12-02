@@ -721,15 +721,17 @@ const updateGithubIssuesAndFiles = async ({
   for (const issueNumber of removedIssueNumbers) {
     console.log('handle removedIssue', issueNumber);
 
-    const newLabel = 'removed-test';
-    const { data: issue } = await github.rest.issues.get({
-      ...context.repo,
-      issue_number: issueNumber,
-    });
-    const existingLabels = issue.labels.map(label => label.name);
-    const updatedUniqueLabels = [...new Set([...existingLabels, newLabel])];
 
     try {
+      // Add label to issue
+      const newLabel = 'removed-test';
+      const { data: issue } = await github.rest.issues.get({
+        ...context.repo,
+        issue_number: issueNumber,
+      });
+      const existingLabels = issue.labels.map(label => label.name);
+      const updatedUniqueLabels = [...new Set([...existingLabels, newLabel])];
+
       // Close issue.
       await github.rest.issues.update({
         ...context.repo,
@@ -740,7 +742,7 @@ const updateGithubIssuesAndFiles = async ({
       console.log('Closed Issue for removed test', issueNumber);
   } catch (error) {
     if (error.status === 404) {
-      console.log('Issue not found for ', issueNumber);
+      console.log(`Issue not found for '${issueNumber}'. The issue was most likely deleted.`);
     } else {
       console.error('An error occurred:', error.message);
     }
