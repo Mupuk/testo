@@ -833,7 +833,7 @@ const updateGithubIssuesAndFiles = async ({
             // We dont know if we have data for the platform, just try
             const result = resultForRowVersion[column];
             if (result) {
-              const errorCode = result.did_run ? result.run_exit_code : result.compilation_exit_code;
+              const errorCode = result.is_runtime_test ? result.run_exit_code : result.compilation_exit_code;
               value = result.passed_test ? `✅ - ExitCode ${errorCode}` : `❌ - ExitCode ${errorCode} `;
 
               console.log('Force overwriting:', column, row.version);
