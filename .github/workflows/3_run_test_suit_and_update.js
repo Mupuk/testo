@@ -780,17 +780,19 @@ const updateGithubIssuesAndFiles = async ({
 
         // Add new row since the current version should be the latest, and therefore the first!
         if (replaceIndex === 0 && row.version !== currentJaiVersion) {
+          console.log('Add new row', issueNumber);
           // Should be in order as the captured groups
           for (const column of columnNames) {
             const value = testResultForCurrentVersion[column];
             output += `| ${value} `;
           }
-          output += '|';
+          output += '|\n';
 
           // If its the very first entry in the history, we dont need to readd the 
           // empty template line
           if (row.version !== '-') {
-            output += '\n' + match
+            console.log('Very first row', issueNumber);
+            output += match
             return output;
           }
         }
@@ -808,7 +810,8 @@ const updateGithubIssuesAndFiles = async ({
             }
           } else {
             // We dont have any data for this version, so we can not update it
-            return match;
+            console.log('Skip update', issueNumber);
+            return output + match;
           }
           
         }
