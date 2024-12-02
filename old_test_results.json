@@ -1,7 +1,7 @@
 {
   "262": {
     "beta-0.1.093": {
-      "windows": {
+      "linux": {
         "compilation_exit_code": 0,
         "expected_compilation_exit_code": 0,
         "expected_run_exit_code": 0,
@@ -15,13 +15,13 @@
   },
   "264": {
     "beta-0.1.093": {
-      "windows": {
+      "linux": {
         "compilation_exit_code": 0,
         "expected_compilation_exit_code": 0,
         "expected_run_exit_code": 0,
         "is_runtime_test": true,
         "passed_test": false,
-        "run_exit_code": 1
+        "run_exit_code": 3
       }
     },
     "file_path": "compiler_bugs/REC0_264.jai",
@@ -29,7 +29,7 @@
   },
   "999": {
     "beta-0.1.093": {
-      "windows": {
+      "linux": {
         "compilation_exit_code": 1,
         "expected_compilation_exit_code": 0,
         "expected_run_exit_code": 0,

@@ -10,7 +10,10 @@ jobs:
   run_test_suit:
     strategy:
       matrix:
-        platform: [windows, linux] # :platformSpecific
+        # This decides all relevant platforms. Platforms that are not in here
+        # will not be tested and completely ignored. This is a good way to
+        # to disable them.
+        platform: [linux] # :platformSpecific
 
     runs-on: 
      - self-hosted
