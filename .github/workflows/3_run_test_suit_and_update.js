@@ -666,6 +666,7 @@ const updateGithubIssuesAndFiles = async ({
       for (const platform in activePlatforms) {
         if (!newResultsForCurrentVersion[platform]) {
           console.error('No results found for:', issueNumber, currentJaiVersion, platform);
+          exit(1);
           throw new Error('No results found. This should never happen. Most likely not all runners have been updated to the same version!');
         }
       }
