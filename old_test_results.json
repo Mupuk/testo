@@ -4,7 +4,7 @@
       "linux": {
         "compilation_exit_code": 0,
         "expected_compilation_exit_code": 0,
-        "expected_run_exit_code": 0,
+        "expected_run_exit_code": -1,
         "is_runtime_test": false,
         "passed_test": true,
         "run_exit_code": -1

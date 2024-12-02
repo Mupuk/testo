@@ -26,7 +26,7 @@ Test_Result :: struct
   compilation_exit_code: int = -1;
 
   // run results
-  expected_run_exit_code: int = 0;
+  expected_run_exit_code: int = -1;
   run_exit_code: int = -1;
 };
 
