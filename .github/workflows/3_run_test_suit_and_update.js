@@ -835,7 +835,7 @@ const updateGithubIssuesAndFiles = async ({
             if (result) {
               const errorCode = result.did_run ? result.run_exit_code : result.compilation_exit_code;
               value = result.passed_test ? `✅ - ExitCode ${errorCode}` : `❌ - ExitCode ${errorCode} `;
- 
+
               console.log('Force overwriting:', column, row.version);
             }
           }
