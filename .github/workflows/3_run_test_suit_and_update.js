@@ -666,6 +666,7 @@ const updateGithubIssuesAndFiles = async ({
       for (const platform in activePlatforms) {
         if (!newResultsForCurrentVersion[platform]) {
           console.error('No results found for:', issueNumber, currentJaiVersion, platform);
+          process.exit(1);
           throw new Error('No results found. This should never happen. Most likely not all runners have been updated to the same version!', issueNumber, currentJaiVersion, platform);
         }
       }
@@ -690,7 +691,7 @@ const updateGithubIssuesAndFiles = async ({
 
 
   // Update all new and changed tests. All unchanged tests are already up to date
-  for (const issueNumber in [...newIssueNumbers/*, ...changedIssueNumbers*/]) {
+  for (const issueNumber of [...newIssueNumbers/*, ...changedIssueNumbers*/]) {
     const issue = allTestResults[issueNumber];
     console.log('newOrChangedIssue', issue);
   }
@@ -698,7 +699,7 @@ const updateGithubIssuesAndFiles = async ({
 
 
   // Handle all removed tests
-  for (const issueNumber in removedIssueNumbers) {
+  for (const issueNumber of removedIssueNumbers) {
     const issue = oldTestResults[issueNumber];
     console.log('removedIssue', issue);
   }
