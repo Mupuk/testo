@@ -575,7 +575,7 @@ const updateGithubIssuesAndFiles = async ({
   const currentJaiVersion = await getCurrentJaiVersion({ exec });
   
   let allTestResults = {};
-  for (platform in activePlatforms) {
+  for (platform of activePlatforms) {
     let platformTestResults = {};
     try {
       const data = fs.readFileSync(`${platform}/test_results.json`, 'utf8');
