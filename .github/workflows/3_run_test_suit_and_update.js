@@ -770,7 +770,7 @@ const updateGithubIssuesAndFiles = async ({
         const filteredColumnNames = columnNames.filter(c => c !== 'version');
         if (filteredColumnNames.length === 0) return match;
 
-        if (filteredColumnNames.length != activePlatforms.length) {
+        if (filteredColumnNames.length != activePlatforms.length - 1 /* @todo remove -1*/) {
           console.error('Column names do not match active platforms:', filteredColumnNames, activePlatforms);
           throw new Error('Column names do not match active platforms. Not yet supported');
         }
