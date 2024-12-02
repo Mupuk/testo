@@ -1,7 +1,4 @@
 
-// These platforms are enforced to run. All results of other platforms are 
-// ignored for change detection and updates. :platformSpecific
-const activePlatforms = ['windows', 'linux'/*, 'macos'*/];
 
 
 const parseIssueHeaderStatusRegex =
@@ -573,21 +570,24 @@ const updateGithubIssuesAndFiles = async ({
   // console.log('testSuitOutput', JSON.stringify(testSuitOutputs, null, 2));
 
   const currentJaiVersion = await getCurrentJaiVersion({ exec });
+
+  const supportedPlatforms = ['windows', 'linux'/*, 'macos'*/]; // :platformSpecific
+  let activePlatforms = []; // all platforms where it found a test_results.json from
   
   let allTestResults = {};
-  for (platform of activePlatforms) {
-    let platformTestResults = {};
+  for (platform of supportedPlatforms) {
     try {
       const data = fs.readFileSync(`${platform}/test_results.json`, 'utf8');
-      platformTestResults = JSON.parse(data);
+      const platformTestResults = JSON.parse(data);
+      console.log(`${platform}TestResults`, JSON.stringify(platformTestResults, null, 2));
+      allTestResults = deepMerge(allTestResults, platformTestResults);
+      activePlatforms.push(platform);
     } catch (err) {
       console.error('Error reading file:', err);
       // throw new Error('Error reading file'); // Active platforms are enforced to run
     }
-    console.log(`${platform}TestResults`, JSON.stringify(platformTestResults, null, 2));
-    allTestResults = deepMerge(allTestResults, platformTestResults);
   }
-
+  console.log('activePlatforms', activePlatforms);
   console.log('allTestResults', JSON.stringify(allTestResults , null, 2));
 
   // // Load all results from each platform, and merge them  :platformSpecific
@@ -660,7 +660,7 @@ const updateGithubIssuesAndFiles = async ({
       }
 
       // Enforce that all runners run the same version aka have results for this version
-      for (platform in activePlatforms) {
+      for (platform in supportedPlatforms) {
         if (newResultsForCurrentVersion) {
           console.error('No results found for:', issueNumber, currentJaiVersion);
           throw new Error('No results found. This should never happen');
