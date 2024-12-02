@@ -713,15 +713,35 @@ const updateGithubIssuesAndFiles = async ({
   for (const issueNumber of [...newIssueNumbers, ...changedIssueNumbers]) {
     const testResult = allTestResults[issueNumber];
     console.log('handle newOrChangedIssue', issueNumber);
+
+    try {
+      // Get Issue and Labels
+      const { data: issue } = await github.rest.issues.get({
+        ...context.repo,
+        issue_number: issueNumber,
+      });
+      issue.body = issue.body.replace(/\r\n/g, '\n').replace(/\r/g, '\n');
+      const existingLabels = issue.labels.map(label => label.name);
+
+
+      
+      //@todo
+
+
+      console.log('Updated Issue for newly added or changed test', issueNumber);
+    } catch (error) {
+      if (error.status === 404) {
+        console.error(`Issue not found for '${issueNumber}'. The issue was most likely deleted. This should never happen.`);
+      } else {
+        console.error('An error occurred:', error.message);
+      }
+    }
   }
 
 
 
   // Handle all removed tests
   for (const issueNumber of removedIssueNumbers) {
-    console.log('handle removedIssue', issueNumber);
-
-
     try {
       // Add label to issue
       const newLabel = 'removed-test';
@@ -740,13 +760,13 @@ const updateGithubIssuesAndFiles = async ({
         labels: updatedUniqueLabels,
       });
       console.log('Closed Issue for removed test', issueNumber);
-  } catch (error) {
-    if (error.status === 404) {
-      console.log(`Issue not found for '${issueNumber}'. The issue was most likely deleted.`);
-    } else {
-      console.error('An error occurred:', error.message);
+    } catch (error) {
+      if (error.status === 404) {
+        console.log(`Issue not found for '${issueNumber}'. The issue was most likely deleted.`);
+      } else {
+        console.error('An error occurred:', error.message);
+      }
     }
-  }
   }
 
 
