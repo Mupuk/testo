@@ -576,7 +576,7 @@ const updateGithubIssuesAndFiles = async ({
   let activePlatforms = []; // all platforms where it found a test_results.json from
   
   let allTestResults = {};
-  for (platform of supportedPlatforms) {
+  for (const platform of supportedPlatforms) {
     try {
       const data = fs.readFileSync(`${platform}/test_results.json`, 'utf8');
       const platformTestResults = JSON.parse(data);
