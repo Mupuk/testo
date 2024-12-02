@@ -783,15 +783,17 @@ const updateGithubIssuesAndFiles = async ({
           console.log('Add new row', issueNumber, row.version);
           // Should be in order as the captured groups
           for (const column of columnNames) {
-            let value = '';
+            let value = '-';
             if (column === 'version') {
               value = currentJaiVersion; //  :historyColumns
             } else {
               const result = testResultForCurrentVersion[column];
-              console.log('result', result);
-              const errorCode = result.is_runtime_test ? result.run_exit_code : result.compilation_exit_code;
-              if (t) value = result.passed_test ? `✅ - ExitCode ${errorCode}` : `❌ - ExitCode ${errorCode} `;
-              else   value = '-';
+              if (result) {
+                const errorCode = result.is_runtime_test ? result.run_exit_code : result.compilation_exit_code;
+
+                if (result) value = 
+                      result.passed_test ? `✅ - ExitCode ${errorCode}` : `❌ - ExitCode ${errorCode} `;
+              }
             }
             output += `| ${value} `;
           }
