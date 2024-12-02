@@ -10,7 +10,7 @@ jobs:
   run_test_suit:
     strategy:
       matrix:
-        platform: [widnows] # :platformSpecific
+        platform: [windows] # :platformSpecific
 
     runs-on: 
      - self-hosted
