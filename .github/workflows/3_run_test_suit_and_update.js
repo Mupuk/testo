@@ -793,14 +793,15 @@ const updateGithubIssuesAndFiles = async ({
             }
             output += `| ${value} `;
           }
-          output += '|\n';
+          output += '|';
 
           // If its the very first entry in the history, we dont need to readd the 
           // empty template line
-          if (row.version !== '-') {
+          if (row.version === '-') {
             console.log('Very first row', issueNumber);
-            output += match
             return output;
+          } else {
+            output += '\n';
           }
         }
 
