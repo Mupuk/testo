@@ -663,11 +663,10 @@ const updateGithubIssuesAndFiles = async ({
       // Enforce that all active platforms have a result for this version
       // No matter if this runner is on a newer or older one. At least one platform
       // Would be missing in the result set, which would get detected here
-      for (const platform in activePlatforms) {
+      for (const platform of activePlatforms) {
         if (!newResultsForCurrentVersion[platform]) {
           console.error('No results found for:', issueNumber, currentJaiVersion, platform);
-          process.exit(1);
-          throw new Error('No results found. This should never happen. Most likely not all runners have been updated to the same version!', issueNumber, currentJaiVersion, platform);
+          throw new Error('No results found. This should never happen. Most likely not all runners have been updated to the same version!');
         }
       }
 
