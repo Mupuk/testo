@@ -690,7 +690,7 @@ const updateGithubIssuesAndFiles = async ({
 
 
   // Update all new and changed tests. All unchanged tests are already up to date
-  for (issueNumber in [...newIssueNumbers/*, ...changedIssueNumbers*/]) {
+  for (const issueNumber in [...newIssueNumbers/*, ...changedIssueNumbers*/]) {
     const issue = allTestResults[issueNumber];
     console.log('newOrChangedIssue', issue);
   }
@@ -698,7 +698,7 @@ const updateGithubIssuesAndFiles = async ({
 
 
   // Handle all removed tests
-  for (issueNumber in removedIssueNumbers) {
+  for (const issueNumber in removedIssueNumbers) {
     const issue = oldTestResults[issueNumber];
     console.log('removedIssue', issue);
   }
