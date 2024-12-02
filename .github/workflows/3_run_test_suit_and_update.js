@@ -567,7 +567,9 @@ const updateGithubIssuesAndFiles = async ({
 }) => {
   const fs = require('fs');
   const { getCurrentJaiVersion, isDeepEqual, deepMerge } = require('./_utils.js');
-  const { createLabels } = require('./_create_label.js');
+  const { createLabels, createLabel } = require('./_create_label.js');
+
+  createLabel({ github, context, labelName: 'removed-test' });
 
   const currentJaiVersion = await getCurrentJaiVersion({ exec });
 
@@ -719,12 +721,30 @@ const updateGithubIssuesAndFiles = async ({
   for (const issueNumber of removedIssueNumbers) {
     console.log('handle removedIssue', issueNumber);
 
-    // Close issue.
-    await github.rest.issues.update({
+    const newLabel = 'removed-test';
+    const { data: issue } = await github.rest.issues.get({
       ...context.repo,
       issue_number: issueNumber,
-      state: 'closed'
     });
+    const existingLabels = issue.labels.map(label => label.name);
+    const updatedUniqueLabels = [...new Set([...existingLabels, newLabel])];
+
+    try {
+      // Close issue.
+      await github.rest.issues.update({
+        ...context.repo,
+        issue_number: issueNumber,
+        state: 'closed',
+        labels: updatedUniqueLabels,
+      });
+      console.log('Closed Issue for removed test', issueNumber);
+  } catch (error) {
+    if (error.status === 404) {
+      console.log('Issue not found for ', issueNumber);
+    } else {
+      console.error('An error occurred:', error.message);
+    }
+  }
   }
 
 
