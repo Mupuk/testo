@@ -659,11 +659,11 @@ const updateGithubIssuesAndFiles = async ({
         throw new Error('No results found. This should never happen');
       }
 
-      // Enforce that all runners run the same version aka have results for this version
-      for (platform in supportedPlatforms) {
+      // Enforce that all active platforms have a result for this version
+      for (platform in activePlatforms) {
         if (newResultsForCurrentVersion) {
           console.error('No results found for:', issueNumber, currentJaiVersion);
-          throw new Error('No results found. This should never happen');
+          throw new Error('No results found. This should never happen. Most likely not all runners have been updated to the same version!');
         }
       }
 
