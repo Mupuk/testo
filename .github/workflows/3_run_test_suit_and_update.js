@@ -776,7 +776,6 @@ const updateGithubIssuesAndFiles = async ({
           throw new Error('Column names do not match active platforms. Not yet supported');
         }
 
-        console.log(filteredColumnNames);
         let output = '';
 
         // Add new row since the current version should be the latest, and therefore the first!
@@ -835,7 +834,7 @@ const updateGithubIssuesAndFiles = async ({
         return output;
       });
 
-      console.log('newIssueBody', issueNumber, JSON.stringify(newIssueBody, null, 2));  
+      console.log('newIssueBody', issueNumber, replaceIndex, JSON.stringify(newIssueBody, null, 2));  
 
       // @todo add labels of broken platforms
       // Update issue
