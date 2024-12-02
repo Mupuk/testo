@@ -801,6 +801,7 @@ const updateGithubIssuesAndFiles = async ({
             console.log('Very first row', issueNumber);
             return output;
           } else {
+            console.log('NOT Very first row', issueNumber);
             output += '\n';
           }
         }
@@ -834,10 +835,10 @@ const updateGithubIssuesAndFiles = async ({
                 continue;
             }
 
-            console.log('Force overwriting:', column, row.version);
-
             const errorCode = result.did_run ? result.run_exit_code : result.compilation_exit_code;
             value = result.passed_test ? `✅ - ExitCode ${errorCode}` : `❌ - ExitCode ${errorCode} `;
+
+            console.log('Force overwriting:', column, row.version);
           }
           output += ` ${value} |`;
         }
