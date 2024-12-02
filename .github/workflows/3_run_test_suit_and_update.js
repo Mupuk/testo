@@ -787,9 +787,9 @@ const updateGithubIssuesAndFiles = async ({
             if (column === 'version') {
               value = currentJaiVersion; //  :historyColumns
             } else {
-              const t = testResultForCurrentVersion[column];
-              const errorCode = t.did_run ? t.run_exit_code : t.compilation_exit_code;
-              if (t) value = t.passed_test ? `✅ - ExitCode ${errorCode}` : `❌ - ExitCode ${errorCode} `;
+              const result = testResultForCurrentVersion[column];
+              const errorCode = result.is_runtime_test ? result.run_exit_code : result.compilation_exit_code;
+              if (t) value = result.passed_test ? `✅ - ExitCode ${errorCode}` : `❌ - ExitCode ${errorCode} `;
               else   value = '-';
             }
             output += `| ${value} `;
