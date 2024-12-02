@@ -646,23 +646,23 @@ const updateGithubIssuesAndFiles = async ({
   console.log('commonIssueNumbers', JSON.stringify(commonIssueNumbers, null, 2));
   
   
-  // @todo think about inconsistent states. It could happen one vm has a newer version
   // Find all tests that had a new result in the new test results
   const changedIssueNumbers = commonIssueNumbers.filter(
     (issueNumber) => {
       // Only compare latest version
       let oldResultsForCurrentVersion = oldTestResults[issueNumber][currentJaiVersion];
       oldResultsForCurrentVersion ||= {}; // This could happen when a new compiler version was added
+
       // It is garanteed that we at least have one result from the current machine on this version
       let newResultsForCurrentVersion = allTestResults[issueNumber][currentJaiVersion];
       if (!newResultsForCurrentVersion) {
         console.error('No results found for:', issueNumber, currentJaiVersion);
-        throw new Error('No results found. This should never happen');
+        throw new Error('No results found. This should never happen. Most likely something bad happened, or the runner this is running on was not part of the suit runners anymore! In the latter case, this runner could be out of date - or the only one with a newer version.');
       }
 
       // Enforce that all active platforms have a result for this version
       // No matter if this runner is on a newer or older one. At least one platform
-      // Would be missing in the result set, which would get detected here
+      // would be missing in the result set, which would get detected here.
       for (const platform of activePlatforms) {
         if (!newResultsForCurrentVersion[platform]) {
           console.error('No results found for:', issueNumber, currentJaiVersion, platform);
@@ -670,17 +670,33 @@ const updateGithubIssuesAndFiles = async ({
         }
       }
 
+      // Now we know, that newResultsForCurrentVersion has data for all active platforms.
+      // 1) the oldResultsForCurrentVersion has a platform that is not active -> we ignore it
+      // 2) theres a active platform that is not in oldResultsForCurrentVersion -> count as change
+      //    -> this could happen, when we added a new platform. We have to count it as a change
+      //       @todo maybe also trigger backtracking? But then this would have be detected
+      //             in the runners, and not here. 
+      //    -> Special case when a new compiler version was added, the old data will be empty!
 
 
-      // This should never happen. It could only happen when the current version is different
-      // ALL the runners. But since this is running on the same machines, there should at least
-      // be one entry. 
-      // The thing that could still happen, is that two or more runners have different versions
-      // then they would not all have results for this version.
-      //
-      // Case 1: All runners have the same version. This includes this runner. -> We happy
-      // Case 2: Two or more runners have different versions -> 2 or more versions, results split up among them
-      return !isDeepEqual(oldResultsForCurrentVersion, newResultsForCurrentVersion);
+      let relevantResultSetsAreEqual = true;
+      for (const platform of activePlatforms) { // already handles case 1)
+        // Handle case 2)
+        const oldResultForPlatform = oldResultsForCurrentVersion[platform];
+        if (!oldResultForPlatform) {
+          relevantResultSetsAreEqual = false;
+          break;
+        }
+
+        // Compare the results
+        const newResultForPlatform = newResultsForCurrentVersion[platform]; // garanteed to exist
+        if (!isDeepEqual(oldResultForPlatform, newResultForPlatform)) {
+          relevantResultSetsAreEqual = false;
+          break;
+        }
+      }
+
+      return !relevantResultSetsAreEqual; // Has changed!
     },
   );
   console.log('changedIssueNumbers', JSON.stringify(changedIssueNumbers, null, 2));
