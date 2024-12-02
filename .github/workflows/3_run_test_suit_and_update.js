@@ -788,7 +788,8 @@ const updateGithubIssuesAndFiles = async ({
               value = currentJaiVersion; //  :historyColumns
             } else {
               const t = testResultForCurrentVersion[column];
-              if (t) value = t.passed_test ? '✅' : '❌';
+              const errorCode = t.did_run ? t.run_exit_code : t.compilation_exit_code;
+              if (t) value = t.passed_test ? `✅ - ExitCode ${errorCode}` : `❌ - ExitCode ${errorCode} `;
               else   value = '-';
             }
             output += `| ${value} `;
@@ -831,14 +832,12 @@ const updateGithubIssuesAndFiles = async ({
           if (value === '-' || replaceIndex === 0) { 
             // We dont know if we have data for the platform, just try
             const result = resultForRowVersion[column];
-            if (!result) {
-                continue;
+            if (result) {
+              const errorCode = result.did_run ? result.run_exit_code : result.compilation_exit_code;
+              value = result.passed_test ? `✅ - ExitCode ${errorCode}` : `❌ - ExitCode ${errorCode} `;
+
+              console.log('Force overwriting:', column, row.version);
             }
-
-            const errorCode = result.did_run ? result.run_exit_code : result.compilation_exit_code;
-            value = result.passed_test ? `✅ - ExitCode ${errorCode}` : `❌ - ExitCode ${errorCode} `;
-
-            console.log('Force overwriting:', column, row.version);
           }
           output += ` ${value} |`;
         }
