@@ -790,7 +790,7 @@ const updateGithubIssuesAndFiles = async ({
               const result = testResultForCurrentVersion[column];
               if (result) {
                 const errorCode = result.is_runtime_test ? result.run_exit_code : result.compilation_exit_code;
-
+ 
                 if (result) value = 
                       result.passed_test ? `✅ - ExitCode ${errorCode}` : `❌ - ExitCode ${errorCode} `;
               }
