@@ -718,6 +718,13 @@ const updateGithubIssuesAndFiles = async ({
   // Handle all removed tests
   for (const issueNumber of removedIssueNumbers) {
     console.log('handle removedIssue', issueNumber);
+
+    // Close issue.
+    await github.rest.issues.update({
+      ...context.repo,
+      issue_number: issueNumber,
+      state: 'closed'
+    });
   }
 
 
