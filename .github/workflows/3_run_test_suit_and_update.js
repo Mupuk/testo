@@ -1,11 +1,22 @@
-const { platform } = require('os');
+const { makeExtendedRegExp } = require('./_utils.js');
 
+// Make sure the regex capture groups stay the same :regexGroupNames
+// When a new platform is added update :platformSpecific
+const parseIssueHeaderRegex = makeExtendedRegExp(String.raw`
+  (?<=\| :-.*$\s)          # Match and skip table data splitter | :-: | :-: | :-: | :-: | + newline
 
+  # Match and capture the table data
+  \| (?<emailedIn>.*?) \| (?<reportedVersion>.*?) \| (?<latestBrokenVersion>.*?) \| (?<latestBrokenPlatforms>.*?) \| (?<fixVersion>.*?) \| 
+`,
+'m' // Flags
+);
 
-const parseIssueHeaderStatusRegex =
-  /(?<=\| :-.*\s)\| (?<emailedIn>.*?) \| (?<lastBrokenPlatforms>.*?) \| (?<lastEncounteredVersion>.*?) \| (?<fixVersion>.*?) \|/im;
-const parseIssueHistoryRegex =
-  /(?<=History$\s(?:.*$\s){2,})\| (?<passedTest>.*?) \| (?<platforms>.*?) \| (?<date>.*?) \| (?<version>.*?) \| (?<errorCode>\d+) - Expected (?<expectedErrorCode>\d+) \|/gim;
+const parseIssueHistoryRegex =  makeExtendedRegExp(String.raw`
+  (?<=History$\s(?:.*$\s){2,})              # Match and skip the history header + skip to data
+  \| (?<version>.*?) \| (?<windows>.*?) \| (?<linux>.*?) \| (?<mac>.*?) \|        # Match row data
+`,
+'mig' // Flags
+);
 
 
 const handleNewTests = ({ newTestResults, newTestIssueNumbers, platform, currentJaiVersion, github, context}) => {
@@ -631,6 +642,27 @@ const updateGithubIssuesAndFiles = async ({
   const newIssueNumbers = newTestIssueNumbers.filter(
     (item) => !oldTestIssueNumbers.includes(item),
   );
+  // @copyPasta
+  // Make sure that all new tests have a result for the current version on all active platforms
+  for (const issueNumber of newIssueNumbers)
+  {
+    // It is garanteed that we at least have one result from the current machine on this version
+    let newResultsForCurrentVersion = allTestResults[issueNumber][currentJaiVersion];
+    if (!newResultsForCurrentVersion) {
+      console.error('No results found for:', issueNumber, currentJaiVersion);
+      throw new Error('No results found. This should never happen. Most likely something bad happened, or the runner this is running on was not part of the suit runners anymore! In the latter case, this runner could be out of date - or the only one with a newer version.');
+    }
+
+    // Enforce that all active platforms have a result for this version
+    // No matter if this runner is on a newer or older one. At least one platform
+    // would be missing in the result set, which would get detected here.
+    for (const platform of activePlatforms) {
+      if (!newResultsForCurrentVersion[platform]) {
+        console.error('No results found for:', issueNumber, currentJaiVersion, platform);
+        throw new Error('No results found. This should never happen. Most likely not all runners have been updated to the latest version!');
+      }
+    }
+  }
   console.log('newIssueNumbers', JSON.stringify(newIssueNumbers, null, 2));
 
   // Find all tests that were removed
@@ -666,7 +698,7 @@ const updateGithubIssuesAndFiles = async ({
       for (const platform of activePlatforms) {
         if (!newResultsForCurrentVersion[platform]) {
           console.error('No results found for:', issueNumber, currentJaiVersion, platform);
-          throw new Error('No results found. This should never happen. Most likely not all runners have been updated to the same version!');
+          throw new Error('No results found. This should never happen. Most likely not all runners have been updated to the latest version!');
         }
       }
 
@@ -711,7 +743,7 @@ const updateGithubIssuesAndFiles = async ({
 
   // Update all new and changed tests. All unchanged tests are already up to date
   for (const issueNumber of [...newIssueNumbers, ...changedIssueNumbers]) {
-    const testResult = allTestResults[issueNumber];
+    const testResultForCurrentVersion = allTestResults[issueNumber][currentJaiVersion];
     console.log('handle newOrChangedIssue', issueNumber);
 
     try {
@@ -720,12 +752,92 @@ const updateGithubIssuesAndFiles = async ({
         ...context.repo,
         issue_number: issueNumber,
       });
-      issue.body = issue.body.replace(/\r\n/g, '\n').replace(/\r/g, '\n');
+      const newIssueBody = issue.body.replace(/\r\n/g, '\n').replace(/\r/g, '\n');
       const existingLabels = issue.labels.map(label => label.name);
 
 
-      
-      //@todo
+      // const match = newIssueBody.matchAll(regex);
+      // console.log([...match].map(m => m.groups));
+
+      // If the current testResult has only one version, we can just update the latest
+      // or append new one if version is not in history
+      let replaceIndex = 0;
+      newIssueBody = newIssueBody.replace(parseIssueHistoryRegex, (match, ...args) => {
+        const row = args.pop();
+        const columnNames = Object.keys(row);
+        if (columnNames.length === 0) return match;
+        // When adding new rows that are not platforms :historyColumns
+        const filteredColumnNames = columnNames.filter(c => c !== 'version');
+        if (filteredColumnNames.length === 0) return match;
+
+        if (filteredColumnNames.length != activePlatforms.length) {
+          console.error('Column names do not match active platforms:', filteredColumnNames, activePlatforms);
+          throw new Error('Column names do not match active platforms. Not yet supported');
+        }
+
+        console.log(filteredColumnNames);
+        let output = '';
+
+        // Add new row since the current version should be the latest, and therefore the first!
+        if (replaceIndex === 0 && row.version !== currentJaiVersion) {
+          const result = testResultForCurrentVersion[column];
+          // Should be in order as the captured groups
+          for (const column of columnNames) {
+            const value = result[column];
+            output += `| ${value} `;
+          }
+          output += '|';
+
+          // To not force overwrite the *now* second row which was the first before
+          replaceIndex += 1; 
+
+          // If its the very first entry in the history, we dont need to readd the 
+          // empty template line
+          if (row.version !== '-') {
+            output += '\n' + match
+            return output;
+          }
+        }
+
+        // Update the captured row 
+        const resultForRowVersion = allTestResults[issueNumber][row.version]
+        if (!resultForRowVersion) {
+          if (row.version === currentJaiVersion) {
+            if (replaceIndex === 0) {
+              // :historyColumns
+              console.error(`No TestResults found for '${column}' while updating issue '${issueNumber} for version '${row.version}'`);
+              throw new Error('Error updating issue. This should only ever happen if the issue template was modified.');
+            } else {
+              throw new Error('Error only the first row should ever be the current version');
+            }
+          } else {
+            // We dont have any data for this version, so we can not update it
+            return match;
+          }
+          
+        }
+        output += `| ${row.version} |`; //  :historyColumns
+        for (const column of filteredColumnNames) { // windows, linux, mac
+          let value = row[column];
+          // always update first row, otherwise fill in missing data
+          if (value === '-' || replaceIndex === 0) { 
+            // We dont know if we have data for the platform, just try
+            const result = resultForRowVersion[column];
+            if (!result) {
+                continue;
+            }
+
+            console.log('Force overwriting:', column, row.version);
+
+            const errorCode = result.did_run ? result.run_exit_code : result.compilation_exit_code;
+            value = result.passed_test ? `✅ - ExitCode ${errorCode}` : `❌ - ExitCode ${errorCode} `;
+          }
+          output += ` ${value} |`;
+        }
+
+        replaceIndex += 1;
+        return output;
+      });
 
 
       console.log('Updated Issue for newly added or changed test', issueNumber);

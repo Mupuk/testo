@@ -93,6 +93,29 @@ function format(template, params) {
 }
 
 
+// Lets you comment out parts of a regex pattern by using `#` as a comment character
+// Example:
+//
+// const input = 'foo bar baz';
+// const pattern = makeExtendedRegExp(String.raw`
+//   ^       # match the beginning of the line
+//   (FOO)   # 1st capture group: match one or more word characters
+//   \s      # match a whitespace character
+//   (\w+)   # 2nd capture group: match one or more word characters
+// `, 'i);
+// console.log(input.replace(pattern, '$2 $1')); // returns "bar foo baz"
+
+function makeExtendedRegExp(inputPatternStr, flags) {
+  // Remove the first unescaped `#`, any preceeding unescaped spaces, and everything that follows
+  // and then remove leading and trailing whitespace on each line, including linebreaks
+  const cleanedPatternStr = inputPatternStr
+    .replace(/(^|[^\\]) *#.*/g, '$1')
+    .replace(/^\s+|\s+$|\n/gm, '');
+  console.log(cleanedPatternStr);
+  return new RegExp(cleanedPatternStr, flags);
+}
+
+
 
 const isDeepEqual = (object1, object2) => {
   const isObject = (object) => {
@@ -135,6 +158,7 @@ function deepMerge(target, source) {
 
 module.exports = {
   getCurrentJaiVersion,
+  makeExtendedRegExp,
   format,
   isDeepEqual,
   deepMerge,
