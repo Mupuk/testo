@@ -2,15 +2,15 @@
   "262": {
     "beta-0.1.093": {
       "linux": {
-        "compilation_exit_code": 0,
-        "expected_compilation_exit_code": 0,
+        "compilation_exit_code": 1,
+        "expected_compilation_exit_code": 1,
         "expected_run_exit_code": -1,
         "is_runtime_test": false,
         "passed_test": true,
         "run_exit_code": -1
       }
     },
-    "file_path": "compiler_bugs/CEC0_262.jai",
+    "file_path": "compiler_bugs/CEC1_262.jai",
     "issue_number": 262
   },
   "264": {
@@ -18,13 +18,13 @@
       "linux": {
         "compilation_exit_code": 0,
         "expected_compilation_exit_code": 0,
-        "expected_run_exit_code": 0,
+        "expected_run_exit_code": 2,
         "is_runtime_test": true,
         "passed_test": false,
         "run_exit_code": 3
       }
     },
-    "file_path": "compiler_bugs/REC0_264.jai",
+    "file_path": "compiler_bugs/REC2_264.jai",
     "issue_number": 264
   },
   "999": {
