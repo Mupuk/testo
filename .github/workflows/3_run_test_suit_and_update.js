@@ -849,13 +849,13 @@ const updateGithubIssuesAndFiles = async ({
 
       // @todo add labels of broken platforms
       // Update issue
-      // await github.rest.issues.update({
-      //   ...context.repo,
-      //   issue_number: issueNumber,
-      //   body: newIssueBody,
-      //   // state: 'closed', // @todo
-      //   // labels: updatedUniqueLabels,
-      // });
+      await github.rest.issues.update({
+        ...context.repo,
+        issue_number: issueNumber,
+        body: newIssueBody,
+        // state: 'closed', // @todo
+        // labels: updatedUniqueLabels,
+      });
       console.log('Updated Issue for newly added or changed test', issueNumber);
     } catch (error) {
       if (error.status === 404) {
