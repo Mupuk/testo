@@ -10,7 +10,7 @@
 # [ ] cleanup and rework (3)
 # [ ] change emailed in handling and add lable for it
 # [ ] update issue template to support is_runtime_test
-# [ ] 
+# [ ] making the test run without offline platform? How?
 # [ ] 
 # [ ] 
 

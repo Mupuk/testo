@@ -36,7 +36,7 @@ const getCurrentJaiVersion = async ({ exec }) => {
       'The version format has changed! Please update all places that break, like the IssueTrackers histories sorting with mixed version formats of the old and new one. :versionChange',
       version,
     );
-    process.exit(1);
+    throw new Error('Version format has changed! Please update the version format in the script.');
   }
 
   return version;

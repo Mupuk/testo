@@ -1,4 +1,7 @@
 
+// These platforms are enforced to run. All results of other platforms are 
+// ignored for change detection and updates. :platformSpecific
+const activePlatforms = ['windows', 'linux'/*, 'macos'*/];
 
 
 const parseIssueHeaderStatusRegex =
@@ -569,35 +572,48 @@ const updateGithubIssuesAndFiles = async ({
   const { createLabels } = require('./_create_label.js');
   // console.log('testSuitOutput', JSON.stringify(testSuitOutputs, null, 2));
 
+  const currentJaiVersion = await getCurrentJaiVersion({ exec });
   
-  // Load all results from each platform, and merge them  :platformSpecific
-  let windowsTestResults = {};
-  try {
-    const data = fs.readFileSync('windows/test_results.json', 'utf8');
-    windowsTestResults = JSON.parse(data);
-  } catch (err) {
-    console.error('Error reading file:', err);
+  let allTestResults = {};
+  for (platform in activePlatforms) {
+    let platformTestResults = {};
+    try {
+      const data = fs.readFileSync(`${platform}/test_results.json`, 'utf8');
+      platformTestResults = JSON.parse(data);
+    } catch (err) {
+      console.error('Error reading file:', err);
+      // throw new Error('Error reading file'); // Active platforms are enforced to run
+    }
+    console.log(`${platform}TestResults`, JSON.stringify(platformTestResults, null, 2));
+    allTestResults = deepMerge(allTestResults, platformTestResults);
   }
-  // console.log('windowsTestResults', JSON.stringify(windowsTestResults, null, 2));
 
-  let linuxTestResults = {};
-  try {
-    const data = fs.readFileSync('linux/test_results.json', 'utf8');
-    linuxTestResults = JSON.parse(data);
-  } catch (err) {
-    console.error('Error reading file:', err);
-  }
-  // console.log('linuxTestResults', JSON.stringify(linuxTestResults, null, 2));
-
-  let allTestResults = deepMerge(windowsTestResults, linuxTestResults);
   console.log('allTestResults', JSON.stringify(allTestResults , null, 2));
+
+  // // Load all results from each platform, and merge them  :platformSpecific
+  // let windowsTestResults = {};
+  // try {
+  //   const data = fs.readFileSync('windows/test_results.json', 'utf8');
+  //   windowsTestResults = JSON.parse(data);
+  // } catch (err) {
+  //   console.error('Error reading file:', err);
+  // }
+  // // console.log('windowsTestResults', JSON.stringify(windowsTestResults, null, 2));
+
+  // let linuxTestResults = {};
+  // try {
+  //   const data = fs.readFileSync('linux/test_results.json', 'utf8');
+  //   linuxTestResults = JSON.parse(data);
+  // } catch (err) {
+  //   console.error('Error reading file:', err);
+  // }
+  // // console.log('linuxTestResults', JSON.stringify(linuxTestResults, null, 2));
 
 
 
   //
   // Find all new, changed and removed tests
   //
-  const currentJaiVersion = await getCurrentJaiVersion({ exec });
 
   let oldTestResults = {};
   try {
@@ -628,15 +644,40 @@ const updateGithubIssuesAndFiles = async ({
   );
   console.log('commonIssueNumbers', JSON.stringify(commonIssueNumbers, null, 2));
   
+  
+  // @todo think about inconsistent states. It could happen one vm has a newer version
   // Find all tests that had a new result in the new test results
   const changedIssueNumbers = commonIssueNumbers.filter(
     (issueNumber) => {
       // Only compare latest version
-      let oldResults = oldTestResults[issueNumber]?.[currentJaiVersion];
-      oldResults ||= {};
-      let newResults = allTestResults[issueNumber]?.[currentJaiVersion];
-      newResults ||= {};
-      return !isDeepEqual(oldResults, newResults);
+      let oldResultsForCurrentVersion = oldTestResults[issueNumber][currentJaiVersion];
+      oldResultsForCurrentVersion ||= {}; // This could happen when a new compiler version was added
+      // It is garanteed that we at least have one result from the current machine on this version
+      let newResultsForCurrentVersion = allTestResults[issueNumber][currentJaiVersion];
+      if (!newResultsForCurrentVersion) {
+        console.error('No results found for:', issueNumber, currentJaiVersion);
+        throw new Error('No results found. This should never happen');
+      }
+
+      // Enforce that all runners run the same version aka have results for this version
+      for (platform in activePlatforms) {
+        if (newResultsForCurrentVersion) {
+          console.error('No results found for:', issueNumber, currentJaiVersion);
+          throw new Error('No results found. This should never happen');
+        }
+      }
+
+
+
+      // This should never happen. It could only happen when the current version is different
+      // ALL the runners. But since this is running on the same machines, there should at least
+      // be one entry. 
+      // The thing that could still happen, is that two or more runners have different versions
+      // then they would not all have results for this version.
+      //
+      // Case 1: All runners have the same version. This includes this runner. -> We happy
+      // Case 2: Two or more runners have different versions -> 2 or more versions, results split up among them
+      return !isDeepEqual(oldResultsForCurrentVersion, newResultsForCurrentVersion);
     },
   );
   console.log('changedIssueNumbers', JSON.stringify(changedIssueNumbers, null, 2));
@@ -645,9 +686,19 @@ const updateGithubIssuesAndFiles = async ({
   
 
 
+  // Update all new and changed tests. All unchanged tests are already up to date
+  for (issueNumber in [...newIssueNumbers/*, ...changedIssueNumbers*/]) {
+    const issue = allTestResults[issueNumber];
+    console.log('newOrChangedIssue', issue);
+  }
 
 
 
+  // Handle all removed tests
+  for (issueNumber in removedIssueNumbers) {
+    const issue = oldTestResults[issueNumber];
+    console.log('removedIssue', issue);
+  }
 
 
 
