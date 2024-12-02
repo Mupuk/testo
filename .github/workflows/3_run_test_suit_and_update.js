@@ -632,9 +632,9 @@ const updateGithubIssuesAndFiles = async ({
   const changedIssueNumbers = commonIssueNumbers.filter(
     (issueNumber) => {
       // Only compare latest version
-      const oldResults = oldTestResults[issueNumber]?.[currentJaiVersion];
+      let oldResults = oldTestResults[issueNumber]?.[currentJaiVersion];
       oldResults ||= {};
-      const newResults = allTestResults[issueNumber]?.[currentJaiVersion];
+      let newResults = allTestResults[issueNumber]?.[currentJaiVersion];
       newResults ||= {};
       return !isDeepEqual(oldResults, newResults);
     },
