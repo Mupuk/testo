@@ -34,7 +34,8 @@ function migrateIssueHistory(issueBody) {
     process.exit(1);
   }
   switch (historyVersion) { // fall through to update to latest version
-    case '1': // Migrate from V1 to V2
+    case '0': // dummy
+    // case '1': // Migrate from V1 to V2
       // Example:
       // 
       // // replace row data
@@ -52,14 +53,14 @@ function migrateIssueHistory(issueBody) {
     // case '2': // Migrate from V1 to V2
 
     
-      break;
+    console.log('Migration successful');
+    console.log('Old Issue Body:', issueBody);
+    console.log('New Issue Body:', newIssueBody);
+    break;
     default:
-      console.log('ERROR No migration for history version:', historyVersion);
-      process.exit(1);
+      // console.log('ERROR No migration for history version:', historyVersion);
+      // process.exit(1);
   }
-  console.log('Migration successful');
-  console.log('Old Issue Body:', issueBody);
-  console.log('New Issue Body:', newIssueBody);
   return newIssueBody;
 }
 
