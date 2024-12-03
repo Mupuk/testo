@@ -37,7 +37,7 @@ function migrateIssueHistory(issueBody) {
   let newIssueBody = issueBody;
   const historyVersion = issueBody.match(parseIssueHistoryVersion)?.groups.version;
   if (!historyVersion) {
-    console.log('Problematic issue body:', JSON.stringify(issueBody, null, 2));
+    console.log('Problematic issue body:', issueBody);
     console.log('No history version found in issue body');
     process.exit(1);
   }
