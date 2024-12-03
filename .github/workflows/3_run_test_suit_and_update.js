@@ -853,7 +853,7 @@ const updateGithubIssuesAndFiles = async ({
                   // Github has a limit of 100 labels? Lets jut limit them!
                   // As we iterate descendingly it will always include the latest
                   // 50 broken versions
-                  if (brokenVersions.length < 2) {
+                  if (brokenVersions.length < 50) {
                     brokenVersions.push(row.version);
                   } 
  
