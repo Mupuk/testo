@@ -50,7 +50,7 @@ function migrateIssueHistory(issueBody) {
 
     break;
     default:
-      console.log('No migration for history version:', historyVersion);
+      console.log('ERROR No migration for history version:', historyVersion);
       process.exit(1);
   }
   return newIssueBody;
