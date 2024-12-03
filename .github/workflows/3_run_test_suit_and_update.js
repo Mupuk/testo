@@ -979,12 +979,12 @@ const updateGithubIssuesAndFiles = async ({
       });
 
       console.log('newIssueBody', issueNumber, replaceIndex, newIssueBody);
-      // if (replaceIndex === -1) {
-      //   console.log(
-      //     'ERROR nothing was replaced in the issue history. This most likely happened because the regex was modified and does match the issue template.',
-      //   );
-      //   process.exit(1);
-      // }
+      if (replaceIndex === -1) {
+        console.log(
+          'ERROR nothing was replaced in the issue history. This most likely happened because the regex was modified and does match the issue template.',
+        );
+        process.exit(1);
+      }
 
       const historyColumns = getGroupNames(parseIssueHistoryRegex);
       const existingLabelsWithoutPlatformsAndBrokenVersions = existingLabels
@@ -1006,56 +1006,56 @@ const updateGithubIssuesAndFiles = async ({
       // Update Header
       replaceIndex = -1;
       newIssueBody = newIssueBody.replace(parseIssueHeaderRegex, (match, ...args) => {
-          const row = args.pop(); // grep the groups object
-          const columnNames = Object.keys(row);
-          console.log('updating header', issueNumber, match);
+        replaceIndex += 1;
+        const row = args.pop(); // grep the groups object
+        const columnNames = Object.keys(row);
+        console.log('updating header', issueNumber, match);
 
-          let output = '';
-          for (const column of columnNames) {
-            let value = row[column];
-            if (column === 'latestBrokenPlatforms') {
-              const latestBrokenVersion =
-                brokenVersions.sort((a, b) => -jaiVersionComparator(a, b))[0] ||
-                '-';
-              if (latestBrokenVersion === '-') {
-                value = '-';
-              } else {
-                const brokenPlatformsForLatestBrokenVersion = Object.keys(
-                  fullHistoryDataByVersion[latestBrokenVersion] || {},
-                ).filter(
-                  (k) =>
-                    k !== 'version' &&
-                    fullHistoryDataByVersion[latestBrokenVersion][k].includes(
-                      '❌',
-                    ),
-                );
+        let output = '';
+        for (const column of columnNames) {
+          let value = row[column];
+          if (column === 'latestBrokenPlatforms') {
+            const latestBrokenVersion =
+              brokenVersions.sort((a, b) => -jaiVersionComparator(a, b))[0] ||
+              '-';
+            if (latestBrokenVersion === '-') {
+              value = '-';
+            } else {
+              const brokenPlatformsForLatestBrokenVersion = Object.keys(
+                fullHistoryDataByVersion[latestBrokenVersion] || {},
+              ).filter(
+                (k) =>
+                  k !== 'version' &&
+                  fullHistoryDataByVersion[latestBrokenVersion][k].includes(
+                    '❌',
+                  ),
+              );
 
-                value = brokenPlatformsForLatestBrokenVersion.join(', ') || '-';
-              }
-            } else if (column === 'latestBrokenVersion') {
-              value =
-                brokenVersions.sort((a, b) => -jaiVersionComparator(a, b))[0] ||
-                '-';
-            } else if (column === 'fixVersion') {
-              if (brokenPlatformsForCurrentVersion.length > 0) {
-                // we have broken platforms
-                value = '-';
-              } else if (value === '-') {
-                // we just fixed it
-                value = currentJaiVersion;
-              } // else leave it as it is
-            } else if (column === 'reportedVersion') {
-              if (row.reportedVersion === '-') {
-                value = currentJaiVersion;
-              }
+              value = brokenPlatformsForLatestBrokenVersion.join(', ') || '-';
             }
-            output += `| ${value} `;
+          } else if (column === 'latestBrokenVersion') {
+            value =
+              brokenVersions.sort((a, b) => -jaiVersionComparator(a, b))[0] ||
+              '-';
+          } else if (column === 'fixVersion') {
+            if (brokenPlatformsForCurrentVersion.length > 0) {
+              // we have broken platforms
+              value = '-';
+            } else if (value === '-') {
+              // we just fixed it
+              value = currentJaiVersion;
+            } // else leave it as it is
+          } else if (column === 'reportedVersion') {
+            if (row.reportedVersion === '-') {
+              value = currentJaiVersion;
+            }
           }
-          output += '|';
-          console.log('new header', issueNumber, output);
-          return output;
-        },
-      );
+          output += `| ${value} `;
+        }
+        output += '|';
+        console.log('new header', issueNumber, output);
+        return output;
+      });
       if (replaceIndex === -1) {
         console.log(
           'ERROR nothing was replaced in the issue header. This most likely happened because the regex was modified and does match the issue template.',
