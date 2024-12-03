@@ -763,7 +763,7 @@ const updateGithubIssuesAndFiles = async ({
 
       let fullHistoryData = [...newIssueBody.matchAll(parseIssueHistoryRegex)]
                                             .map(match => match.groups)
-                                            .sort((a, b) => jaiVersionComparator(a.version, b.version)); // sort descending
+                                            .sort((a, b) => -jaiVersionComparator(a.version, b.version)); // sort descending
       console.log('fullHistoryData', issueNumber, JSON.stringify(fullHistoryData, null, 2));
 
       // // Update History
