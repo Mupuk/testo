@@ -1,5 +1,5 @@
 {
-  "262": {
+  "264": {
     "beta-0.1.093": {
       "linux": {
         "compilation_exit_code": 1,
@@ -10,10 +10,10 @@
         "run_exit_code": -1
       }
     },
-    "file_path": "compiler_bugs/CEC1_262.jai",
-    "issue_number": 262
+    "file_path": "compiler_bugs/CEC1_264.jai",
+    "issue_number": 264
   },
-  "264": {
+  "265": {
     "beta-0.1.093": {
       "linux": {
         "compilation_exit_code": 0,
@@ -24,8 +24,8 @@
         "run_exit_code": 3
       }
     },
-    "file_path": "compiler_bugs/REC2_264.jai",
-    "issue_number": 264
+    "file_path": "compiler_bugs/REC2_265.jai",
+    "issue_number": 265
   },
   "999": {
     "beta-0.1.093": {

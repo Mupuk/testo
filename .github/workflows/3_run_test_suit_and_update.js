@@ -1028,7 +1028,6 @@ const updateGithubIssuesAndFiles = async ({
           ...existingLabelsWithoutPlatformsAndBrokenVersions,
           ...brokenVersions,
           ...brokenPlatformsForCurrentVersion,
-          'asdfasdfasdfasdf'
         ]),
       ];
       console.log(
@@ -1195,10 +1194,8 @@ const updateGithubIssuesAndFiles = async ({
         ...context.repo,
         issue_number: issueNumber,
         body: newIssueBody,
-        state: updatedUniqueLabels.includes(currentJaiVersion)
-          ? 'open'
-          : 'closed',
-        // labels: updatedUniqueLabels,
+        state: updatedUniqueLabels.includes(currentJaiVersion) ? 'open' : 'closed',
+        labels: updatedUniqueLabels,
       });
       console.log('Updated Issue for newly added or changed test', issueNumber);
     } catch (error) {
@@ -1213,6 +1210,9 @@ const updateGithubIssuesAndFiles = async ({
       }
     }
   }
+
+
+
 
   // Handle all removed tests
   for (const issueNumber of removedIssueNumbers) {
