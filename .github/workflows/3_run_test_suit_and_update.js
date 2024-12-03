@@ -766,6 +766,30 @@ const updateGithubIssuesAndFiles = async ({
                                             .sort((a, b) => -jaiVersionComparator(a.version, b.version)); // sort descending
       console.log('fullHistoryData', issueNumber, JSON.stringify(fullHistoryData, null, 2));
 
+
+      // Update History
+
+
+      // Insert update into body
+      let replaceIndex = -1;
+      newIssueBody = newIssueBody.replace(parseIssueHistoryRegex, (match) => {
+        replaceIndex += 1;
+        if (replaceIndex === 0) { // replace the first one with all data
+          let output = '';
+          fullHistoryData.forEach(row => { // its already ordered! 
+            for (const column of Object.keys(row)) { // this data was ordered by regex matcher
+              output += `| ${row[column]} `;
+            }
+            output += '|\n';
+          });
+          return output;
+        } else {
+          return ""; // delete all other rows
+        }
+      });
+
+      console.log('newIssueBody', issueNumber, replaceIndex, JSON.stringify(newIssueBody, null, 2));
+
       // // Update History
       // let replaceIndex = -1;
       // // for all rows in the history
