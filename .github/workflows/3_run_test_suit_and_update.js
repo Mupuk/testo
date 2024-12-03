@@ -877,6 +877,7 @@ const updateGithubIssuesAndFiles = async ({
       if (replaceIndex === -1) {
         console.error('ERROR nothing was replaced. This most likely happened because the regex was modified and does match the issue template.' );
         throw new Error('ERROR could not replace history data');
+        process.exit(1);
       }
 
       const historyColumns = getGroupNames(parseIssueHistoryRegex);
@@ -933,6 +934,7 @@ const updateGithubIssuesAndFiles = async ({
       if (replaceIndex === -1) {
         console.error('ERROR nothing was replaced. This most likely happened because the regex was modified and does match the issue template.' );
         throw new Error('ERROR could not replace history header');
+        process.exit(1);
       }
 
       // // Update History
