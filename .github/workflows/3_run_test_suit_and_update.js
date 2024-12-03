@@ -745,7 +745,7 @@ const updateGithubIssuesAndFiles = async ({
   for (const issueNumber of [...newIssueNumbers, ...changedIssueNumbers]) {
     console.log('handle newOrChangedIssue', issueNumber);
 
-    const allTestResultVersions = Object.keys(allTestResults[issueNumber]).filter(v => v.test(jaiVersionRegex));
+    const allTestResultVersions = Object.keys(allTestResults[issueNumber]).filter(v => jaiVersionRegex.test(v));
 
     console.log('allTestResultVersions', issueNumber, JSON.stringify(allTestResultVersions, null, 2));
 
