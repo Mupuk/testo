@@ -18,6 +18,17 @@ const parseIssueHistoryRegex =  makeExtendedRegExp(String.raw`
 'mig' // Flags
 );
 
+// We use this so have to change fewer things when adding a new platform
+function getGroupNames(regex) {
+  const pattern = /\(\?<(\w+)>/g;
+  const groupNames = [];
+  let match;
+  while ((match = pattern.exec(regex.source)) !== null) {
+    groupNames.push(match[1]);
+  }
+  return groupNames;
+}
+
 
 const handleNewTests = ({ newTestResults, newTestIssueNumbers, platform, currentJaiVersion, github, context}) => {
 
@@ -761,22 +772,70 @@ const updateGithubIssuesAndFiles = async ({
       let newIssueBody = issue.body.replace(/\r\n/g, '\n').replace(/\r/g, '\n');
       const existingLabels = issue.labels.map(label => label.name);
 
-      let fullHistoryData = [...newIssueBody.matchAll(parseIssueHistoryRegex)]
+      let fullHistoryDataByVersion = [...newIssueBody.matchAll(parseIssueHistoryRegex)]
                                             .map(match => match.groups)
-                                            .sort((a, b) => -jaiVersionComparator(a.version, b.version)); // sort descending
-      console.log('fullHistoryData', issueNumber, JSON.stringify(fullHistoryData, null, 2));
+                                            .reduce((acc, item) => {
+                                              acc[item.version] = item;
+                                              return acc;
+                                            }, {});
+      console.log('fullHistoryDataByVersion', issueNumber, JSON.stringify(fullHistoryDataByVersion, null, 2));
 
 
       // Update History
+      for (const version of allTestResultVersions) {
+        let row = fullHistoryDataByVersion[version];
+        if (!row) { // insert new row
+          row = {};
+          getGroupNames(parseIssueHistoryRegex).forEach(groupName => {
+            if (groupName === 'version') { // Special case for version
+              row[groupName] = version;
 
+            } else if (activePlatforms.includes(groupName)) { // We have results for the platform!
+              const testResult = allTestResults[issueNumber][version][groupName];
+              if (!testResult) {
+                throw new Error('Should never happen!');
+              }
 
-      // Insert update into body
+              const errorCode = testResult.is_runtime_test ? testResult.run_exit_code : testResult.compilation_exit_code;
+              row[groupName] = testResult.passed_test ? `✅ - ExitCode ${errorCode}` : `❌ - ExitCode ${errorCode} `;
+
+            } else { // We dont have any result for this platform. Maybe it was inactive
+              row[groupName] = '-';
+            }
+          });
+        } else { // update row
+          for (const platformColumn of activePlatforms) {
+            let platformResult = row[platformColumn];
+            if (!platformResult) { // insert new platform?
+              throw new Error('Not yet supported');
+            }
+
+            // update missing values and always overwrite current versions results
+            if (row[platformColumn] === '-' || row.version === currentJaiVersion) { 
+              const testResult = allTestResults[issueNumber][version][platformColumn];
+              const errorCode = testResult.is_runtime_test ? testResult.run_exit_code : testResult.compilation_exit_code;
+              row[platformColumn] = testResult.passed_test ? `✅ - ExitCode ${errorCode}` : `❌ - ExitCode ${errorCode} `;
+            }
+
+            // Otherwise do not update old history
+          }
+        }
+      }
+      console.log('fullHistoryDataByVersion after edit', issueNumber, JSON.stringify(fullHistoryDataByVersion, null, 2));
+
+      const sortedHistoryData = fullHistoryDataByVersion
+                                  .map(row => row)
+                                  .sort((a, b) => -jaiVersionComparator(a.version, b.version)); // sort descending
+
+      console.log('sortedHistoryData', issueNumber, JSON.stringify(sortedHistoryData, null, 2));
+
+      // Insert update data into body
       let replaceIndex = -1;
       newIssueBody = newIssueBody.replace(parseIssueHistoryRegex, (match) => {
         replaceIndex += 1;
         if (replaceIndex === 0) { // replace the first one with all data
           let output = '';
-          fullHistoryData.forEach(row => { // its already ordered! 
+          sortedHistoryData.forEach(row => { // its already ordered! 
             for (const column of Object.keys(row)) { // this data was ordered by regex matcher
               output += `| ${row[column]} `;
             }
