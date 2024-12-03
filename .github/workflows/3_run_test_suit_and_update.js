@@ -892,7 +892,19 @@ const updateGithubIssuesAndFiles = async ({
         for (const column of columnNames) {
           let value = row[column];
           if (column === 'latestBrokenPlatforms') {
-            value = brokenPlatformsForCurrentVersion.join(', ') || '-';
+            const latestBrokenVersion = brokenVersions.sort((a, b) => -jaiVersionComparator(a,b))[0] || '-';
+            if (latestBrokenVersion === '-') {
+              value = '-';
+            } else {
+              const brokenPlatformsForLatestBrokenVersion = 
+                      Object.keys(fullHistoryDataByVersion[latestBrokenVersion] || {})
+                      .filter(
+                        k => k !== 'version' 
+                          && fullHistoryDataByVersion[latestBrokenVersion][k].includes('❌')
+                      );
+
+              value = brokenPlatformsForLatestBrokenVersion.join(', ') || '-';
+            }
           } else if (column === 'latestBrokenVersion') {
             value = brokenVersions.sort((a, b) => -jaiVersionComparator(a,b))[0] || '-';
           } else if (column === 'fixVersion') {
