@@ -13,14 +13,30 @@ const parseIssueHeaderRegex = makeExtendedRegExp(
 );
 
 // If a colum is added that is not a platform, it has to be added here :historyColumns
-const parseIssueHistoryRegex = makeExtendedRegExp(
+// When changine this, make sure to update the migration below. Also we leave old version
+// for reference.
+const parseIssueHistoryRegexV1 = makeExtendedRegExp(
   String.raw`
   (?<=History$\s(?:.*$\s){2,})              # Match and skip the history header + skip to data
   # \| (?<version>.*?) \| (?<windows>.*?) \| (?<linux>.*?) \| (?<mac>.*?) \|\s?        # Match row data
+  \| (?<version>.*?) \| (?<linux>.*?) \|\s?        # Match row data
+`,
+  'mig', // Flags
+);
+
+const parseIssueHistoryRegexV2 = makeExtendedRegExp(
+  String.raw`
+  (?<=History$\s(?:.*$\s){2,})              # Match and skip the history header + skip to data
   \| (?<version>.*?) \| (?<windows>.*?) \| (?<linux>.*?) \|\s?        # Match row data
 `,
   'mig', // Flags
 );
+
+const parseIssueHistoryRegex = parseIssueHistoryRegexV1;
+
+function migrateIssueHistory(issueBody) {
+
+}
 
 // We use this so have to change fewer things when adding a new platform
 function getGroupNames(regex) {
