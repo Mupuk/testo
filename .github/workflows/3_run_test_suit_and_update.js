@@ -11,6 +11,7 @@ const parseIssueHeaderRegex = makeExtendedRegExp(String.raw`
 'm' // Flags
 );
 
+// If a colum is added that is not a platform, it has to be added here :historyColumns
 const parseIssueHistoryRegex =  makeExtendedRegExp(String.raw`
   (?<=History$\s(?:.*$\s){2,})              # Match and skip the history header + skip to data
   \| (?<version>.*?) \| (?<windows>.*?) \| (?<linux>.*?) \| (?<mac>.*?) \|\s?        # Match row data
@@ -788,7 +789,7 @@ const updateGithubIssuesAndFiles = async ({
           fullHistoryDataByVersion[version] = {};
           row = fullHistoryDataByVersion[version]; 
           getGroupNames(parseIssueHistoryRegex).forEach(groupName => {
-            if (groupName === 'version') { // Special case for version
+            if (groupName === 'version') { // Special case for version :historyColumns
               row[groupName] = version;
 
             } else if (activePlatforms.includes(groupName)) { // We have results for the platform!
@@ -835,6 +836,8 @@ const updateGithubIssuesAndFiles = async ({
 
       console.log('sortedHistoryData', issueNumber, JSON.stringify(sortedHistoryData, null, 2));
 
+      const brokenVersions = [];
+
       // Insert update data into body
       let replaceIndex = -1;
       newIssueBody = newIssueBody.replace(parseIssueHistoryRegex, (match) => {
@@ -843,6 +846,12 @@ const updateGithubIssuesAndFiles = async ({
           let output = '';
           sortedHistoryData.forEach(row => { // its already ordered! 
             for (const column of Object.keys(row)) { // this data was ordered by regex matcher
+              // Keep track of all broken versions to add the labels later on
+              if (column !== 'version') { // :historyColumns
+                if (row[column].includes('❌')) {
+                  brokenVersions.push(row.version);
+                }
+              }
               output += `| ${row[column]} `;
             }
             output += '|\n';
@@ -854,6 +863,9 @@ const updateGithubIssuesAndFiles = async ({
       });
 
       console.log('newIssueBody', issueNumber, replaceIndex, JSON.stringify(newIssueBody, null, 2));
+
+      const updatedUniqueLabels = [...new Set([...existingLabels, brokenVersions])];
+      console.log('updatedUniqueLabels', issueNumber, JSON.stringify(updatedUniqueLabels, null, 2));
 
       // // Update History
       // let replaceIndex = -1;
@@ -945,20 +957,14 @@ const updateGithubIssuesAndFiles = async ({
 
       // console.log('newIssueBody', issueNumber, replaceIndex, JSON.stringify(newIssueBody, null, 2));  
 
-      // var passedAllTests = true;
-      // for (const platform of activePlatforms) {
-      //   const result = testResultForCurrentVersion[platform];
-      //   passedAllTests = passedAllTests && result.passed_test;
-      // }
-
       // Update issue
-      // await github.rest.issues.update({
-      //   ...context.repo,
-      //   issue_number: issueNumber,
-      //   body: newIssueBody,
-      //   state: passedAllTests ? 'closed' : 'open',
-      //   labels: existingLabels, // @todo add labels of broken platforms
-      // });
+      await github.rest.issues.update({
+        ...context.repo,
+        issue_number: issueNumber,
+        body: newIssueBody,
+        state: updatedUniqueLabels.includes(currentJaiVersion) ? 'open' : 'closed',
+        labels: updatedUniqueLabels,
+      });
       console.log('Updated Issue for newly added or changed test', issueNumber);
     } catch (error) {
       if (error.status === 404) {
