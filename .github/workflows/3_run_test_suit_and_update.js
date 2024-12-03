@@ -577,7 +577,7 @@ const updateGithubIssuesAndFiles = async ({
   // testSuitOutputs,
 }) => {
   const fs = require('fs');
-  const { getCurrentJaiVersion, jaiVersionRegex, isDeepEqual, deepMerge } = require('./_utils.js');
+  const { getCurrentJaiVersion, jaiVersionRegex, jaiVersionComparator, isDeepEqual, deepMerge } = require('./_utils.js');
   const { createLabels, createLabel } = require('./_create_label.js');
 
   createLabel({ github, context, labelName: 'removed-test' });
@@ -745,7 +745,9 @@ const updateGithubIssuesAndFiles = async ({
   for (const issueNumber of [...newIssueNumbers, ...changedIssueNumbers]) {
     console.log('handle newOrChangedIssue', issueNumber);
 
-    const allTestResultVersions = Object.keys(allTestResults[issueNumber]).filter(v => jaiVersionRegex.test(v));
+    const allTestResultVersions = Object.keys(allTestResults[issueNumber])
+                                        .filter(v => jaiVersionRegex.test(v))
+                                        .sort((a, b) => -jaiVersionComparator(a, b)); // sort descending
 
     console.log('allTestResultVersions', issueNumber, JSON.stringify(allTestResultVersions, null, 2));
 
@@ -760,7 +762,8 @@ const updateGithubIssuesAndFiles = async ({
       const existingLabels = issue.labels.map(label => label.name);
 
       let fullHistoryData = [...newIssueBody.matchAll(parseIssueHistoryRegex)]
-                                            .map(match => match.groups);
+                                            .map(match => match.groups)
+                                            .sort((a, b) => -jaiVersionComparator(a.version, b.version)); // sort descending
       console.log('fullHistoryData', issueNumber, JSON.stringify(fullHistoryData, null, 2));
 
       // // Update History
