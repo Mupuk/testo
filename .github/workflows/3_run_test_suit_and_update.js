@@ -872,7 +872,7 @@ const updateGithubIssuesAndFiles = async ({
       const existingLabelsWithoutPlatformsAndBrokenVersions = 
                 existingLabels.filter(l => historyColumns.includes(l) === false)
                               .filter(l => brokenVersions.includes(l) === false);
-      const updatedUniqueLabels = [...new Set([...existingLabelsWithoutPlatforms, ...brokenVersions, ...brokenPlatformsForCurrentVersion])];
+      const updatedUniqueLabels = [...new Set([...existingLabelsWithoutPlatformsAndBrokenVersions, ...brokenVersions, ...brokenPlatformsForCurrentVersion])];
       console.log('updatedUniqueLabels', issueNumber, JSON.stringify(updatedUniqueLabels, null, 2));
 
       // // Update History
