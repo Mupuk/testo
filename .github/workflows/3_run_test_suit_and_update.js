@@ -873,7 +873,7 @@ const updateGithubIssuesAndFiles = async ({
         }
       });
 
-      console.log('newIssueBody', issueNumber, replaceIndex, JSON.stringify(newIssueBody, null, 2));
+      console.log('newIssueBody', issueNumber, replaceIndex, newIssueBody);
 
       const historyColumns = getGroupNames(parseIssueHistoryRegex);
       const existingLabelsWithoutPlatformsAndBrokenVersions = 
