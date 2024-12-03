@@ -892,7 +892,7 @@ const updateGithubIssuesAndFiles = async ({
         for (const column of columnNames) {
           let value = row[column];
           if (column === 'latestBrokenPlatforms') {
-            value = brokenPlatformsForCurrentVersion.join(', ');
+            value = brokenPlatformsForCurrentVersion.join(', ') || '-';
           } else if (column === 'latestBrokenVersion') {
             value = brokenVersions.sort((a, b) => -jaiVersionComparator(a,b))[0] || '-';
           } else if (column === 'fixVersion') {
