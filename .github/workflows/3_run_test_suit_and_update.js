@@ -743,8 +743,12 @@ const updateGithubIssuesAndFiles = async ({
 
   // Update all new and changed tests. All unchanged tests are already up to date
   for (const issueNumber of [...newIssueNumbers, ...changedIssueNumbers]) {
-    const testResultForCurrentVersion = allTestResults[issueNumber][currentJaiVersion];
     console.log('handle newOrChangedIssue', issueNumber);
+
+    const allTestResultVersions = Object.keys(allTestResults[issueNumber]);
+
+    console.log('allTestResultVersions', issueNumber, JSON.stringify(allTestResultVersions, null, 2));
+
 
     try {
       // Get Issue and Labels
@@ -755,111 +759,113 @@ const updateGithubIssuesAndFiles = async ({
       let newIssueBody = issue.body.replace(/\r\n/g, '\n').replace(/\r/g, '\n');
       const existingLabels = issue.labels.map(label => label.name);
 
+      let fullHistoryData = newIssueBody.matchAll(parseIssueHistoryRegex).map(match => match.groups);
+      console.log('fullHistoryData', issueNumber, JSON.stringify(fullHistoryData, null, 2));
 
-      // Update History
-      let replaceIndex = -1;
-      // for all rows in the history
-      newIssueBody = newIssueBody.replace(parseIssueHistoryRegex, (match, ...args) => {
-        replaceIndex += 1;
-        const row = args.pop(); // grep the groups object
-        const columnNames = Object.keys(row);
-        // When adding new rows that are not platforms :historyColumns
-        const filteredColumnNames = columnNames.filter(c => c !== 'version');
-        if (filteredColumnNames.length === 0) return match;
+      // // Update History
+      // let replaceIndex = -1;
+      // // for all rows in the history
+      // newIssueBody = newIssueBody.replace(parseIssueHistoryRegex, (match, ...args) => {
+      //   replaceIndex += 1;
+      //   const row = args.pop(); // grep the groups object
+      //   const columnNames = Object.keys(row);
+      //   // When adding new rows that are not platforms :historyColumns
+      //   const filteredColumnNames = columnNames.filter(c => c !== 'version');
+      //   if (filteredColumnNames.length === 0) return match;
 
-        if (filteredColumnNames.length - 2 /* @todo remove -2*/ != activePlatforms.length ) {
-          console.error('Column names do not match active platforms:', filteredColumnNames, activePlatforms);
-          throw new Error('Column names do not match active platforms. Not yet supported');
-        }
+      //   if (filteredColumnNames.length - 2 /* @todo remove -2*/ != activePlatforms.length ) {
+      //     console.error('Column names do not match active platforms:', filteredColumnNames, activePlatforms);
+      //     throw new Error('Column names do not match active platforms. Not yet supported');
+      //   }
 
-        let output = '';
+      //   let output = '';
 
-        // Add new row since the current version should be the latest, and therefore the first!
-        if (replaceIndex === 0 && row.version !== currentJaiVersion) {
-          console.log('Add new row', issueNumber, row.version);
-          // Should be in order as the captured groups
-          for (const column of columnNames) {
-            let value = '-';
-            if (column === 'version') {
-              value = currentJaiVersion; //  :historyColumns
-            } else {
-              const result = testResultForCurrentVersion[column];
-              if (result) {
-                const errorCode = result.is_runtime_test ? result.run_exit_code : result.compilation_exit_code;
+      //   // Add new row since the current version should be the latest, and therefore the first!
+      //   if (replaceIndex === 0 && row.version !== currentJaiVersion) {
+      //     console.log('Add new row', issueNumber, row.version);
+      //     // Should be in order as the captured groups
+      //     for (const column of columnNames) {
+      //       let value = '-';
+      //       if (column === 'version') {
+      //         value = currentJaiVersion; //  :historyColumns
+      //       } else {
+      //         const result = testResultForCurrentVersion[column];
+      //         if (result) {
+      //           const errorCode = result.is_runtime_test ? result.run_exit_code : result.compilation_exit_code;
  
-                if (result) value = 
-                      result.passed_test ? `✅ - ExitCode ${errorCode}` : `❌ - ExitCode ${errorCode} `;
-              }
-            }
-            output += `| ${value} `;
-          }
-          output += '|';
+      //           if (result) value = 
+      //                 result.passed_test ? `✅ - ExitCode ${errorCode}` : `❌ - ExitCode ${errorCode} `;
+      //         }
+      //       }
+      //       output += `| ${value} `;
+      //     }
+      //     output += '|';
 
-          // If its the very first entry in the history, we dont need to readd the 
-          // empty template line
-          if (row.version === '-') {
-            console.log('Very first row', issueNumber, row.version);
-            return output;
-          } else {
-            console.log('NOT Very first row', issueNumber, row.version);
-            output += '\n';
-          }
-        }
+      //     // If its the very first entry in the history, we dont need to readd the 
+      //     // empty template line
+      //     if (row.version === '-') {
+      //       console.log('Very first row', issueNumber, row.version);
+      //       return output;
+      //     } else {
+      //       console.log('NOT Very first row', issueNumber, row.version);
+      //       output += '\n';
+      //     }
+      //   }
 
-        // Update the captured row 
-        const resultForRowVersion = allTestResults[issueNumber][row.version]
-        if (!resultForRowVersion) {
-          if (row.version === currentJaiVersion) {
-            if (replaceIndex === 0) {
-              // :historyColumns
-              console.error(`No TestResults found for '${column}' while updating issue '${issueNumber} for version '${row.version}'`);
-              throw new Error('Error updating issue. This should only ever happen if the issue template was modified.');
-            } else {
-              throw new Error('Error only the first row should ever be the current version');
-            }
-          } else {
-            // We dont have any data for this version, so we can not update it
-            console.log('Skip update', issueNumber, row.version);
-            return output + match;
-          }
+      //   // Update the captured row 
+      //   const resultForRowVersion = allTestResults[issueNumber][row.version]
+      //   if (!resultForRowVersion) {
+      //     if (row.version === currentJaiVersion) {
+      //       if (replaceIndex === 0) {
+      //         // :historyColumns
+      //         console.error(`No TestResults found for '${column}' while updating issue '${issueNumber} for version '${row.version}'`);
+      //         throw new Error('Error updating issue. This should only ever happen if the issue template was modified.');
+      //       } else {
+      //         throw new Error('Error only the first row should ever be the current version');
+      //       }
+      //     } else {
+      //       // We dont have any data for this version, so we can not update it
+      //       console.log('Skip update', issueNumber, row.version);
+      //       return output + match;
+      //     }
           
-        }
-        output += `| ${row.version} |`; //  :historyColumns
-        for (const column of filteredColumnNames) { // windows, linux, mac
-          let value = row[column];
-          // always update first row, otherwise fill in missing data
-          if (value === '-' || replaceIndex === 0) { 
-            // We dont know if we have data for the platform, just try
-            const result = resultForRowVersion[column];
-            if (result) {
-              const errorCode = result.is_runtime_test ? result.run_exit_code : result.compilation_exit_code;
-              value = result.passed_test ? `✅ - ExitCode ${errorCode}` : `❌ - ExitCode ${errorCode} `;
+      //   }
+      //   output += `| ${row.version} |`; //  :historyColumns
+      //   for (const column of filteredColumnNames) { // windows, linux, mac
+      //     let value = row[column];
+      //     // always update first row, otherwise fill in missing data
+      //     if (value === '-' || replaceIndex === 0) { 
+      //       // We dont know if we have data for the platform, just try
+      //       const result = resultForRowVersion[column];
+      //       if (result) {
+      //         const errorCode = result.is_runtime_test ? result.run_exit_code : result.compilation_exit_code;
+      //         value = result.passed_test ? `✅ - ExitCode ${errorCode}` : `❌ - ExitCode ${errorCode} `;
 
-              console.log('Force overwriting:', column, row.version);
-            }
-          }
-          output += ` ${value} |`;
-        }
+      //         console.log('Force overwriting:', column, row.version);
+      //       }
+      //     }
+      //     output += ` ${value} |`;
+      //   }
 
-        return output;
-      });
+      //   return output;
+      // });
 
-      console.log('newIssueBody', issueNumber, replaceIndex, JSON.stringify(newIssueBody, null, 2));  
+      // console.log('newIssueBody', issueNumber, replaceIndex, JSON.stringify(newIssueBody, null, 2));  
 
-      var passedAllTests = true;
-      for (const platform of activePlatforms) {
-        const result = testResultForCurrentVersion[platform];
-        passedAllTests = passedAllTests && result.passed_test;
-      }
+      // var passedAllTests = true;
+      // for (const platform of activePlatforms) {
+      //   const result = testResultForCurrentVersion[platform];
+      //   passedAllTests = passedAllTests && result.passed_test;
+      // }
 
       // Update issue
-      await github.rest.issues.update({
-        ...context.repo,
-        issue_number: issueNumber,
-        body: newIssueBody,
-        state: passedAllTests ? 'closed' : 'open',
-        labels: existingLabels, // @todo add labels of broken platforms
-      });
+      // await github.rest.issues.update({
+      //   ...context.repo,
+      //   issue_number: issueNumber,
+      //   body: newIssueBody,
+      //   state: passedAllTests ? 'closed' : 'open',
+      //   labels: existingLabels, // @todo add labels of broken platforms
+      // });
       console.log('Updated Issue for newly added or changed test', issueNumber);
     } catch (error) {
       if (error.status === 404) {
