@@ -50,8 +50,8 @@ function migrateIssueHistory(issueBody) {
       );
       // replace history table header
       newIssueBody = newIssueBody.replace(
-        /### History V1\n| Version | Linux |\n| :-------: | :-------------: |/,
-        /### History V2\n| Version | Windows | Linux |\n| :-------: | :-------: | :-------: |/,
+        /### History V1\n\| Version \| Linux \|\n\| :-+: \| :-+: \|/,
+        /### History V2\n\| Version \| Windows \| Linux \|\n\| :-------: \| :-------: \| :-------: \|/,
       );
 
       break;
