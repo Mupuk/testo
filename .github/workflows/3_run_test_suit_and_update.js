@@ -17,7 +17,7 @@ const parseIssueHeaderRegex = makeExtendedRegExp(
 // for reference.
 const parseIssueHistoryRegexV1 = makeExtendedRegExp(
   String.raw`
-  (?<=History V\d+$\s(?:.*$\s){2,})              # Match and skip the history header + skip to data
+  (?<=### History V\d+$\s(?:.*$\s){2,})              # Match and skip the history header + skip to data
   # \| (?<version>.*?) \| (?<windows>.*?) \| (?<linux>.*?) \| (?<mac>.*?) \|\s?        # Match row data
   \| (?<version>.*?) \| (?<linux>.*?) \|\s?        # Match row data
 `,
@@ -26,16 +26,28 @@ const parseIssueHistoryRegexV1 = makeExtendedRegExp(
 
 const parseIssueHistoryRegexV2 = makeExtendedRegExp(
   String.raw`
-  (?<=History V\d+$\s(?:.*$\s){2,})              # Match and skip the history header + skip to data
+  (?<=### History V\d+$\s(?:.*$\s){2,})              # Match and skip the history header + skip to data
   \| (?<version>.*?) \| (?<windows>.*?) \| (?<linux>.*?) \|\s?        # Match row data
 `,
   'mig', // Flags
 );
 
+const parseIssueHistoryVersion = /### History V(?<version>\d+)$\s(?:.*$\s){2}\|/mi;
 const parseIssueHistoryRegex = parseIssueHistoryRegexV1;
 
 function migrateIssueHistory(issueBody) {
-  // Migrate from V1 to V2
+  let newIssueBody = issueBody;
+  const historyVersion = issueBody.match(parseIssueHistoryVersion)?.groups.version;
+  if (!historyVersion) {
+    console.log('No history version found in issue body');
+    process.exit(1);
+  }
+  switch (historyVersion) { // fall through to update to latest version
+    case '1': // Migrate from V1 to V2
+
+    case '2': // Migrate from V1 to V2
+  }
+  return newIssueBody;
 }
 
 // We use this so have to change fewer things when adding a new platform
@@ -827,8 +839,11 @@ const updateGithubIssuesAndFiles = async ({
         ...context.repo,
         issue_number: issueNumber,
       });
+
       let newIssueBody = issue.body.replace(/\r\n/g, '\n').replace(/\r/g, '\n');
       const existingLabels = issue.labels.map((label) => label.name);
+
+      newIssueBody = migrateIssueHistory(newIssueBody);
 
       let fullHistoryDataByVersion = [
         ...newIssueBody.matchAll(parseIssueHistoryRegex),
