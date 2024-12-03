@@ -157,6 +157,7 @@ function deepMerge(target, source) {
 
 module.exports = {
   getCurrentJaiVersion,
+  versionRegex,
   makeExtendedRegExp,
   format,
   isDeepEqual,

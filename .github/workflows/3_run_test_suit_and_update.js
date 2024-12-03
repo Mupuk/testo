@@ -577,7 +577,7 @@ const updateGithubIssuesAndFiles = async ({
   // testSuitOutputs,
 }) => {
   const fs = require('fs');
-  const { getCurrentJaiVersion, isDeepEqual, deepMerge } = require('./_utils.js');
+  const { getCurrentJaiVersion, versionRegex, isDeepEqual, deepMerge } = require('./_utils.js');
   const { createLabels, createLabel } = require('./_create_label.js');
 
   createLabel({ github, context, labelName: 'removed-test' });
@@ -759,7 +759,9 @@ const updateGithubIssuesAndFiles = async ({
       let newIssueBody = issue.body.replace(/\r\n/g, '\n').replace(/\r/g, '\n');
       const existingLabels = issue.labels.map(label => label.name);
 
-      let fullHistoryData = newIssueBody.matchAll(parseIssueHistoryRegex).map(match => match.groups);
+      let fullHistoryData = [...newIssueBody.matchAll(parseIssueHistoryRegex)]
+                                            .map(match => match.groups)
+                                            .filter(v => versionRegex.test(version));
       console.log('fullHistoryData', issueNumber, JSON.stringify(fullHistoryData, null, 2));
 
       // // Update History
