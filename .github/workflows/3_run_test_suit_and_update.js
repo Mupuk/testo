@@ -29,7 +29,8 @@ const parseIssueHistoryRegexV2 = makeExtendedRegExp(String.raw`
   'mig', // Flags
 );
 
-const parseIssueHistoryRegex = parseIssueHistoryRegexV1;
+const parseIssueHistoryRegex = parseIssueHistoryRegexV2;
+
 const parseIssueHistoryVersion = /### History V(?<version>\d+)$\s(?:.*$\s){2}\|/im;
 
 function migrateIssueHistory(issueBody) {
@@ -59,6 +60,9 @@ function migrateIssueHistory(issueBody) {
       console.log('ERROR No migration for history version:', historyVersion);
       process.exit(1);
   }
+  console.log('Migration successful');
+  console.log('Old Issue Body:', issueBody);
+  console.log('New Issue Body:', newIssueBody);
   return newIssueBody;
 }
 
