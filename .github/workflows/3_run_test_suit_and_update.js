@@ -1206,7 +1206,9 @@ const updateGithubIssuesAndFiles = async ({
           `Issue not found for '${issueNumber}'. The issue was most likely deleted. This should never happen.`,
         );
       } else {
+        // print stack and error
         console.log('An error occurred:', error.message);
+        throw error;
       }
     }
   }
