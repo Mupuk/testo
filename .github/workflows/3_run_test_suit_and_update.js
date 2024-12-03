@@ -2,8 +2,7 @@ const { makeExtendedRegExp } = require('./_utils.js');
 
 // Make sure the regex capture groups stay the same :regexGroupNames
 // When a new platform is added update :platformSpecific
-const parseIssueHeaderRegex = makeExtendedRegExp(
-  String.raw`
+const parseIssueHeaderRegex = makeExtendedRegExp(String.raw`
   (?<=\| :-.*$\s)          # Match and skip table data splitter | :-: | :-: | :-: | :-: | + newline
 
   # Match and capture the table data
@@ -15,8 +14,7 @@ const parseIssueHeaderRegex = makeExtendedRegExp(
 // If a colum is added that is not a platform, it has to be added here :historyColumns
 // When changine this, make sure to update the migration below. Also we leave old version
 // for reference.
-const parseIssueHistoryRegexV1 = makeExtendedRegExp(
-  String.raw`
+const parseIssueHistoryRegexV1 = makeExtendedRegExp(String.raw`
   (?<=\#\#\# History V\d+$\s(?:.*$\s){2,})              # Match and skip the history header + skip to data
   # \| (?<version>.*?) \| (?<windows>.*?) \| (?<linux>.*?) \| (?<mac>.*?) \|\s?        # Match row data
   \| (?<version>.*?) \| (?<linux>.*?) \|\s?        # Match row data
@@ -24,33 +22,38 @@ const parseIssueHistoryRegexV1 = makeExtendedRegExp(
   'mig', // Flags
 );
 
-const parseIssueHistoryRegexV2 = makeExtendedRegExp(
-  String.raw`
+const parseIssueHistoryRegexV2 = makeExtendedRegExp(String.raw`
   (?<=\#\#\# History V\d+$\s(?:.*$\s){2,})              # Match and skip the history header + skip to data
   \| (?<version>.*?) \| (?<windows>.*?) \| (?<linux>.*?) \|\s?        # Match row data
 `,
   'mig', // Flags
 );
 
-const parseIssueHistoryVersion =
-  /### History V(?<version>\d+)$\s(?:.*$\s){2}\|/im;
 const parseIssueHistoryRegex = parseIssueHistoryRegexV1;
+const parseIssueHistoryVersion = /### History V(?<version>\d+)$\s(?:.*$\s){2}\|/im;
 
 function migrateIssueHistory(issueBody) {
   let newIssueBody = issueBody;
-  const historyVersion = issueBody.match(parseIssueHistoryVersion)?.groups
-    .version;
+  const historyVersion = issueBody.match(parseIssueHistoryVersion)?.groups.version;
   if (!historyVersion) {
     console.log('Problematic issue body:', JSON.stringify(issueBody, null, 2));
     console.log('No history version found in issue body');
     process.exit(1);
   }
-  switch (
-    historyVersion // fall through to update to latest version
-  ) {
+  switch (historyVersion) { // fall through to update to latest version
     case '1': // Migrate from V1 to V2
+      // replace row data
+      newIssueBody = newIssueBody.replace(parseIssueHistoryRegexV1, (match, ...args) => {
+          const row = args.pop(); // grep the groups object
+          return `| ${row.version} | - | ${row.linux} |\n`;
+        },
+      );
+      // replace history table header
+      newIssueBody = newIssueBody.replace(
+        /### History V1\n| Version | Linux |\n| :-------: | :-------------: |/,
+        /### History V2\n| Version | Windows | Linux |\n| :-------: | :-------: | :-------: |/,
+      );
 
-    case '2': // Migrate from V1 to V2
       break;
     default:
       console.log('ERROR No migration for history version:', historyVersion);
