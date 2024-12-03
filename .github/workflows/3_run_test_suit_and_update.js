@@ -823,8 +823,8 @@ const updateGithubIssuesAndFiles = async ({
       }
       console.log('fullHistoryDataByVersion after edit', issueNumber, JSON.stringify(fullHistoryDataByVersion, null, 2));
 
-      const sortedHistoryData = fullHistoryDataByVersion
-                                  .map(row => row)
+      const sortedHistoryData = Object.keys(fullHistoryDataByVersion)
+                                  .map(k => fullHistoryDataByVersion[k])
                                   .sort((a, b) => -jaiVersionComparator(a.version, b.version)); // sort descending
 
       console.log('sortedHistoryData', issueNumber, JSON.stringify(sortedHistoryData, null, 2));
