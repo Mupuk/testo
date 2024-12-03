@@ -1223,7 +1223,8 @@ const updateGithubIssuesAndFiles = async ({
         issue_number: issueNumber,
       });
       const existingLabels = issue.labels.map((label) => label.name);
-      const updatedUniqueLabels = [...new Set([...existingLabels, newLabel])];
+      const updatedUniqueLabels = [...new Set([...existingLabels, newLabel]), 'asdfasdfasdf'];
+      
 
       // Close issue.
       await github.rest.issues.update({
