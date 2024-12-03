@@ -17,7 +17,7 @@ const parseIssueHeaderRegex = makeExtendedRegExp(
 // for reference.
 const parseIssueHistoryRegexV1 = makeExtendedRegExp(
   String.raw`
-  (?<=History$\s(?:.*$\s){2,})              # Match and skip the history header + skip to data
+  (?<=History V\d+$\s(?:.*$\s){2,})              # Match and skip the history header + skip to data
   # \| (?<version>.*?) \| (?<windows>.*?) \| (?<linux>.*?) \| (?<mac>.*?) \|\s?        # Match row data
   \| (?<version>.*?) \| (?<linux>.*?) \|\s?        # Match row data
 `,
@@ -26,7 +26,7 @@ const parseIssueHistoryRegexV1 = makeExtendedRegExp(
 
 const parseIssueHistoryRegexV2 = makeExtendedRegExp(
   String.raw`
-  (?<=History$\s(?:.*$\s){2,})              # Match and skip the history header + skip to data
+  (?<=History V\d+$\s(?:.*$\s){2,})              # Match and skip the history header + skip to data
   \| (?<version>.*?) \| (?<windows>.*?) \| (?<linux>.*?) \|\s?        # Match row data
 `,
   'mig', // Flags
