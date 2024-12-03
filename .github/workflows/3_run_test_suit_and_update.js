@@ -32,23 +32,26 @@ const parseIssueHistoryRegexV2 = makeExtendedRegExp(
   'mig', // Flags
 );
 
-const parseIssueHistoryVersion = /### History V(?<version>\d+)$\s(?:.*$\s){2}\|/mi;
+const parseIssueHistoryVersion =
+  /### History V(?<version>\d+)$\s(?:.*$\s){2}\|/im;
 const parseIssueHistoryRegex = parseIssueHistoryRegexV1;
 
 function migrateIssueHistory(issueBody) {
   let newIssueBody = issueBody;
-  const historyVersion = issueBody.match(parseIssueHistoryVersion)?.groups.version;
+  const historyVersion = issueBody.match(parseIssueHistoryVersion)?.groups
+    .version;
   if (!historyVersion) {
     console.log('Problematic issue body:', JSON.stringify(issueBody, null, 2));
     console.log('No history version found in issue body');
     process.exit(1);
   }
-  switch (historyVersion) { // fall through to update to latest version
+  switch (
+    historyVersion // fall through to update to latest version
+  ) {
     case '1': // Migrate from V1 to V2
 
     case '2': // Migrate from V1 to V2
-
-    break;
+      break;
     default:
       console.log('ERROR No migration for history version:', historyVersion);
       process.exit(1);
@@ -712,7 +715,7 @@ const updateGithubIssuesAndFiles = async ({
         console.log(
           'No results found. This should never happen. Most likely not all runners have been updated to the latest version!',
         );
-      process.exit(1);
+        process.exit(1);
       }
     }
   }
@@ -856,9 +859,13 @@ const updateGithubIssuesAndFiles = async ({
       ]
         .map((match) => match.groups)
         .reduce((acc, item) => {
-          acc[item.version] = item;
+          // Happens for the first time adding data to issue
+          if (item.version !== '-') {
+            acc[item.version] = item;
+          }
           return acc;
         }, {});
+
       console.log(
         'fullHistoryDataByVersion',
         issueNumber,
@@ -1026,57 +1033,60 @@ const updateGithubIssuesAndFiles = async ({
 
       // Update Header
       replaceIndex = -1;
-      newIssueBody = newIssueBody.replace(parseIssueHeaderRegex, (match, ...args) => {
-        replaceIndex += 1;
-        const row = args.pop(); // grep the groups object
-        const columnNames = Object.keys(row);
-        console.log('updating header', issueNumber, match);
+      newIssueBody = newIssueBody.replace(
+        parseIssueHeaderRegex,
+        (match, ...args) => {
+          replaceIndex += 1;
+          const row = args.pop(); // grep the groups object
+          const columnNames = Object.keys(row);
+          console.log('updating header', issueNumber, match);
 
-        let output = '';
-        for (const column of columnNames) {
-          let value = row[column];
-          if (column === 'latestBrokenPlatforms') {
-            const latestBrokenVersion =
-              brokenVersions.sort((a, b) => -jaiVersionComparator(a, b))[0] ||
-              '-';
-            if (latestBrokenVersion === '-') {
-              value = '-';
-            } else {
-              const brokenPlatformsForLatestBrokenVersion = Object.keys(
-                fullHistoryDataByVersion[latestBrokenVersion] || {},
-              ).filter(
-                (k) =>
-                  k !== 'version' &&
-                  fullHistoryDataByVersion[latestBrokenVersion][k].includes(
-                    '❌',
-                  ),
-              );
+          let output = '';
+          for (const column of columnNames) {
+            let value = row[column];
+            if (column === 'latestBrokenPlatforms') {
+              const latestBrokenVersion =
+                brokenVersions.sort((a, b) => -jaiVersionComparator(a, b))[0] ||
+                '-';
+              if (latestBrokenVersion === '-') {
+                value = '-';
+              } else {
+                const brokenPlatformsForLatestBrokenVersion = Object.keys(
+                  fullHistoryDataByVersion[latestBrokenVersion] || {},
+                ).filter(
+                  (k) =>
+                    k !== 'version' &&
+                    fullHistoryDataByVersion[latestBrokenVersion][k].includes(
+                      '❌',
+                    ),
+                );
 
-              value = brokenPlatformsForLatestBrokenVersion.join(', ') || '-';
+                value = brokenPlatformsForLatestBrokenVersion.join(', ') || '-';
+              }
+            } else if (column === 'latestBrokenVersion') {
+              value =
+                brokenVersions.sort((a, b) => -jaiVersionComparator(a, b))[0] ||
+                '-';
+            } else if (column === 'fixVersion') {
+              if (brokenPlatformsForCurrentVersion.length > 0) {
+                // we have broken platforms
+                value = '-';
+              } else if (value === '-') {
+                // we just fixed it
+                value = currentJaiVersion;
+              } // else leave it as it is
+            } else if (column === 'reportedVersion') {
+              if (row.reportedVersion === '-') {
+                value = currentJaiVersion;
+              }
             }
-          } else if (column === 'latestBrokenVersion') {
-            value =
-              brokenVersions.sort((a, b) => -jaiVersionComparator(a, b))[0] ||
-              '-';
-          } else if (column === 'fixVersion') {
-            if (brokenPlatformsForCurrentVersion.length > 0) {
-              // we have broken platforms
-              value = '-';
-            } else if (value === '-') {
-              // we just fixed it
-              value = currentJaiVersion;
-            } // else leave it as it is
-          } else if (column === 'reportedVersion') {
-            if (row.reportedVersion === '-') {
-              value = currentJaiVersion;
-            }
+            output += `| ${value} `;
           }
-          output += `| ${value} `;
-        }
-        output += '|';
-        console.log('new header', issueNumber, output);
-        return output;
-      });
+          output += '|';
+          console.log('new header', issueNumber, output);
+          return output;
+        },
+      );
       if (replaceIndex === -1) {
         console.log(
           'ERROR nothing was replaced in the issue header. This most likely happened because the regex was modified and does match the issue template.',
