@@ -886,6 +886,7 @@ const updateGithubIssuesAndFiles = async ({
       newIssueBody = newIssueBody.replace(parseIssueHeaderRegex, (match, ...args) => {
         const row = args.pop(); // grep the groups object
         const columnNames = Object.keys(row);
+        console.log('updating header', issueNumber, match);
 
         let output = '';
         for (const column of columnNames) {
@@ -908,6 +909,7 @@ const updateGithubIssuesAndFiles = async ({
           output += `| ${value} `;
         }
         output += '|';
+        console.log('new header', issueNumber, output);
         return output;
       });
 
