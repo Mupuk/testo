@@ -1,7 +1,7 @@
 // :versionChange
 const jaiVersionRegex = /(beta.)(\d+).(\d+).(\d+)/;
 
-const getCurrentJaiVersion = async ({ exec }) => {      
+const getCurrentJaiVersion = async ({ exec }) => {
   let jaiVersionOutput = '';
 
   const options = {};
@@ -19,40 +19,39 @@ const getCurrentJaiVersion = async ({ exec }) => {
     },
     errline: (string) => {
       jaiVersionOutput += string;
-    }
+    },
   };
 
   // currently this is a bug in jai so we need the workaround script
   await exec.exec('jai jai_version_workaround.jai', [], options);
 
   const versionMatch = jaiVersionOutput.match(/beta.\d+\.\d+\.\d+/);
-  const version = versionMatch ? versionMatch[0].replace(/\s+/g, '-') : 'VersionNotFound';
-
+  const version = versionMatch
+    ? versionMatch[0].replace(/\s+/g, '-')
+    : 'VersionNotFound';
 
   // Check if the version is in the correct format
   // :versionChange
   if (jaiVersionRegex.test(version) === false) {
-    console.error(
+    console.log(
       'The version format has changed! Please update all places that break, like the IssueTrackers histories sorting with mixed version formats of the old and new one. :versionChange',
       version,
     );
-    throw new Error('Version format has changed! Please update the version format in the script.');
+    process.exit(1);
   }
 
   return version;
-}
-
-
+};
 
 const jaiVersionComparator = (version1, version2) => {
   const version1Match = version1.match(jaiVersionRegex);
   const version2Match = version2.match(jaiVersionRegex);
-  if (version1Match[2] !== version2Match[2]) return version1Match[2] - version2Match[2];
-  if (version1Match[3] !== version2Match[3]) return version1Match[3] - version2Match[3];
+  if (version1Match[2] !== version2Match[2])
+    return version1Match[2] - version2Match[2];
+  if (version1Match[3] !== version2Match[3])
+    return version1Match[3] - version2Match[3];
   return version1Match[4] - version2Match[4];
-}
-
-
+};
 
 const decrementVersionString = (version, count = 1) => {
   const versionSplit = version.match(jaiVersionRegex);
@@ -82,14 +81,12 @@ const decrementVersionString = (version, count = 1) => {
   return `${versionSplit[1]}${newMajor}.${newMinor}.${newMicro
     .toString()
     .padStart(3, '0')}`;
-}
-
-
+};
 
 // format a string that replaces '{xxx}' with object properties of name 'xxx'
 //
 // Example:
-// 
+//
 // const template = 'Hello, {name}! Welcome to {place}.';
 // const params = {
 //   name: 'Alice',
@@ -101,7 +98,6 @@ const decrementVersionString = (version, count = 1) => {
 function format(template, params) {
   return template.replace(/\{(.*?)}/g, (match, p1) => params[p1.trim()] || '');
 }
-
 
 // Lets you comment out parts of a regex pattern by using `#` as a comment character
 // Example:
@@ -125,11 +121,9 @@ function makeExtendedRegExp(inputPatternStr, flags) {
   return new RegExp(cleanedPatternStr, flags);
 }
 
-
-
 const isDeepEqual = (object1, object2) => {
   const isObject = (object) => {
-    return object != null && typeof object === "object";
+    return object != null && typeof object === 'object';
   };
 
   const objKeys1 = Object.keys(object1);
@@ -144,16 +138,14 @@ const isDeepEqual = (object1, object2) => {
     const isObjects = isObject(value1) && isObject(value2);
 
     if (
-      (isObjects && !isDeepEqual(value1, value2)) 
-      || (!isObjects && value1 !== value2)
+      (isObjects && !isDeepEqual(value1, value2)) ||
+      (!isObjects && value1 !== value2)
     ) {
       return false;
     }
   }
   return true;
-}
-
-
+};
 
 function deepMerge(target, source) {
   for (const key of Object.keys(source)) {
@@ -164,8 +156,6 @@ function deepMerge(target, source) {
   return { ...target, ...source };
 }
 
-
-
 module.exports = {
   getCurrentJaiVersion,
   jaiVersionRegex,
@@ -175,4 +165,4 @@ module.exports = {
   isDeepEqual,
   deepMerge,
   decrementVersionString,
-}
+};

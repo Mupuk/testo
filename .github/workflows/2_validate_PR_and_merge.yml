@@ -10,7 +10,7 @@ jobs:
     runs-on: [ubuntu-latest]
 
     # @todo Make sure same version gets checked out that was previously checked. Race condition
-    #       maybe just merge the two steps, and make sure we just never call the js file if changes 
+    #       maybe just merge the two steps, and make sure we just never call the js file if changes
     #       are detected
     steps:
       - name: Check if '.github' folder was modified
@@ -55,7 +55,7 @@ jobs:
                 issue_number: context.issue.number,
                 body: `@Mupu, This PR has modified the .github folder, which is illegal!`
               })
-              console.error('This PR has modified the .github folder, which is illegal!');
+              console.log('This PR has modified the .github folder, which is illegal!');
               process.exit(1);
             }
 
@@ -132,5 +132,3 @@ jobs:
       #         pull_number: context.issue.number,
       #         merge_method: 'squash'  // Use 'merge', 'squash', or 'rebase' depending on your needs
       #       });
-
-            
