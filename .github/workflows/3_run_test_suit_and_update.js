@@ -17,7 +17,7 @@ const parseIssueHeaderRegex = makeExtendedRegExp(
 // for reference.
 const parseIssueHistoryRegexV1 = makeExtendedRegExp(
   String.raw`
-  (?<=### History V\d+$\s(?:.*$\s){2,})              # Match and skip the history header + skip to data
+  (?<=\#\#\# History V\d+$\s(?:.*$\s){2,})              # Match and skip the history header + skip to data
   # \| (?<version>.*?) \| (?<windows>.*?) \| (?<linux>.*?) \| (?<mac>.*?) \|\s?        # Match row data
   \| (?<version>.*?) \| (?<linux>.*?) \|\s?        # Match row data
 `,
@@ -26,7 +26,7 @@ const parseIssueHistoryRegexV1 = makeExtendedRegExp(
 
 const parseIssueHistoryRegexV2 = makeExtendedRegExp(
   String.raw`
-  (?<=### History V\d+$\s(?:.*$\s){2,})              # Match and skip the history header + skip to data
+  (?<=\#\#\# History V\d+$\s(?:.*$\s){2,})              # Match and skip the history header + skip to data
   \| (?<version>.*?) \| (?<windows>.*?) \| (?<linux>.*?) \|\s?        # Match row data
 `,
   'mig', // Flags
@@ -46,6 +46,11 @@ function migrateIssueHistory(issueBody) {
     case '1': // Migrate from V1 to V2
 
     case '2': // Migrate from V1 to V2
+
+    break;
+    default:
+      console.log('No migration for history version:', historyVersion);
+      process.exit(1);
   }
   return newIssueBody;
 }
