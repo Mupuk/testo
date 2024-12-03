@@ -794,6 +794,7 @@ const updateGithubIssuesAndFiles = async ({
             } else if (activePlatforms.includes(groupName)) { // We have results for the platform!
               const testResult = allTestResults[issueNumber][version][groupName];
               if (!testResult) {
+                console.log('Error', JSON.stringify(allTestResults[issueNumber][version], null, 2), issueNumber, version, groupName);
                 throw new Error('Should never happen!');
               }
 
@@ -814,6 +815,10 @@ const updateGithubIssuesAndFiles = async ({
             // update missing values and always overwrite current versions results
             if (row[platformColumn] === '-' || row.version === currentJaiVersion) { 
               const testResult = allTestResults[issueNumber][version][platformColumn];
+              if (!testResult) {
+                console.log('Error', JSON.stringify(allTestResults[issueNumber][version], null, 2), issueNumber, version, platformColumn);
+                throw new Error('Should never happen!');
+              }
               const errorCode = testResult.is_runtime_test ? testResult.run_exit_code : testResult.compilation_exit_code;
               row[platformColumn] = testResult.passed_test ? `✅ - ExitCode ${errorCode}` : `❌ - ExitCode ${errorCode} `;
             }
