@@ -35,7 +35,7 @@ const parseIssueHistoryRegexV2 = makeExtendedRegExp(
 const parseIssueHistoryRegex = parseIssueHistoryRegexV1;
 
 function migrateIssueHistory(issueBody) {
-
+  // Migrate from V1 to V2
 }
 
 // We use this so have to change fewer things when adding a new platform
@@ -981,7 +981,7 @@ const updateGithubIssuesAndFiles = async ({
       console.log('newIssueBody', issueNumber, replaceIndex, newIssueBody);
       if (replaceIndex === -1) {
         console.log(
-          'ERROR nothing was replaced. This most likely happened because the regex was modified and does match the issue template.',
+          'ERROR nothing was replaced in the issue history. This most likely happened because the regex was modified and does match the issue template.',
         );
         process.exit(1);
       }
@@ -1060,7 +1060,7 @@ const updateGithubIssuesAndFiles = async ({
       );
       if (replaceIndex === -1) {
         console.log(
-          'ERROR nothing was replaced. This most likely happened because the regex was modified and does match the issue template.',
+          'ERROR nothing was replaced in the issue header. This most likely happened because the regex was modified and does match the issue template.',
         );
         process.exit(1);
       }
