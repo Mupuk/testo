@@ -837,6 +837,7 @@ const updateGithubIssuesAndFiles = async ({
       console.log('sortedHistoryData', issueNumber, JSON.stringify(sortedHistoryData, null, 2));
 
       const brokenVersions = [];
+      const brokenPlatformsForCurrentVersion = [];
 
       // Insert update data into body
       let replaceIndex = -1;
@@ -846,10 +847,13 @@ const updateGithubIssuesAndFiles = async ({
           let output = '';
           sortedHistoryData.forEach(row => { // its already ordered! 
             for (const column of Object.keys(row)) { // this data was ordered by regex matcher
-              // Keep track of all broken versions to add the labels later on
+              // Keep track of all broken versions and platforms to add the labels later on
               if (column !== 'version') { // :historyColumns
                 if (row[column].includes('❌')) {
                   brokenVersions.push(row.version);
+                  if (row.version === currentJaiVersion) {
+                    brokenPlatformsForCurrentVersion.push(column);
+                  }
                 }
               }
               output += `| ${row[column]} `;
@@ -864,7 +868,9 @@ const updateGithubIssuesAndFiles = async ({
 
       console.log('newIssueBody', issueNumber, replaceIndex, JSON.stringify(newIssueBody, null, 2));
 
-      const updatedUniqueLabels = [...new Set([...existingLabels, ...brokenVersions])];
+      const historyColumns = getGroupNames(parseIssueHistoryRegex);
+      const existingLabelsWithoutPlatforms = existingLabels.filter(l => historyColumns.includes(l) === false);
+      const updatedUniqueLabels = [...new Set([...existingLabelsWithoutPlatforms, ...brokenVersions, ...brokenPlatformsForCurrentVersion])];
       console.log('updatedUniqueLabels', issueNumber, JSON.stringify(updatedUniqueLabels, null, 2));
 
       // // Update History
