@@ -16,20 +16,12 @@ const parseIssueHeaderRegex = makeExtendedRegExp(String.raw`
 // for reference.
 const parseIssueHistoryRegexV1 = makeExtendedRegExp(String.raw`
   (?<=\#\#\# History V\d+$\s(?:.*$\s){2,})              # Match and skip the history header + skip to data
-  # \| (?<version>.*?) \| (?<windows>.*?) \| (?<linux>.*?) \| (?<mac>.*?) \|\s?        # Match row data
-  \| (?<version>.*?) \| (?<linux>.*?) \|\s?        # Match row data
+  \| (?<version>.*?) \| (?<windows>.*?) \| (?<linux>.*?) \| (?<mac>.*?) \|\s?        # Match row data
 `,
   'mig', // Flags
 );
 
-const parseIssueHistoryRegexV2 = makeExtendedRegExp(String.raw`
-  (?<=\#\#\# History V\d+$\s(?:.*$\s){2,})              # Match and skip the history header + skip to data
-  \| (?<version>.*?) \| (?<windows>.*?) \| (?<linux>.*?) \|\s?        # Match row data
-`,
-  'mig', // Flags
-);
-
-const parseIssueHistoryRegex = parseIssueHistoryRegexV2;
+const parseIssueHistoryRegex = parseIssueHistoryRegexV1;
 
 const parseIssueHistoryVersion = /### History V(?<version>\d+)$\s(?:.*$\s){2}\|/im;
 
@@ -43,19 +35,21 @@ function migrateIssueHistory(issueBody) {
   }
   switch (historyVersion) { // fall through to update to latest version
     case '1': // Migrate from V1 to V2
-      // replace row data
-      newIssueBody = newIssueBody.replace(parseIssueHistoryRegexV1, (match, ...args) => {
-          const row = args.pop(); // grep the groups object
-          return `| ${row.version} | - | ${row.linux} |\n`;
-        },
-      );
-      // replace history table header
-      newIssueBody = newIssueBody.replace(
-        /### History V1\n\| Version \| Linux \|\n\| :-+: \| :-+: \|/,
-        '### History V2\n\| Version \| Windows \| Linux \|\n\| :-------: \| :-------: \| :-------: \|',
-      );
+      // Example:
+      // 
+      // // replace row data
+      // newIssueBody = newIssueBody.replace(parseIssueHistoryRegexV1, (match, ...args) => {
+      //     const row = args.pop(); // grep the groups object
+      //     return `| ${row.version} | - | ${row.linux} |\n`;
+      //   },
+      // );
+      // // replace history table header
+      // newIssueBody = newIssueBody.replace(
+      //   /### History V1\n\| Version \| Linux \|\n\| :-+: \| :-+: \|/,
+      //   '### History V2\n\| Version \| Windows \| Linux \|\n\| :-------: \| :-------: \| :-------: \|',
+      // );
 
-    case '2': // Migrate from V1 to V2
+    // case '2': // Migrate from V1 to V2
 
     
       break;
