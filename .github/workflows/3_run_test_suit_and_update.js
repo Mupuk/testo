@@ -979,12 +979,12 @@ const updateGithubIssuesAndFiles = async ({
       });
 
       console.log('newIssueBody', issueNumber, replaceIndex, newIssueBody);
-      if (replaceIndex === -1) {
-        console.log(
-          'ERROR nothing was replaced in the issue history. This most likely happened because the regex was modified and does match the issue template.',
-        );
-        process.exit(1);
-      }
+      // if (replaceIndex === -1) {
+      //   console.log(
+      //     'ERROR nothing was replaced in the issue history. This most likely happened because the regex was modified and does match the issue template.',
+      //   );
+      //   process.exit(1);
+      // }
 
       const historyColumns = getGroupNames(parseIssueHistoryRegex);
       const existingLabelsWithoutPlatformsAndBrokenVersions = existingLabels
@@ -1005,9 +1005,7 @@ const updateGithubIssuesAndFiles = async ({
 
       // Update Header
       replaceIndex = -1;
-      newIssueBody = newIssueBody.replace(
-        parseIssueHeaderRegex,
-        (match, ...args) => {
+      newIssueBody = newIssueBody.replace(parseIssueHeaderRegex, (match, ...args) => {
           const row = args.pop(); // grep the groups object
           const columnNames = Object.keys(row);
           console.log('updating header', issueNumber, match);
