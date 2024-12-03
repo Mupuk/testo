@@ -1,5 +1,5 @@
 // :versionChange
-const versionRegex = /(beta.)(\d+).(\d+).(\d+)/;
+const jaiVersionRegex = /(beta.)(\d+).(\d+).(\d+)/;
 
 const getCurrentJaiVersion = async ({ exec }) => {      
   let jaiVersionOutput = '';
@@ -31,7 +31,7 @@ const getCurrentJaiVersion = async ({ exec }) => {
 
   // Check if the version is in the correct format
   // :versionChange
-  if (versionRegex.test(version) === false) {
+  if (jaiVersionRegex.test(version) === false) {
     console.error(
       'The version format has changed! Please update all places that break, like the IssueTrackers histories sorting with mixed version formats of the old and new one. :versionChange',
       version,
@@ -45,7 +45,7 @@ const getCurrentJaiVersion = async ({ exec }) => {
 
 
 const decrementVersionString = (version, count = 1) => {
-  const versionSplit = version.match(versionRegex);
+  const versionSplit = version.match(jaiVersionRegex);
 
   let newMicro = parseInt(versionSplit[4]);
   let newMinor = parseInt(versionSplit[3]);
@@ -157,7 +157,7 @@ function deepMerge(target, source) {
 
 module.exports = {
   getCurrentJaiVersion,
-  versionRegex,
+  jaiVersionRegex,
   makeExtendedRegExp,
   format,
   isDeepEqual,
