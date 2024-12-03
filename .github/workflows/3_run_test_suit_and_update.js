@@ -14,7 +14,8 @@ const parseIssueHeaderRegex = makeExtendedRegExp(String.raw`
 // If a colum is added that is not a platform, it has to be added here :historyColumns
 const parseIssueHistoryRegex =  makeExtendedRegExp(String.raw`
   (?<=History$\s(?:.*$\s){2,})              # Match and skip the history header + skip to data
-  \| (?<version>.*?) \| (?<windows>.*?) \| (?<linux>.*?) \| (?<mac>.*?) \|\s?        # Match row data
+  # \| (?<version>.*?) \| (?<windows>.*?) \| (?<linux>.*?) \| (?<mac>.*?) \|\s?        # Match row data
+  \| (?<version>.*?) \| (?<linux>.*?) \|\s?        # Match row data
 `,
 'mig' // Flags
 );
