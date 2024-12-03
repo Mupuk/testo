@@ -785,7 +785,7 @@ const updateGithubIssuesAndFiles = async ({
       for (const version of allTestResultVersions) {
         let row = fullHistoryDataByVersion[version];
         if (!row) { // insert new row
-          row = {};
+          row = fullHistoryDataByVersion[version] == {};
           getGroupNames(parseIssueHistoryRegex).forEach(groupName => {
             if (groupName === 'version') { // Special case for version
               row[groupName] = version;
@@ -806,7 +806,7 @@ const updateGithubIssuesAndFiles = async ({
         } else { // update row
           for (const platformColumn of activePlatforms) {
             let platformResult = row[platformColumn];
-            if (!platformResult) { // insert new platform?
+            if (!platformResult) { // added a new platform, but old results are not updated?
               throw new Error('Not yet supported');
             }
 
