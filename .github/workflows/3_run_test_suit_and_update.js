@@ -55,6 +55,9 @@ function migrateIssueHistory(issueBody) {
         '### History V2\n\| Version \| Windows \| Linux \|\n\| :-------: \| :-------: \| :-------: \|',
       );
 
+    case '2': // Migrate from V1 to V2
+
+    
       break;
     default:
       console.log('ERROR No migration for history version:', historyVersion);
