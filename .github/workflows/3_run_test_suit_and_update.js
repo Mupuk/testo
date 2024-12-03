@@ -786,7 +786,9 @@ const updateGithubIssuesAndFiles = async ({
         let row = fullHistoryDataByVersion[version];
         if (!row) { // insert new row
           console.log('Insert new row', issueNumber, version);
-          row = fullHistoryDataByVersion[version] == {version};
+          fullHistoryDataByVersion[version] = { };
+          row = fullHistoryDataByVersion[version]; 
+          // row = fullHistoryDataByVersion[version] == {version};
           getGroupNames(parseIssueHistoryRegex).forEach(groupName => {
             if (groupName === 'version') { // Special case for version
               row[groupName] = version;
