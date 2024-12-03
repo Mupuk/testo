@@ -13,7 +13,7 @@ const parseIssueHeaderRegex = makeExtendedRegExp(String.raw`
 
 const parseIssueHistoryRegex =  makeExtendedRegExp(String.raw`
   (?<=History$\s(?:.*$\s){2,})              # Match and skip the history header + skip to data
-  \| (?<version>.*?) \| (?<windows>.*?) \| (?<linux>.*?) \| (?<mac>.*?) \|        # Match row data
+  \| (?<version>.*?) \| (?<windows>.*?) \| (?<linux>.*?) \| (?<mac>.*?) \|\s?        # Match row data
 `,
 'mig' // Flags
 );
@@ -763,7 +763,7 @@ const updateGithubIssuesAndFiles = async ({
 
       let fullHistoryData = [...newIssueBody.matchAll(parseIssueHistoryRegex)]
                                             .map(match => match.groups)
-                                            .sort((a, b) => -jaiVersionComparator(a.version, b.version)); // sort descending
+                                            .sort((a, b) => jaiVersionComparator(a.version, b.version)); // sort descending
       console.log('fullHistoryData', issueNumber, JSON.stringify(fullHistoryData, null, 2));
 
       // // Update History

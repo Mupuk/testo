@@ -47,7 +47,6 @@ const getCurrentJaiVersion = async ({ exec }) => {
 const jaiVersionComparator = (version1, version2) => {
   const version1Match = version1.match(jaiVersionRegex);
   const version2Match = version2.match(jaiVersionRegex);
-  console.log(version1Match, version2Match);
   if (version1Match[2] !== version2Match[2]) return version1Match[2] - version2Match[2];
   if (version1Match[3] !== version2Match[3]) return version1Match[3] - version2Match[3];
   return version1Match[4] - version2Match[4];
