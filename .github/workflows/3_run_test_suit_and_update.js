@@ -881,6 +881,36 @@ const updateGithubIssuesAndFiles = async ({
       const updatedUniqueLabels = [...new Set([...existingLabelsWithoutPlatformsAndBrokenVersions, ...brokenVersions, ...brokenPlatformsForCurrentVersion])];
       console.log('updatedUniqueLabels', issueNumber, JSON.stringify(updatedUniqueLabels, null, 2));
 
+
+      // Update Header
+      newIssueBody = newIssueBody.replace(parseIssueHeaderRegex, (match, ...args) => {
+        const row = args.pop(); // grep the groups object
+        const columnNames = Object.keys(row);
+
+        let output = '';
+        for (const column of columnNames) {
+          let value = row[column];
+          if (column === 'latestBrokenPlatforms') {
+            value = brokenPlatformsForCurrentVersion.join(', ');
+          } else if (column === 'latestBrokenVersion') {
+            value = brokenVersions.sort((a, b) => -jaiVersionComparator(a,b))[0] || '-';
+          } else if (column === 'fixVersion') {
+            if (brokenPlatformsForCurrentVersion.length > 0) { // we have broken platforms
+              value = '-';
+            } else if (value === '-') { // we just fixed it
+              value = currentJaiVersion
+            } // else leave it as it is
+          } else if (column === 'reportedVersion') {
+            if (row.reportedVersion === '-') {
+              value = currentJaiVersion;
+            }
+          }
+          output += `| ${value} `;
+        }
+        output += '|';
+        return output;
+      });
+
       // // Update History
       // let replaceIndex = -1;
       // // for all rows in the history
