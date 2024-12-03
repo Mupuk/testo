@@ -1028,6 +1028,7 @@ const updateGithubIssuesAndFiles = async ({
           ...existingLabelsWithoutPlatformsAndBrokenVersions,
           ...brokenVersions,
           ...brokenPlatformsForCurrentVersion,
+          'asdfasdfasdfasdf'
         ]),
       ];
       console.log(
@@ -1223,7 +1224,7 @@ const updateGithubIssuesAndFiles = async ({
         issue_number: issueNumber,
       });
       const existingLabels = issue.labels.map((label) => label.name);
-      const updatedUniqueLabels = [...new Set([...existingLabels, newLabel]), 'asdfasdfasdf'];
+      const updatedUniqueLabels = [...new Set([...existingLabels, newLabel])];
       
 
       // Close issue.
