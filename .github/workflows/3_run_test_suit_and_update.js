@@ -1198,7 +1198,7 @@ const updateGithubIssuesAndFiles = async ({
         state: updatedUniqueLabels.includes(currentJaiVersion)
           ? 'open'
           : 'closed',
-        labels: updatedUniqueLabels,
+        // labels: updatedUniqueLabels,
       });
       console.log('Updated Issue for newly added or changed test', issueNumber);
     } catch (error) {
