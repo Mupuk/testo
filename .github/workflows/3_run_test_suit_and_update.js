@@ -864,7 +864,7 @@ const updateGithubIssuesAndFiles = async ({
 
       console.log('newIssueBody', issueNumber, replaceIndex, JSON.stringify(newIssueBody, null, 2));
 
-      const updatedUniqueLabels = [...new Set([...existingLabels, brokenVersions])];
+      const updatedUniqueLabels = [...new Set([...existingLabels, ...brokenVersions])];
       console.log('updatedUniqueLabels', issueNumber, JSON.stringify(updatedUniqueLabels, null, 2));
 
       // // Update History
