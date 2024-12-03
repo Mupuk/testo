@@ -235,7 +235,7 @@ const runTestSuitAndGatherOutput = async ({ github, context, exec, io }) => {
     console.log('handle newTest', JSON.stringify(newTestResults[currentIssueNumber], null, 2));
 
     // Run older compiler versions for this test
-    let suffix = '';
+    let suffix = ''; // :platformSpecific
     if (platform === 'linux') suffix = '-linux';
     if (platform === 'macos') suffix = '-macos';
     let tempVersion = currentJaiVersion;
