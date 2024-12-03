@@ -850,7 +850,13 @@ const updateGithubIssuesAndFiles = async ({
               // Keep track of all broken versions and platforms to add the labels later on
               if (column !== 'version') { // :historyColumns
                 if (row[column].includes('❌')) {
-                  brokenVersions.push(row.version);
+                  // Github has a limit of 100 labels? Lets jut limit them!
+                  // As we iterate descendingly it will always include the latest
+                  // 50 broken versions
+                  if (brokenVersions.length < 2) {
+                    brokenVersions.push(row.version);
+                  } 
+
                   if (row.version === currentJaiVersion) {
                     brokenPlatformsForCurrentVersion.push(column);
                   }
