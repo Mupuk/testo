@@ -856,7 +856,7 @@ const updateGithubIssuesAndFiles = async ({
                   if (brokenVersions.length < 2) {
                     brokenVersions.push(row.version);
                   } 
-
+ 
                   if (row.version === currentJaiVersion) {
                     brokenPlatformsForCurrentVersion.push(column);
                   }
