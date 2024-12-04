@@ -2,6 +2,13 @@ name: Bug Report - Single File (Automated PR)
 description: Report your bug here if its a small one(one file).
 title: "[SB]: Bug Report - Single File"
 body:
+  - type: markdown
+    attributes:
+      value: |
+        ## [SB]: Bug Report - Single File
+        Please fill out the form below to report a bug in a single file.
+        If you have a more complicated bug, please create PR using the PR template.
+
   - type: checkboxes
     id: general
     attributes:
