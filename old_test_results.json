@@ -21,7 +21,7 @@
         "expected_run_exit_code": 2,
         "is_runtime_test": true,
         "passed_test": false,
-        "run_exit_code": 3
+        "run_exit_code": 1
       },
       "windows": {
         "compilation_exit_code": 0,
@@ -29,7 +29,7 @@
         "expected_run_exit_code": 2,
         "is_runtime_test": true,
         "passed_test": false,
-        "run_exit_code": 3
+        "run_exit_code": 1
       }
     },
     "file_path": "compiler_bugs/REC2_265.jai",
