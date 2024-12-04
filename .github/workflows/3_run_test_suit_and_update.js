@@ -389,10 +389,11 @@ const updateGithubIssuesAndFiles = async ({
     let issue = null;
     try {
       // Get Issue and Labels
-      issue = await github.rest.issues.get({
+      const { data: issueData } = await github.rest.issues.get({
         ...context.repo,
         issue_number: issueNumber,
-      }).data;
+      });
+      issue = issueData;
     } catch (error) {
       if (error.status === 404) {
         console.log(
