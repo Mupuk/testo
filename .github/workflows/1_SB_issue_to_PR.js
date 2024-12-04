@@ -132,7 +132,7 @@ const convertSBIssueToPR = async ({ github, context, exec }) => {
     message: oldSha ? '[CI] Update because the issue was modified' : '[CI] Add test',
     content: newFileContent,
     branch: branchName,
-  ...(oldSha ? { oldSha } : {})
+  ...(oldSha ? { sha: oldSha } : {})
   });
 
 
