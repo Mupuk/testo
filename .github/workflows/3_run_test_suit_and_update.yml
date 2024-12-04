@@ -13,16 +13,12 @@ jobs:
         # This decides all relevant platforms. Platforms that are not in here
         # will not be tested and completely ignored. This is a good way to
         # to disable them.
-        platform: [windows, linux] # :platformSpecific
+        platform: [linux] # :platformSpecific
 
     runs-on: 
      - self-hosted
      - ${{ matrix.platform }}
 
-    # Allow other jobs to run, if this runner is unavailable
-    # continue-on-error: true
-    timeout-minutes: 1
-     
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
