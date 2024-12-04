@@ -173,7 +173,10 @@ const convertSBIssueToPR = async ({ github, context, exec }) => {
 
   const newTree = tree.data.tree
     // The bug type or error code may have changed, so we need to delete the old one
-    .filter(file => file.path.includes(String(context.issue.number))) // Exclude file to delete
+    .filter(file => {
+      console.log('file.path', file.path, file.path.includes(String(context.issue.number)));
+      return file.path.includes(String(context.issue.number))
+    }) // Exclude file to delete
     .map(file => ({
       path: file.path,
       mode: file.mode,
