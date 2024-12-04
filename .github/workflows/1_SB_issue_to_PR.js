@@ -1,47 +1,5 @@
 
-function parseIssueBody(text) {
-  const sections = [...text.matchAll(/### (?<title>.*?\n)(?<content>[\S\s]*?)(?=\n###)/g)]
-                    .map((match) => match.groups);
-  const parsedData = {};
-
-  sections.forEach((section) => {
-    // EXAMPLE section: 
-    // [Object: null prototype] {
-    //   title: 'Bug Description\n',
-    //   content: '\n_No response_\n'
-    // }
-    const heading = section.title.trim();
-    const content = section.content.trim();
-
-    if (heading === 'General') {
-      // Parse checkboxes
-      const checkboxes = content.split('\n')
-        .filter((line) => line.trim().length > 0)
-        .map((line) => {
-          const isChecked = line.toLowerCase().includes('[x]');
-          return {
-            label: line.replace(/- \[.\]\s*/, '').trim(),
-            checked: isChecked,
-          };
-        });
-      parsedData[heading] = checkboxes;
-    } else if (heading === 'Short Code Snippet') {
-      // Extract text inside ```c``` block
-      const codeBlockMatch = content.match(/```c([\s\S]*?)```/);
-      parsedData[heading] = codeBlockMatch ? codeBlockMatch[1].trim() : '';
-    } else {
-      // Parse other sections
-      parsedData[heading] = content;
-    }
-  });
-
-  return parsedData;
-}
-
-
-
 const convertSBIssueToPR = async ({ github, context, exec }) => {
-  const { format } = require('./_utils.js');
 
   // Get issue
   const { data: issue } = await github.rest.issues.get({
@@ -63,10 +21,7 @@ const convertSBIssueToPR = async ({ github, context, exec }) => {
 
 
   const branchName = `issue-${context.issue.number}`;
-  const baseBranch = 'master';
-  if (context.payload.repository.default_branch !== baseBranch) {
-    throw new Error(`Default branch is not '${baseBranch}'. Cannot proceed.`);
-  }
+  const baseBranch = context.payload.repository.default_branch;
 
   const bug_type = issue.body.match(/^### Bug Type\n\n(?<type>(?:Compiletime)|(?:Runtime))/mi)?.groups.type
   if (!bug_type) {
@@ -137,17 +92,6 @@ const convertSBIssueToPR = async ({ github, context, exec }) => {
       });
 
       console.log(`Branch '${branchName}' successfully created.`);
-
-      const { data: pr } = await github.rest.pulls.create({
-        ...context.repo,
-        title: '[SB]: ' + fileName,
-        head: branchName,
-        base: baseBranch,
-        body: prBody,
-      });
-
-      console.log(`PR '${pr.title}' successfully created.`);
-
     } else {
       throw error;
     }
@@ -213,50 +157,51 @@ const convertSBIssueToPR = async ({ github, context, exec }) => {
   });
 
   // Check if the new tree is identical to the current tree
-  if (newTreeResponse.data.sha === tree.data.sha) {
+  if (newTreeResponse.data.sha !== tree.data.sha) {
+    // Step 6: Create a new commit
+    const newCommit = await github.rest.git.createCommit({
+      ...context.repo,
+      message: `[CI] Issue was updated, updating PR branch`,
+      tree: newTreeResponse.data.sha,
+      parents: [branchSha],
+    });
+
+    // Step 7: Update the branch to point to the new commit
+    await github.rest.git.updateRef({
+      ...context.repo,
+      ref: `heads/${branchName}`,
+      sha: newCommit.data.sha,
+      force: true,
+    });
+
+    console.log(`Branch '${branchName}' updated with new commit.`);
+  } else {
     console.log('No changes detected. Skipping commit.');
     return; // Exit the workflow or function
   }
 
-  // Step 6: Create a new commit
-  const newCommit = await github.rest.git.createCommit({
+
+  // Get all open PRs for the branch
+  const prs = await github.rest.pulls.list({
     ...context.repo,
-    message: `[CI] Issue was updated, updating PR branch`,
-    tree: newTreeResponse.data.sha,
-    parents: [branchSha],
+    head: `${context.repo.owner}:${branchName}`,
+    state: 'open',
   });
-
-  // Step 7: Update the branch to point to the new commit
-  await github.rest.git.updateRef({
+  
+  // Step 8: Create a Pull Request if it doesnt exist yet
+  if (prs.data.length === 0) {
+    const pr = await github.rest.pulls.create({
     ...context.repo,
-    ref: `heads/${branchName}`,
-    sha: newCommit.data.sha,
-    force: true,
-  });
+      title: '[SB]: ' + fileName,
+      body: prBody,
+      head: branchName,
+      base: context.payload.repository.default_branch,
+    });
 
-  console.log(`Branch '${branchName}' updated with new commit.`);
-
-  // // Step 8: Create a Pull Request
-  // const prs = await github.rest.pulls.list({
-  //   ...context.repo,
-  //   head: `${owner}:${branchName}`,
-  //   state: 'open',
-  // });
-
-  // if (prs.data.length === 0) {
-    // const pr = await github.rest.pulls.create({
-    // ...context.repo,
-    //   title: prTitle,
-    //   body: prBody,
-    //   head: branchName,
-    //   base: context.payload.repository.default_branch,
-    // });
-
-    // console.log(`Created PR: ${pr.data.html_url}`);
-  // } else {
-  //   console.log(`PR already exists for branch '${branchName}'.`);
-  // }
-
+    console.log(`Created PR: ${pr.data.html_url}`);
+  } else {
+    console.log(`PR already exists for branch '${branchName}'.`);
+  }
 
 
 
