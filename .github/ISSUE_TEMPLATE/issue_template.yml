@@ -1,6 +1,6 @@
 name: Bug Report - Single File (Automated PR)
 description: Report your bug here if its a small one(one file).
-title: "[SB]: fasdfasdfasdf multiple"
+title: "[SB]: Bug Report - Single File"
 body:
   - type: checkboxes
     id: general
@@ -14,15 +14,27 @@ body:
         - label: "I've already reported the bug to Jon"
     validations:
       required: true
+    
+  - type: dropdown
+    id: bug_type
+    attributes:
+      label: Bug Type
+      description: Should this test check for a compilation error or a runtime error?
+      options:
+        - Compiletime
+        - Runtime
+      default: 0
+    validations:
+      required: true
 
   - type: dropdown
-    id: type
+    id: exit_code
     attributes:
       label: Expected Error Code
       description: What error code is expected to pass the test?
       options:
         - 0 (Default)
-        - 1 (Error)
+        - 1 (Compilation Error)
         - 3 (Internal Compiler Crash)
       default: 0
     validations:

@@ -32,9 +32,9 @@ Closes: #{issue_number}
 \`\`\`c
 {code}
 \`\`\`
-`
-  .replace(/\r\n/g, '\n')
-  .replace(/\r/g, '\n');
+`.replace(/\r\n/g, '\n').replace(/\r/g, '\n');
+
+
 
 function parseIssueBody(text) {
   const sections = text.split('### ').slice(1); // Split into sections by headings
@@ -70,7 +70,9 @@ function parseIssueBody(text) {
   return parsedData;
 }
 
-const createPRFromSBIssue = async ({ github, context, exec }) => {
+
+
+const convertSBIssueToPR = async ({ github, context, exec }) => {
   const { format } = require('./_utils.js');
 
   // Get issue
@@ -174,7 +176,7 @@ const createPRFromSBIssue = async ({ github, context, exec }) => {
   // Create Labels if they dont exist
   const { createLabels } = require('./_create_label.js');
   const categoryLabels = params.categories.split(', ');
-  await createLabels({ github, context, labelNames: categoryLabels });
+  // await createLabels({ github, context, labelNames: categoryLabels });
 
   // Add labels to PR
   await github.rest.issues.addLabels({
@@ -182,8 +184,6 @@ const createPRFromSBIssue = async ({ github, context, exec }) => {
     issue_number: pr.number,
     labels: [...categoryLabels],
   });
-
-  return pr.number;
 };
 
-module.exports = createPRFromSBIssue;
+module.exports = convertSBIssueToPR;

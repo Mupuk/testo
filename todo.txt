@@ -16,6 +16,8 @@
 # [ ] update issue template to support is_runtime_test
 # [ ] change emailed in handling and add lable for it
 # [ ] create summary? issue? issue would need limits. readme? has bad visual support
+# [ ] readme
+# [ ] history (de)compression
 
 
 

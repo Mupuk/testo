@@ -38,6 +38,8 @@ jobs:
           path: test_results.json
           retention-days: 1 # we only need this for the next job
 
+
+
   update_github_files_and_issues:
     needs: run_test_suit
     runs-on: [self-hosted]

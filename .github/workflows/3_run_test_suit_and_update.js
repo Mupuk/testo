@@ -1,7 +1,8 @@
 const { makeExtendedRegExp } = require('./_utils.js');
 
 // Make sure the regex capture groups stay the same :regexGroupNames
-// When a new platform is added update :platformSpecific
+// When a new platform is added update :platformSpecific 
+// :trackerTemplate
 const parseIssueHeaderRegex = makeExtendedRegExp(String.raw`
   (?<=\| :-.*$\s)          # Match and skip table data splitter | :-: | :-: | :-: | :-: | + newline
 
@@ -14,6 +15,7 @@ const parseIssueHeaderRegex = makeExtendedRegExp(String.raw`
 // If a colum is added that is not a platform, it has to be added here :historyColumns
 // When changine this, make sure to update the migration below. Also we leave old version
 // for reference.
+// :trackerTemplate
 const parseIssueHistoryRegexV1 = makeExtendedRegExp(String.raw`
   (?<=\#\#\# History V\d+$\s(?:.*$\s){2,})              # Match and skip the history header + skip to data
   \| (?<version>.*?) \| (?<windows>.*?) \| (?<linux>.*?) \| (?<mac>.*?) \|\s?        # Match row data

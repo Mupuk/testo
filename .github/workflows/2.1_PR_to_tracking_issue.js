@@ -1,3 +1,4 @@
+// :trackerTemplate
 const issueTrackerTemplate = `
 | Emailed In | Last Broken Platforms | Last Encountered Version | Fix Version |
 | :---: | :---: | :---: | :---: |
