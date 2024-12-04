@@ -173,16 +173,23 @@ const convertSBIssueToPR = async ({ github, context, exec }) => {
 
   const newTree = tree.data.tree
     // The bug type or error code may have changed, so we need to delete the old one
-    .filter(file => {
-      console.log('file.path', file.path, !file.path.includes(String(context.issue.number)));
-      return !file.path.includes(String(context.issue.number))
-    }) // Exclude file to delete
-    .map(file => ({
-      path: file.path,
-      mode: file.mode,
-      type: file.type,
-      sha: file.sha,
-    }));
+    .map(file => {
+      if (file.path.includes(String(context.issue.number))) {
+        console.log('Deleting file:', file.path);
+        return {
+          path: file.path,
+          mode: file.mode,
+          type: file.type,
+          sha: null, // Mark file for deletion
+        };
+      }
+      return {
+        path: file.path,
+        mode: file.mode,
+        type: file.type,
+        sha: file.sha,
+      };
+    });
 
   // Add new file to the tree
   const blob = await github.rest.git.createBlob({
