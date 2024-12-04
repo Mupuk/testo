@@ -1,53 +1,21 @@
-const pullRequestTemplate = `
-### General
-
-- [x] I've looked for similar bugs
-- [x] This bug fits into a single file
-- [{already_reported}] I've already reported the bug to Jon
-
-### Related Issues
-Closes: #{issue_number}
-
-### Expected Error Code
-#### What error code is expected to pass the test?
-- {expected_error_code}
-
-### Categorization
-#### What category does this bug belong to the most / What feature triggered the bug? Delete the others.
-- {categories}
-
-### Bug Description
-#### Please fill this out if it is a more complicated bug.
-
-{description}
-
-### Workaround
-#### If you have a workaround, please share it here.
-
-{workaround}
-
-### Short Code Snippet
-#### Please put your code to reproduce the bug here. Only use it if it is a short bug(one file).
-
-\`\`\`c
-{code}
-\`\`\`
-`.replace(/\r\n/g, '\n').replace(/\r/g, '\n');
-
-
 
 function parseIssueBody(text) {
-  const sections = text.split('### ').slice(1); // Split into sections by headings
-  const parsedData = [];
+  const sections = [...text.matchAll(/### (?<title>.*?\n)(?<content>[\S\s]*?)(?=\n###)/g)]
+                    .map((match) => match.groups);
+  const parsedData = {};
 
   sections.forEach((section) => {
-    const lines = section.trim().split('\n');
-    const heading = lines.shift().trim(); // First line is the heading
-    const content = lines.join('\n').trim(); // Remaining lines are the content
+    // EXAMPLE section: 
+    // [Object: null prototype] {
+    //   title: 'Bug Description\n',
+    //   content: '\n_No response_\n'
+    // }
+    const heading = section.title.trim();
+    const content = section.content.trim();
 
     if (heading === 'General') {
       // Parse checkboxes
-      const checkboxes = lines
+      const checkboxes = content.split('\n')
         .filter((line) => line.trim().length > 0)
         .map((line) => {
           const isChecked = line.toLowerCase().includes('[x]');
@@ -56,14 +24,14 @@ function parseIssueBody(text) {
             checked: isChecked,
           };
         });
-      parsedData.push(checkboxes);
+      parsedData[heading] = checkboxes;
     } else if (heading === 'Short Code Snippet') {
       // Extract text inside ```c``` block
       const codeBlockMatch = content.match(/```c([\s\S]*?)```/);
-      parsedData.push(codeBlockMatch ? codeBlockMatch[1].trim() : '');
+      parsedData[heading] = codeBlockMatch ? codeBlockMatch[1].trim() : '';
     } else {
       // Parse other sections
-      parsedData.push(content);
+      parsedData[heading] = content;
     }
   });
 
@@ -90,28 +58,33 @@ const convertSBIssueToPR = async ({ github, context, exec }) => {
   }
 
   const parsedBody = parseIssueBody(issue.body);
+  console.log(JSON.stringify(parsedBody, null, 2));
 
-  const params = {
-    already_reported: parsedBody?.[0]?.[2]?.checked ? 'X' : ' ',
-    issue_number: context.issue.number,
-    expected_error_code: parsedBody[1],
-    categories: parsedBody[2],
-    description: parsedBody[3],
-    workaround: parsedBody[4],
-    code: parsedBody[5],
-  };
 
-  return;
 
+  // Create PR
   const branchName = `issue-${context.issue.number}`;
   const baseBranch = 'master';
-  const prTitle = issue.title;
-  const fileName = `compiler_bugs/EC${Number.parseInt(
-    params.expected_error_code,
-  )}_${context.issue.number}.jai`;
-  const fileContent = Buffer.from(parsedBody[5]).toString('base64');
+  // const prTitle = /\[SB\]:/.test(issue.title) ? issue.title : `[SB]: ${issue.title}`;
 
-  const prBody = format(pullRequestTemplate, params);
+  const bug_type = issue.body.match(/^### Bug Type\n\n(?<type>(?:Compiletime)|(?:Runtime))/mi)?.groups.type
+  if (!bug_type) {
+    throw new Error('Bug Type not found. Most likely the issue was not formatted correctly after editing.');
+  }
+  const bug_type_letter = bug_type[0].toUpperCase(); // C or R
+
+  const expected_error_code = issue.body.match(/^### Expected Error Code\n\n(?<errorCode>-?\d+)/mi)?.groups.errorCode
+  if (!expected_error_code) {
+    throw new Error('Expected Error Code not found. Most likely the issue was not formatted correctly after editing.');
+  }
+
+  const fileName = 
+    `compiler_bugs/${bug_type_letter}EC${Number.parseInt(expected_error_code,)}_${context.issue.number}.jai`;
+
+  const code = issue.body.match(/^### Short Code Snippet[\S\s]*?```c\n(?<code>[\S\s]*?)```/mi);
+  const fileContent = Buffer.from(code).toString('base64');
+
+  const prBody = issue.body;
 
   // Create a new branch from the base branch
   const {
@@ -127,6 +100,7 @@ const convertSBIssueToPR = async ({ github, context, exec }) => {
     sha: commit.sha,
   });
 
+  // Create a new file in the new branch
   await github.rest.repos.createOrUpdateFileContents({
     ...context.repo,
     path: fileName,
@@ -139,7 +113,7 @@ const convertSBIssueToPR = async ({ github, context, exec }) => {
   // Create a pull request
   const { data: pr } = await github.rest.pulls.create({
     ...context.repo,
-    title: prTitle,
+    title: fileName,
     head: branchName,
     base: baseBranch,
     body: prBody,
@@ -148,7 +122,7 @@ const convertSBIssueToPR = async ({ github, context, exec }) => {
   // // Convert issue to a pull request
   // const { data: pr } = await github.rest.pulls.create({
   //   ...context.repo,
-  //   // title: prTitle,
+  //   // title: fileName,
   //   head: branchName,
   //   base: baseBranch,
   //   // body: prBody,
