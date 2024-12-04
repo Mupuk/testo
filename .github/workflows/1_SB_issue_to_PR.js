@@ -1,6 +1,12 @@
 
 const convertSBIssueToPR = async ({ github, context, exec }) => {
 
+  // Check if issue is already closed
+  if (context.payload.issue.state === 'closed') {
+    console.log('Issue is already closed ... skipping');
+    return;
+  }
+
   // Get issue
   const { data: issue } = await github.rest.issues.get({
     ...context.repo,
@@ -199,124 +205,66 @@ const convertSBIssueToPR = async ({ github, context, exec }) => {
     });
 
     console.log(`Created PR: ${pr.data.html_url}`);
+
+    // Link PR to issue
+    const issueCreator = context.payload.issue.user.login; // Get the username of the issue creator
+    await github.rest.issues.createComment({
+      ...context.repo,
+      issue_number: context.issue.number,
+      body: `👋 Thanks for the contribution @${issueCreator}, please continue further discussion on this matter here: ${pr.html_url}!`,
+    });
+
+    // Not sure if we should close or lock the original issue
+    // await github.rest.issues.lock({
+    //   ...context.repo,
+    //   issue_number: context.issue.number,
+    // });
+
+    // await github.rest.issues.update({
+    //   ...context.repo,
+    //   issue_number: context.issue.number,
+    //   state: 'closed',
+    //   state_reason: 'completed'
+    // })
+
+
+    // Add labels to PR
+    // @note we can not allow changes to labels to propagate, since these are controlled
+    // by the user. On initial creation, we can, because the template is controlled by us.
+    const categories = issue.body.match(/^### Categories\n(?<categories>[\S\s]*?)###/mi)?.groups.categories.trim();
+    const categoryLabels = categories.split('\n').map((label) => label.trim());
+    console.log('categoryLabels', categoryLabels);
+
+    // Add labels to PR
+    await github.rest.issues.addLabels({
+      ...context.repo,
+      issue_number: pr.number,
+      labels: [...categoryLabels],
+    });
+
   } else {
     console.log(`PR already exists for branch '${branchName}'.`);
   }
 
-
-
-
-
-
-
-
-
-
-
-
-  // let oldSha = null;
-
-  // // See if the PR already exists
-  // try {
-  //   const fileData = await github.rest.repos.getContent({
-  //     ...context.repo,
-  //     path: filePath,
-  //     ref: branchName,
-  //   });
-
-  //   oldSha = fileData.data.sha;
-  //   console.log('branch already exists oldSha:', oldSha);
-  // } catch (error) {
-  // }
-
-  // // Create a new branch from the base branch since it doesn't exist
-  // if (!oldSha) {
-  //   console.log('creating branch', branchName);
-  //   const { data: { commit } } = await github.rest.repos.getBranch({
-  //     ...context.repo,
-  //     branch: baseBranch,
-  //   });
-
-  //   await github.rest.git.createRef({
-  //     ...context.repo,
-  //     ref: `refs/heads/${branchName}`,
-  //     sha: commit.sha,
-  //   });
-  // }
-
-
-  // // Create or update file in the PR branch
-  // await github.rest.repos.createOrUpdateFileContents({
+  // @todo maybe this is better?
+  // // Convert issue to a pull request
+  // const { data: pr } = await github.rest.pulls.create({
   //   ...context.repo,
-  //   path: filePath,
-  //   message: oldSha ? '[CI] Update because the issue was modified' : '[CI] Add test',
-  //   content: newFileContent,
-  //   branch: branchName,
-  // ...(oldSha ? { sha: oldSha } : {})
+  //   // title: fileName,
+  //   head: branchName,
+  //   base: baseBranch,
+  //   // body: prBody,
+  //   issue: context.issue.number
   // });
 
 
 
 
-  // if (!oldSha) {
-  //   // Create a pull request
-  //   // not sure if we should convert it to PR or create new PR
-  //   const { data: pr } = await github.rest.pulls.create({
-  //     ...context.repo,
-  //     title: '[SB]: ' + fileName,
-  //     head: branchName,
-  //     base: baseBranch,
-  //     body: prBody,
-  //   });
-
-  //   // // Convert issue to a pull request
-  //   // const { data: pr } = await github.rest.pulls.create({
-  //   //   ...context.repo,
-  //   //   // title: fileName,
-  //   //   head: branchName,
-  //   //   base: baseBranch,
-  //   //   // body: prBody,
-  //   //   issue: context.issue.number
-  //   // });
 
 
 
 
-  //   // Link PR to issue
-  //   await github.rest.issues.createComment({
-  //     ...context.repo,
-  //     issue_number: context.issue.number,
-  //     body: `👋 Thanks for the contribution, please continue further discussion on this matter here: ${pr.html_url}!`,
-  //   });
 
-  //   // Not sure if we should close or lock the original issue
-  //   // await github.rest.issues.lock({
-  //   //   ...context.repo,
-  //   //   issue_number: context.issue.number,
-  //   // });
-
-  //   // await github.rest.issues.update({
-  //   //   ...context.repo,
-  //   //   issue_number: context.issue.number,
-  //   //   state: 'closed',
-  //   //   state_reason: 'completed'
-  //   // })
-
-
-
-
-  //   // Add labels to PR
-  //   const categories = issue.body.match(/^### Categories\n(?<categories>[\S\s]*?)###/mi)?.groups.categories.trim();
-  //   const categoryLabels = categories.split('\n').map((label) => label.trim());
-  //   console.log('categoryLabels', categoryLabels);
-
-  //   // Add labels to PR
-  //   await github.rest.issues.addLabels({
-  //     ...context.repo,
-  //     issue_number: pr.number,
-  //     labels: [...categoryLabels],
-  //   });
-  // }
 };
 
 module.exports = convertSBIssueToPR;
