@@ -651,6 +651,9 @@ const updateGithubIssuesAndFiles = async ({
       console.log(`No results found for platform '${platform}'`);
     }
   }
+  if (activePlatforms.length === 0) {
+    throw new Error('No test results found for any platform. This could happen when all runners are offline, as we skip unavailable ones instead of crashing the whole process.');
+  }
   console.log('activePlatforms', activePlatforms);
   console.log('allTestResults', JSON.stringify(allTestResults, null, 2));
 

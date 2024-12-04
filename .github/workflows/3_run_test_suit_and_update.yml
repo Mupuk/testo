@@ -18,6 +18,10 @@ jobs:
     runs-on: 
      - self-hosted
      - ${{ matrix.platform }}
+
+    # Allow other jobs to run, if this runner is unavailable
+    # continue-on-error: true
+    timeout-minutes: 1
      
     steps:
       - name: Checkout repository
@@ -40,7 +44,7 @@ jobs:
 
   update_github_files_and_issues:
     needs: run_test_suit
-    runs-on: [self-hosted, windows]
+    runs-on: [self-hosted]
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4

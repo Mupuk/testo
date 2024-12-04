@@ -7,11 +7,12 @@
 # [ ] cleanup and rework (1)
 # [ ] cleanup and rework (2)
 # [ ] cleanup and rework (2.1)
+    # [ ] Name tracker after test name
 # [ ] cleanup and rework (3)
-# [ ] change emailed in handling and add lable for it
-# [ ] update issue template to support is_runtime_test
+
 # [ ] making the test run without offline platform? How?
-# [ ] Name tracker after test name
+# [ ] update issue template to support is_runtime_test
+# [ ] change emailed in handling and add lable for it
 # [ ] convert exit to throws again and test
 # [ ] create summary? issue? issue would need limits. readme? has bad visual support
 
