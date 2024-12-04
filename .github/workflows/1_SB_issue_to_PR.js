@@ -150,10 +150,7 @@ const convertSBIssueToPR = async ({ github, context, exec }) => {
   //   state_reason: 'completed'
   // })
 
-  // Create Labels if they dont exist
-  // const { createLabels } = require('./_create_label.js');
-  // const categoryLabels = params.categories.split(', ');
-  // await createLabels({ github, context, labelNames: categoryLabels });
+
   const categories = issue.body.match(/^### Categories\n(?<categories>[\S\s]*?)###/mi)?.groups.categories.trim();
   const categoryLabels = categories.split('\n').map((label) => label.trim());
   console.log('categoryLabels', categoryLabels);
