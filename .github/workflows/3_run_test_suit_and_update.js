@@ -266,6 +266,7 @@ const runTestSuitAndGatherOutput = async ({ github, context, exec, io }) => {
   console.log('newIssueNumbers', JSON.stringify(newIssueNumbers, null, 2));
 
   // Run the test suit for all older compiler versions for each new test
+  // We will only run the test suit for theses tests, instead of all tests
   for (const currentIssueNumber of newIssueNumbers) {
     console.log(
       'handle newTest',
@@ -620,7 +621,6 @@ const updateGithubIssuesAndFiles = async ({
   context,
   exec,
   io,
-  // testSuitOutputs,
 }) => {
   const fs = require('fs');
   const {
@@ -632,11 +632,11 @@ const updateGithubIssuesAndFiles = async ({
   } = require('./_utils.js');
   const { createLabels, createLabel } = require('./_create_label.js');
 
-  createLabel({ github, context, labelName: 'removed-test' });
+  // createLabel({ github, context, labelName: 'removed-test' });
 
   const currentJaiVersion = await getCurrentJaiVersion({ exec });
 
-  const supportedPlatforms = ['windows', 'linux' /*, 'macos'*/]; // :platformSpecific
+  const supportedPlatforms = ['windows', 'linux', 'macos']; // :platformSpecific
   let activePlatforms = []; // all platforms where it found a test_results.json from
 
   let allTestResults = {};
@@ -878,6 +878,7 @@ const updateGithubIssuesAndFiles = async ({
       );
 
       // Update History
+      // @todo add history compression and decompression
       for (const version of allTestResultVersions) {
         let row = fullHistoryDataByVersion[version];
         if (!row) {
@@ -1245,6 +1246,31 @@ const updateGithubIssuesAndFiles = async ({
       }
     }
   }
+
+
+
+  // Update test_results.json
+  const { data: oldData } = await github.rest.repos
+    .getContent({ ...context.repo, path: 'old_test_results.json' })
+    .catch(() => ({ data: null }));
+
+  // Commit new test_results.json
+  // await github.rest.repos.createOrUpdateFileContents({
+  //   ...context.repo,
+  //   path: 'old_test_results.json',
+  //   message: '[CI] Update test results',
+  //   content: Buffer.from(JSON.stringify(allTestResults, null, 2)).toString('base64'),
+  //   branch: 'master',
+  //   ...(oldData ? { sha: oldData.sha } : {})
+  // });
+
+
+
+
+
+
+
+
 
   // const mergedPlatformIssues = {
   //   // issueId: {

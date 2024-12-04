@@ -11,8 +11,9 @@
 # [ ] change emailed in handling and add lable for it
 # [ ] update issue template to support is_runtime_test
 # [ ] making the test run without offline platform? How?
-# [ ] 
-# [ ] 
+# [ ] Name tracker after test name
+# [ ] convert exit to throws again and test
+# [ ] create summary? issue? issue would need limits. readme? has bad visual support
 
 
 

@@ -13,7 +13,7 @@ jobs:
         # This decides all relevant platforms. Platforms that are not in here
         # will not be tested and completely ignored. This is a good way to
         # to disable them.
-        platform: [linux] # :platformSpecific
+        platform: [windows, linux] # :platformSpecific
 
     runs-on: 
      - self-hosted
@@ -40,7 +40,7 @@ jobs:
 
   update_github_files_and_issues:
     needs: run_test_suit
-    runs-on: [self-hosted]
+    runs-on: [self-hosted, windows]
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
