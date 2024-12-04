@@ -8,14 +8,13 @@
 # [ ] cleanup and rework (2)
 # [ ] cleanup and rework (2.1)
     # [ ] Name tracker after test name
-# [ ] cleanup and rework (3)
+# [x] cleanup and rework (3)
 
 # [-] making the test run without offline platform? How?
        NOTE: Not directly possible (https://github.com/orgs/community/discussions/50926)
              For when its stuck. Its possible to check completely offline though
 # [ ] update issue template to support is_runtime_test
 # [ ] change emailed in handling and add lable for it
-# [ ] convert exit to throws again and test
 # [ ] create summary? issue? issue would need limits. readme? has bad visual support
 
 

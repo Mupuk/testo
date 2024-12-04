@@ -33,11 +33,10 @@ const getCurrentJaiVersion = async ({ exec }) => {
   // Check if the version is in the correct format
   // :versionChange
   if (jaiVersionRegex.test(version) === false) {
-    console.log(
+    throw new Error(
       'The version format has changed! Please update all places that break, like the IssueTrackers histories sorting with mixed version formats of the old and new one. :versionChange',
       version,
     );
-    process.exit(1);
   }
 
   return version;

@@ -30,8 +30,7 @@ function migrateIssueHistory(issueBody) {
   const historyVersion = issueBody.match(parseIssueHistoryVersion)?.groups.version;
   if (!historyVersion) {
     console.log('Problematic issue body:', issueBody);
-    console.log('No history version found in issue body');
-    process.exit(1);
+    throw new Error('No history version found in issue body');
   }
   switch (historyVersion) { // fall through to update to latest version
     case '0': // dummy
@@ -58,11 +57,11 @@ function migrateIssueHistory(issueBody) {
     console.log('New Issue Body:', newIssueBody);
     break;
     default:
-      // console.log('ERROR No migration for history version:', historyVersion);
-      // process.exit(1);
   }
   return newIssueBody;
 }
+
+
 
 // We use this so have to change fewer things when adding a new platform
 function getGroupNames(regex) {
@@ -75,120 +74,7 @@ function getGroupNames(regex) {
   return groupNames;
 }
 
-const handleNewTests = ({
-  newTestResults,
-  newTestIssueNumbers,
-  platform,
-  currentJaiVersion,
-  github,
-  context,
-}) => {
-  //   // In theorie there could already exist a history from other platforms
-  //   const { data: issue } = await github.rest.issues.get({
-  //     ...context.repo,
-  //     issue_number: issueId,
-  //   });
-  //   issue.body = issue.body.replace(/\r\n/g, '\n').replace(/\r/g, '\n');
-  //   let newCommentBody = issue.body;
-  //   let newLabels = issue.labels.map((label) => label.name);
-  //   newCommentBody = newCommentBody.replace(
-  //     parseIssueHeaderStatusRegex,
-  //     (
-  //       match,
-  //       emailedIn,
-  //       lastBrokenPlatforms,
-  //       lastEncounteredVersion,
-  //       fixVersion,
-  //     ) => {
-  //       lastBrokenPlatforms = platform;
-  //       // Since its a new bug, we know the latest version is broken so we use it here
-  //       lastEncounteredVersion = currentJaiVersion;
-  //       return `| ${emailedIn} | ${lastBrokenPlatforms} | ${lastEncounteredVersion} | ${fixVersion} |`;
-  //     },
-  //   );
-  //   // since its a new issue, the history should be empty, all platforms in the matrix only get the original state and it will be udpated after all of them ran
-  //   // if (parseIssueHistoryRegex.test(newCommentBody)) {
-  //   //   console.log('History already exists in issue:', issueId);
-  //   //   //process.exit(1); // Should never happen
-  //   //   continue;
-  //   // }
-  //   // Go over all versions of the test run and change the history accordingly
-  //   oldToNewCompilerVersions.forEach((version, index) => {
-  //     const currentTestResultOfVersion =
-  //       newTestResultsByVersion[version].results[currentTest.file];
-  //     const currentPassedTest = currentTestResultOfVersion.passed_test
-  //       ? '✅'
-  //       : '❌';
-  //     const currentErrorCode = currentTestResultOfVersion.did_run
-  //       ? currentTestResultOfVersion.run_exit_code
-  //       : currentTestResultOfVersion.compilation_exit_code;
-  //     const currentExpectedErrorCode =
-  //       currentTestResultOfVersion.expected_error_code;
-  //     if (currentTestResultOfVersion.passed_test === false) {
-  //       newLabels.push(version, platform);
-  //     }
-  //     if (index === 0 && !parseIssueHistoryRegex.test(newCommentBody)) {
-  //       // only if its first entry and no history exists
-  //       // Just append since the history is still empty
-  //       newCommentBody =
-  //         newCommentBody.trimEnd() +
-  //         `\n| ${currentPassedTest} | ${platform} | ${currentDate} | ${version} | ${currentErrorCode} - Expected ${currentExpectedErrorCode} |`;
-  //     } else {
-  //       // Update history via regex, only works if at least one is there
-  //       let replaceIndex = 0;
-  //       newCommentBody = newCommentBody.replace(
-  //         parseIssueHistoryRegex,
-  //         (
-  //           match,
-  //           passedTest,
-  //           platforms,
-  //           date,
-  //           oldVersion,
-  //           errorCode,
-  //           expectedErrorCode,
-  //         ) => {
-  //           /////////////////////////////////////////////
-  //           // Add New Row
-  //           let newFirstRow = '';
-  //           const testResultOfPreviousVersion =
-  //             newTestResultsByVersion[oldToNewCompilerVersions[index - 1]]
-  //               ?.results[currentTest.file];
-  //           // index === 0 means there is already a history, but only of other platforms, so we need to add all the results of this platform
-  //           const addNewEntry =
-  //             index === 0 ||
-  //             currentTestResultOfVersion.passed_test === false ||
-  //             (currentTestResultOfVersion.passed_test === true &&
-  //               testResultOfPreviousVersion.passed_test === false);
-  //           if (replaceIndex === 0 && addNewEntry) {
-  //             replaceIndex++; // increment counter
-  //             newFirstRow = `| ${currentPassedTest} | ${platform} | ${currentDate} | ${version} | ${currentErrorCode} - Expected ${currentExpectedErrorCode} |\n`;
-  //           }
-  //           /////////////////////////////////////////////
-  //           // Overwrite Old Row
-  //           replaceIndex++; // increment counter
-  //           let oldRow = `| ${passedTest} | ${platforms} | ${date} | ${oldVersion} | ${errorCode} - Expected ${expectedErrorCode} |`;
-  //           return `${newFirstRow}${oldRow}`;
-  //         },
-  //       );
-  //     }
-  //   });
-  //   const issueEntry = {};
-  //   issueEntry.issueId = issueId;
-  //   issueEntry.newLabels = [...new Set(newLabels)]; // remove duplicates
-  //   issueEntry.newCommentBody = newCommentBody;
-  //   testSuitOutput.issues ||= [];
-  //   testSuitOutput.issues.push(issueEntry);
-  //   // await createLabels({github, context, labelNames: newLabels});
-  //   // // @todo instead up update here, pass result to updater
-  //   // // Update comment
-  //   // await github.rest.issues.update({
-  //   //   ...context.repo,
-  //   //   issue_number: issueId,
-  //   //   body: newCommentBody,
-  //   //   labels: newLabels
-  //   // });
-  // }
-};
+
 
 const runTestSuitAndGatherOutput = async ({ github, context, exec, io }) => {
   const path = require('path');
@@ -203,7 +89,6 @@ const runTestSuitAndGatherOutput = async ({ github, context, exec, io }) => {
 
   const currentJaiVersion = await getCurrentJaiVersion({ exec });
 
-  // Get old state of test results
   // FORMAT:
   // {
   //   "263": { // issue id
@@ -225,6 +110,7 @@ const runTestSuitAndGatherOutput = async ({ github, context, exec, io }) => {
   //   },
   //   ...
   // }
+  // Get old state of test results
   let oldTestResults = {};
   try {
     const data = fs.readFileSync('old_test_results.json', 'utf8');
@@ -233,6 +119,7 @@ const runTestSuitAndGatherOutput = async ({ github, context, exec, io }) => {
     console.log('Error reading file:', err);
   }
 
+  // Get compiler path
   const options = { silent: false };
   let compilerPath = await io.which('jai'); // we start with the current one
   try {
@@ -242,8 +129,12 @@ const runTestSuitAndGatherOutput = async ({ github, context, exec, io }) => {
   console.log('Running for version:', currentJaiVersion);
   console.log('compilerPath', compilerPath);
 
-  // Run test suit
+
+
+  // Run test suit for all tests
   await exec.exec(`${compilerPath} bug_suit.jai`, [], options);
+
+
 
   // Get new test results
   // NOTE: this data could get extended in the handling code of new tests, to
@@ -259,19 +150,20 @@ const runTestSuitAndGatherOutput = async ({ github, context, exec, io }) => {
   const oldTestIssueNumbers = Object.keys(oldTestResults);
   const newTestIssueNumbers = Object.keys(newTestResults);
 
+
+
   // Find all tests that were added. We need this to gather extra results
   const newIssueNumbers = newTestIssueNumbers.filter(
     (item) => !oldTestIssueNumbers.includes(item),
   );
   console.log('newIssueNumbers', JSON.stringify(newIssueNumbers, null, 2));
 
+
+
   // Run the test suit for all older compiler versions for each new test
   // We will only run the test suit for theses tests, instead of all tests
   for (const currentIssueNumber of newIssueNumbers) {
-    console.log(
-      'handle newTest',
-      JSON.stringify(newTestResults[currentIssueNumber], null, 2),
-    );
+    console.log('handle newTest', JSON.stringify(newTestResults[currentIssueNumber], null, 2));
 
     // Run older compiler versions for this test
     let suffix = ''; // :platformSpecific
@@ -290,14 +182,11 @@ const runTestSuitAndGatherOutput = async ({ github, context, exec, io }) => {
       if (!fs.existsSync(newCompilerPath)) break;
       console.log('Running for version:', tempVersion);
       console.log('newCompilerPath', newCompilerPath);
-      await exec.exec(
-        `${newCompilerPath} bug_suit.jai - ${filePath}`,
-        [],
-        options,
-      );
+      await exec.exec(`${newCompilerPath} bug_suit.jai - ${filePath}`, [], options);
     }
   }
 
+  // Just print for debug purposes
   if (newIssueNumbers.length > 0) {
     try {
       const data = fs.readFileSync('test_results.json', 'utf8');
@@ -307,320 +196,14 @@ const runTestSuitAndGatherOutput = async ({ github, context, exec, io }) => {
     }
   }
   console.log('newTestResults', JSON.stringify(newTestResults, null, 2));
-
-  // // Find all tests that were removed
-  // const removedIssueNumbers = oldTestIssueNumbers.filter(
-  //   (item) => !newTestIssueNumbers.includes(item),
-  // );
-
-  // // All issues that existed both in old and new test results
-  // const commonIssueNumbers = oldTestIssueNumbers.filter(
-  //   (item) => newTestIssueNumbers.includes(item),
-  // );
-  //
-  // // @todo move this to updategithub function
-  // // Find all tests that had a new result in the new test results
-  // const changedIssueNumbers = commonIssueNumbers.filter(
-  //   (issueNumber) => {
-  //     // Only compare latest version
-  //     const oldResults = oldTestResults[issueNumber][currentJaiVersion];
-  //     const newResults = newTestResults[issueNumber][currentJaiVersion];
-  //     return !isDeepEqual(oldResults, newResults);
-  //   },
-  // );
-
-  // let suffix = '';
-  // if (platform === 'linux') suffix = '-linux';
-  // if (platform === 'macos') suffix = '-macos';
-  // let tempVersion = currentJaiVersion;
-
-  // const extension = path.extname(compilerPath);
-  // tempVersion = decrementVersionString(tempVersion);
-  // console.log('Running for version:', tempVersion);
-  // compilerPath =
-  //   path.resolve(compilerPath, '..', '..', '..', `jai-${tempVersion}/bin`)
-  //     + `${path.sep}jai${suffix}${extension}`;
-  // console.log('compilerPath', compilerPath);
-  // await exec.exec(`${compilerPath} bug_suit.jai`, [], options);
-
-  // // make test results available via version, and results via name
-  // const oldTestResultsByVersion =
-  //   lastTestResults[platform]?.reduce((acc, item) => {
-  //     acc[item.version] = item;
-  //     // also reduce the results
-  //     acc[item.version].results = item.results.reduce((acc, item) => {
-  //       acc[item.file] = item;
-  //       return acc;
-  //     }, {});
-
-  //     return acc;
-  //   }, {}) || [];
-
-  // const newTestResultsByVersion =
-  //   newTestResults[platform]?.reduce((acc, item) => {
-  //     acc[item.version] = item;
-  //     // also reduce the results
-  //     acc[item.version].results = item.results.reduce((acc, item) => {
-  //       acc[item.file] = item;
-  //       return acc;
-  //     }, {});
-
-  //     return acc;
-  //   }, {}) || [];
-
-  // // console.log('new test res', newTestResults);
-  // // console.log('newTestResultsByVersion', newTestResultsByVersion);
-
-  // const previousVersion = decrementVersionString(currentJaiVersion, 1);
-  // console.log(previousVersion);
-  // // console.log('old', oldTestResultsByVersion[previousVersion]);
-  // // console.log('new', newTestResultsByVersion[previousVersion]);
-
-  // // We need to find all tests that are new. We compare the old and new log. We have to update their issues.
-  // //
-  // //
-  // //           Old Log       New Log
-  // //              -          0.1.094
-  // //           0.1.093  <>   0.1.093 // This version exists in both logs, compare them
-  // //           0.1.092       0.1.092
-  // //           0.1.091          -
-  // //
-  // const newTests = Object.values(
-  //   newTestResultsByVersion[previousVersion].results,
-  // ).filter(
-  //   (obj1) =>
-  //     !oldTestResultsByVersion[previousVersion] || // if the previous version does not exist in old log, then all tests are new
-  //     !Object.values(oldTestResultsByVersion[previousVersion].results).some(
-  //       (obj2) => obj1.file === obj2.file,
-  //     ), // if the file does not exist in old log
-  // );
-
-  // console.log('newTests\n', newTests);
-
-  // // We need to update all issues where the status has changed. We compare the old and new log.
-  // //
-  // //           Old Log       New Log
-  // //              -          0.1.094
-  // //                            ^--
-  // //                               |- compare those to versions, to see if the updated changed the test result
-  // //                            v--
-  // //           0.1.093       0.1.093
-  // //           0.1.092       0.1.092
-  // //           0.1.091          -
-  // //
-  // const changedTests = Object.values(
-  //   newTestResultsByVersion[currentJaiVersion].results,
-  // ).filter(
-  //   (obj1) =>
-  //     obj1.file in newTestResultsByVersion[previousVersion].results && // if the file exists in previous version, this should be redundant?
-  //     !isDeepEqual(
-  //       obj1,
-  //       newTestResultsByVersion[previousVersion].results[obj1.file],
-  //     ) && // if the test results are different
-  //     !newTests.some((test) => test.file === obj1.file), // if the test is not new
-  // );
-  // console.log('changedTests\n', changedTests);
-
-  // // We need to find all tests that are removed to close their issues.
-  // //
-  // //           Old Log       New Log
-  // //              -          0.1.094
-  // //           0.1.093  <>   0.1.093 // This version exists in both logs, compare them
-  // //           0.1.092       0.1.092
-  // //           0.1.091          -
-  // //
-  // const removedTests = Object.values(
-  //   oldTestResultsByVersion[previousVersion]?.results || [],
-  // ).filter(
-  //   (obj1) =>
-  //     !newTestResultsByVersion[previousVersion] || // if the previous version does not exist in new log, then all tests are removed
-  //     !Object.values(newTestResultsByVersion[previousVersion].results).some(
-  //       (obj2) => obj1.file === obj2.file,
-  //     ), // if the file does not exist in new log
-  // );
-  // console.log('removedTests\n', removedTests);
-
-  // const oldToNewCompilerVersions = newTestResults[platform]
-  //   .map((item) => item.version)
-  //   .sort();
-  // const currentDate = new Date().toISOString().split('T')[0];
-
-  // Handle all new Tests
-  // handleNewTests({ newTestResults, newTestIssueNumbers, platform, currentJaiVersion, github, context});
-
-  // Handle all changed Tests
-  // for (const currentIssueNumber of changedIssueNumbers) {
-
-  // const issueId =
-  //   Number.parseInt(currentTest.file.match(/\d+(?=[./])/)?.[0]) || -1;
-  // if (issueId === -1) {
-  //   console.log('Issue ID not found in file name:', currentTest);
-  //   continue;
-  // }
-
-  // const { data: issue } = await github.rest.issues.get({
-  //   ...context.repo,
-  //   issue_number: issueId,
-  // });
-  // issue.body = issue.body.replace(/\r\n/g, '\n').replace(/\r/g, '\n');
-  // console.log('issue', issue);
-
-  // let newCommentBody = issue.body;
-  // let newLabels = issue.labels.map((label) => label.name);
-
-  // // Get last history entry of current platform
-  // const lastHistoryEntryOfPCurrentlatform = [
-  //   ...newCommentBody.matchAll(parseIssueHistoryRegex),
-  // ]
-  //   .map((match) => match.groups) // Extract groups
-  //   .reduce((acc, item, i) => {
-  //     // Reduce to last entry per platform
-  //     const platforms = item.platforms.split(',').map((p) => p.trim()); // In case platforms are comma-separated
-  //     platforms.forEach((platform) => {
-  //       if (!acc[platform]) {
-  //         acc[platform] = item;
-  //         acc[platform]['index'] = i; // Add row index for later use
-  //       }
-  //     });
-  //     return acc;
-  //   }, {})[platform];
-
-  // const testToggled =
-  //   (lastHistoryEntryOfPCurrentlatform.passedTest === '❌' &&
-  //     currentTest.passed_test === true) ||
-  //   (lastHistoryEntryOfPCurrentlatform.passedTest === '✅' &&
-  //     currentTest.passed_test === false);
-
-  // // Update history via regex
-  // let replaceIndex = 0;
-  // newCommentBody = newCommentBody.replace(
-  //   parseIssueHistoryRegex,
-  //   (
-  //     match,
-  //     passedTest,
-  //     platforms,
-  //     date,
-  //     oldVersion,
-  //     errorCode,
-  //     expectedErrorCode,
-  //     i,
-  //   ) => {
-  //     /////////////////////////////////////////////
-  //     // Add New Row
-  //     let newFirstRow = '';
-  //     // only add new entry if status changed, or if the test still failes on a newer version
-  //     const addNewEntry =
-  //       testToggled ||
-  //       (!testToggled &&
-  //         (lastHistoryEntryOfPCurrentlatform.version !== currentJaiVersion ||
-  //           lastHistoryEntryOfPCurrentlatform.errorCode !== errorCode ||
-  //           lastHistoryEntryOfPCurrentlatform.expectedErrorCode !==
-  //             expectedErrorCode) &&
-  //         currentTest.passed_test === false);
-  //     if (replaceIndex === 0 && addNewEntry) {
-  //       replaceIndex++; // Increment counter
-  //       newFirstRow = `| ${
-  //         currentTest.passed_test ? '✅' : '❌'
-  //       } | ${platform} | ${currentDate} | ${currentJaiVersion} | ${
-  //         currentTest.did_run
-  //           ? currentTest.run_exit_code
-  //           : currentTest.compilation_exit_code
-  //       } - Expected ${currentTest.expected_error_code} |\n`;
-  //     }
-
-  //     /////////////////////////////////////////////
-  //     // Overwrite Old Row
-  //     replaceIndex++; // increment counter
-  //     let oldRow = `| ${passedTest} | ${platforms} | ${date} | ${oldVersion} | ${errorCode} - Expected ${expectedErrorCode} |`;
-  //     return `${newFirstRow}${oldRow}`;
-  //   },
-  // );
-
-  // let newIssueState = undefined;
-  // // Update header status
-  // newCommentBody = newCommentBody.replace(
-  //   parseIssueHeaderStatusRegex,
-  //   (
-  //     match,
-  //     emailedIn,
-  //     lastBrokenPlatforms,
-  //     lastEncounteredVersion,
-  //     fixVersion,
-  //   ) => {
-  //     let brokenPlatforms;
-  //     let newEmailIn;
-  //     if (testToggled && currentTest.passed_test) {
-  //       // Test passed, remove platform from broken list
-  //       brokenPlatforms = '-'; // lastBrokenPlatforms.split(', ').filter(p => p !== platform).join(', ') || '-'; // remove current platform from list
-  //       fixVersion = currentJaiVersion;
-  //       newEmailIn = '✅';
-  //       newIssueState = 'closed';
-  //       newLabels = newLabels.filter((p) => p !== platform);
-  //     } else if (testToggled && !currentTest.passed_test) {
-  //       // Test failed, add platform to broken list
-  //       brokenPlatforms = platform; // [... new Set(lastBrokenPlatforms.split(', ').filter(p => p !== '-').concat(platform))].sort().join(', '); // add current platform to list
-  //       lastEncounteredVersion = [lastEncounteredVersion, currentJaiVersion]
-  //         .sort()
-  //         .reverse()[0];
-  //       fixVersion = '-'; // no fix version yet
-  //       newEmailIn = '❌';
-  //       newIssueState = 'open';
-  //       newLabels.push(currentJaiVersion, platform);
-  //     } else {
-  //       // Test result did not change
-  //       brokenPlatforms = lastBrokenPlatforms;
-  //       newEmailIn = emailedIn;
-  //     }
-  //     return `| ${newEmailIn} | ${brokenPlatforms} | ${lastEncounteredVersion} | ${fixVersion} |`;
-  //   },
-  // );
-
-  // const issueEntry = {};
-  // issueEntry.issueId = issueId;
-  // issueEntry.newLabels = [...new Set(newLabels)]; // remove duplicates
-  // issueEntry.newCommentBody = newCommentBody;
-  // issueEntry.newIssueState = newIssueState;
-  // testSuitOutput.issues ||= [];
-  // testSuitOutput.issues.push(issueEntry);
-
-  // // newLabels = [...new Set(newLabels)]; // remove duplicates
-  // // await createLabels({github, context, labelNames: newLabels});
-
-  // // // Update comment
-  // // await github.rest.issues.update({
-  // //   ...context.repo,
-  // //   issue_number: issueId,
-  // //   body: newCommentBody,
-  // //   ...(newIssueState ? { state: newIssueState, state_reason: newIssueState === 'open' ? 'reopened' : 'completed' } : {}),
-  // //   labels: newLabels
-  // // });
-  // }
-
-  // const { data } = await github.rest.repos.getContent({...context.repo, path: 'test_results.json'}).catch(() => ({ data: null }));
-
-  // // Commit test_results.json
-  // // @todo only do it once aswell
-  // await github.rest.repos.createOrUpdateFileContents({
-  //   ...context.repo,
-  //   path: 'test_results.json',
-  //   message: '[CI] Update test results',
-  //   content: Buffer.from(newTestResultsFileContent || '').toString('base64'),
-  //   branch: 'master',
-  //   ...(data ? { sha: data.sha } : {})
-  // });
-
-  // Don't think we need to handle removed tests
-  // for (const currentTest of removedTests) {
-  // }
-
-  // return testSuitOutput;
 };
+
+
 
 const updateGithubIssuesAndFiles = async ({
   github,
   context,
   exec,
-  io,
 }) => {
   const fs = require('fs');
   const {
@@ -630,16 +213,13 @@ const updateGithubIssuesAndFiles = async ({
     isDeepEqual,
     deepMerge,
   } = require('./_utils.js');
-  const { createLabels, createLabel } = require('./_create_label.js');
-
-  // createLabel({ github, context, labelName: 'removed-test' });
 
   const currentJaiVersion = await getCurrentJaiVersion({ exec });
 
-  const supportedPlatforms = ['windows', 'linux', 'macos']; // :platformSpecific
-  let activePlatforms = []; // all platforms where it found a test_results.json from
-
+  let activePlatforms = []; // all platforms where we have found a test_results.json for
+  
   let allTestResults = {};
+  const supportedPlatforms = ['windows', 'linux', 'macos']; // :platformSpecific
   for (const platform of supportedPlatforms) {
     try {
       const data = fs.readFileSync(`${platform}/test_results.json`, 'utf8');
@@ -657,29 +237,13 @@ const updateGithubIssuesAndFiles = async ({
   console.log('activePlatforms', activePlatforms);
   console.log('allTestResults', JSON.stringify(allTestResults, null, 2));
 
-  // // Load all results from each platform, and merge them  :platformSpecific
-  // let windowsTestResults = {};
-  // try {
-  //   const data = fs.readFileSync('windows/test_results.json', 'utf8');
-  //   windowsTestResults = JSON.parse(data);
-  // } catch (err) {
-  //   console.log('Error reading file:', err);
-  // }
-  // // console.log('windowsTestResults', JSON.stringify(windowsTestResults, null, 2));
 
-  // let linuxTestResults = {};
-  // try {
-  //   const data = fs.readFileSync('linux/test_results.json', 'utf8');
-  //   linuxTestResults = JSON.parse(data);
-  // } catch (err) {
-  //   console.log('Error reading file:', err);
-  // }
-  // // console.log('linuxTestResults', JSON.stringify(linuxTestResults, null, 2));
 
   //
   // Find all new, changed and removed tests
   //
 
+  // Load old test results
   let oldTestResults = {};
   try {
     const data = fs.readFileSync('old_test_results.json', 'utf8');
@@ -688,25 +252,27 @@ const updateGithubIssuesAndFiles = async ({
     console.log('Error reading file:', err);
   }
 
+
+  // Get Issue numbers
   const oldTestIssueNumbers = Object.keys(oldTestResults);
   const newTestIssueNumbers = Object.keys(allTestResults);
 
-  // Find all tests that were added. We need this to gather extra results
+  // Find all tests that were added.
   const newIssueNumbers = newTestIssueNumbers.filter(
     (item) => !oldTestIssueNumbers.includes(item),
   );
-  // @copyPasta
+
   // Make sure that all new tests have a result for the current version on all active platforms
+  // @copyPasta
   for (const issueNumber of newIssueNumbers) {
     // It is garanteed that we at least have one result from the current machine on this version
     let newResultsForCurrentVersion =
       allTestResults[issueNumber][currentJaiVersion];
     if (!newResultsForCurrentVersion) {
       console.log('No results found for:', issueNumber, currentJaiVersion);
-      console.log(
+      throw new Error(
         'No results found. This should never happen. Most likely something bad happened, or the runner this is running on was not part of the suit runners anymore! In the latter case, this runner could be out of date - or the only one with a newer version.',
       );
-      process.exit(1);
     }
 
     // Enforce that all active platforms have a result for this version
@@ -714,55 +280,46 @@ const updateGithubIssuesAndFiles = async ({
     // would be missing in the result set, which would get detected here.
     for (const platform of activePlatforms) {
       if (!newResultsForCurrentVersion[platform]) {
-        console.log(
-          'No results found for:',
-          issueNumber,
-          currentJaiVersion,
-          platform,
-        );
-        console.log(
+        console.log('No results found for:', issueNumber, currentJaiVersion, platform);
+        throw new Error(
           'No results found. This should never happen. Most likely not all runners have been updated to the latest version!',
         );
-        process.exit(1);
       }
     }
   }
   console.log('newIssueNumbers', JSON.stringify(newIssueNumbers, null, 2));
 
+
+
   // Find all tests that were removed
   const removedIssueNumbers = oldTestIssueNumbers.filter(
     (item) => !newTestIssueNumbers.includes(item),
   );
-  console.log(
-    'removedIssueNumbers',
-    JSON.stringify(removedIssueNumbers, null, 2),
-  );
+  console.log('removedIssueNumbers', JSON.stringify(removedIssueNumbers, null, 2));
+
+
 
   // All issues that existed both in old and new test results
   const commonIssueNumbers = oldTestIssueNumbers.filter((item) =>
     newTestIssueNumbers.includes(item),
   );
-  console.log(
-    'commonIssueNumbers',
-    JSON.stringify(commonIssueNumbers, null, 2),
-  );
+  console.log('commonIssueNumbers', JSON.stringify(commonIssueNumbers, null, 2));
 
-  // Find all tests that had a new result in the new test results
+
+
+  // Find all changed tests
   const changedIssueNumbers = commonIssueNumbers.filter((issueNumber) => {
     // Only compare latest version
-    let oldResultsForCurrentVersion =
-      oldTestResults[issueNumber][currentJaiVersion];
+    let oldResultsForCurrentVersion = oldTestResults[issueNumber][currentJaiVersion];
     oldResultsForCurrentVersion ||= {}; // This could happen when a new compiler version was added
 
     // It is garanteed that we at least have one result from the current machine on this version
-    let newResultsForCurrentVersion =
-      allTestResults[issueNumber][currentJaiVersion];
+    let newResultsForCurrentVersion = allTestResults[issueNumber][currentJaiVersion];
     if (!newResultsForCurrentVersion) {
       console.log('No results found for:', issueNumber, currentJaiVersion);
-      console.log(
+      throw new Error(
         'No results found. This should never happen. Most likely something bad happened, or the runner this is running on was not part of the suit runners anymore! In the latter case, this runner could be out of date - or the only one with a newer version.',
       );
-      process.exit(1);
     }
 
     // Enforce that all active platforms have a result for this version
@@ -770,16 +327,10 @@ const updateGithubIssuesAndFiles = async ({
     // would be missing in the result set, which would get detected here.
     for (const platform of activePlatforms) {
       if (!newResultsForCurrentVersion[platform]) {
-        console.log(
-          'No results found for:',
-          issueNumber,
-          currentJaiVersion,
-          platform,
-        );
-        console.log(
+        console.log('No results found for:', issueNumber, currentJaiVersion, platform);
+        throw new Error(
           'No results found. This should never happen. Most likely not all runners have been updated to the latest version!',
         );
-        process.exit(1);
       }
     }
 
@@ -797,13 +348,14 @@ const updateGithubIssuesAndFiles = async ({
       // Handle case 2)
       const oldResultForPlatform = oldResultsForCurrentVersion[platform];
       if (!oldResultForPlatform) {
+        relevantResultSetsAreEqual = false;
+
         console.log(
           'change detected, because platform is missing in old results:',
           issueNumber,
           currentJaiVersion,
           platform,
         );
-        relevantResultSetsAreEqual = false;
         break;
       }
 
@@ -816,14 +368,8 @@ const updateGithubIssuesAndFiles = async ({
           currentJaiVersion,
           platform,
         );
-        console.log(
-          'oldResultForPlatform',
-          JSON.stringify(oldResultForPlatform, null, 2),
-        );
-        console.log(
-          'newResultForPlatform',
-          JSON.stringify(newResultForPlatform, null, 2),
-        );
+        console.log('oldResultForPlatform', JSON.stringify(oldResultForPlatform, null, 2));
+        console.log('newResultForPlatform', JSON.stringify(newResultForPlatform, null, 2));
         relevantResultSetsAreEqual = false;
         break;
       }
@@ -831,369 +377,273 @@ const updateGithubIssuesAndFiles = async ({
 
     return !relevantResultSetsAreEqual; // Has changed!
   });
-  console.log(
-    'changedIssueNumbers',
-    JSON.stringify(changedIssueNumbers, null, 2),
-  );
+
+  console.log('changedIssueNumbers', JSON.stringify(changedIssueNumbers, null, 2));
+
+
 
   // Update all new and changed tests. All unchanged tests are already up to date
   for (const issueNumber of [...newIssueNumbers, ...changedIssueNumbers]) {
     console.log('handle newOrChangedIssue', issueNumber);
 
-    const allTestResultVersions = Object.keys(allTestResults[issueNumber])
-      .filter((v) => jaiVersionRegex.test(v))
-      .sort((a, b) => -jaiVersionComparator(a, b)); // sort descending
-
-    console.log(
-      'allTestResultVersions',
-      issueNumber,
-      JSON.stringify(allTestResultVersions, null, 2),
-    );
-
+    let issue = null;
     try {
       // Get Issue and Labels
-      const { data: issue } = await github.rest.issues.get({
+      issue = await github.rest.issues.get({
         ...context.repo,
         issue_number: issueNumber,
       });
+    } catch (error) {
+      if (error.status === 404) {
+        console.log(
+          `Issue not found for '${issueNumber}'. The issue was most likely deleted, but the test still exists. This should never happen. Skipping update.`,
+        );
+        continue;
+      } else {
+        throw error;
+      }
+    }
+    assert(issue, 'Issue not found');
 
-      let newIssueBody = issue.body.replace(/\r\n/g, '\n').replace(/\r/g, '\n');
-      const existingLabels = issue.labels.map((label) => label.name);
+    // Replace line endings
+    let newIssueBody = issue.body.replace(/\r\n/g, '\n').replace(/\r/g, '\n');
+    const existingLabels = issue.labels.map((label) => label.name);
 
-      newIssueBody = migrateIssueHistory(newIssueBody);
 
-      let fullHistoryDataByVersion = [
-        ...newIssueBody.matchAll(parseIssueHistoryRegex),
-      ]
-        .map((match) => match.groups)
-        .reduce((acc, item) => {
-          // Happens for the first time adding data to issue
-          if (item.version !== '-') {
-            acc[item.version] = item;
+    // Migrate issue body to latest version
+    newIssueBody = migrateIssueHistory(newIssueBody);
+
+    // Parse Issue Body
+    let fullHistoryDataByVersion = [...newIssueBody.matchAll(parseIssueHistoryRegex)]
+                                      .map((match) => match.groups)
+                                      .reduce((acc, item) => {
+                                        // Happens for the first time adding data to issue
+                                        if (item.version !== '-') {
+                                          acc[item.version] = item;
+                                        }
+                                        return acc;
+                                      }, {});
+
+    console.log('fullHistoryDataByVersion', issueNumber, JSON.stringify(fullHistoryDataByVersion, null, 2));
+
+    const allTestResultPerVersionsSorted = Object.keys(allTestResults[issueNumber])
+      .filter((v) => jaiVersionRegex.test(v)) // filter out file_path, issue_number etc
+      .sort((a, b) => -jaiVersionComparator(a, b)); // sort descending
+
+    console.log('allTestResultVersions', issueNumber, JSON.stringify(allTestResultPerVersionsSorted, null, 2));
+
+
+
+    // Update History
+    // @todo add history compression and decompression
+    for (const version of allTestResultPerVersionsSorted) {
+      let row = fullHistoryDataByVersion[version];
+      if (!row) {
+        // insert new row
+        fullHistoryDataByVersion[version] = {};
+        row = fullHistoryDataByVersion[version];
+        getGroupNames(parseIssueHistoryRegex).forEach((groupName) => {
+          if (groupName === 'version') {
+            // Special case for version :historyColumns
+            row[groupName] = version;
+          } else if (activePlatforms.includes(groupName)) {
+            // We have results for the platform!
+            const testResult = allTestResults[issueNumber][version][groupName];
+            if (!testResult) {
+              console.log(
+                'Error',
+                JSON.stringify(allTestResults[issueNumber][version], null, 2),
+                issueNumber,
+                version,
+                groupName,
+              );
+              throw new Error('Should never happen!');
+            }
+
+            const errorCode = testResult.is_runtime_test
+              ? testResult.run_exit_code
+              : testResult.compilation_exit_code;
+            row[groupName] = testResult.passed_test
+              ? `✅ - ExitCode ${errorCode}`
+              : `❌ - ExitCode ${errorCode} `;
+          } else {
+            // We dont have any result for this platform. Maybe it was inactive
+            row[groupName] = '-';
           }
-          return acc;
-        }, {});
+        });
 
-      console.log(
-        'fullHistoryDataByVersion',
-        issueNumber,
-        JSON.stringify(fullHistoryDataByVersion, null, 2),
-      );
-
-      // Update History
-      // @todo add history compression and decompression
-      for (const version of allTestResultVersions) {
-        let row = fullHistoryDataByVersion[version];
-        if (!row) {
-          // insert new row
-          fullHistoryDataByVersion[version] = {};
-          row = fullHistoryDataByVersion[version];
-          getGroupNames(parseIssueHistoryRegex).forEach((groupName) => {
-            if (groupName === 'version') {
-              // Special case for version :historyColumns
-              row[groupName] = version;
-            } else if (activePlatforms.includes(groupName)) {
-              // We have results for the platform!
-              const testResult =
-                allTestResults[issueNumber][version][groupName];
-              if (!testResult) {
-                console.log(
-                  'Error',
-                  JSON.stringify(allTestResults[issueNumber][version], null, 2),
-                  issueNumber,
-                  version,
-                  groupName,
-                );
-                console.log('Should never happen!');
-                process.exit(1);
-              }
-
-              const errorCode = testResult.is_runtime_test
-                ? testResult.run_exit_code
-                : testResult.compilation_exit_code;
-              row[groupName] = testResult.passed_test
-                ? `✅ - ExitCode ${errorCode}`
-                : `❌ - ExitCode ${errorCode} `;
-            } else {
-              // We dont have any result for this platform. Maybe it was inactive
-              row[groupName] = '-';
-            }
-          });
-        } else {
-          // update row
-          for (const platformColumn of activePlatforms) {
-            let platformResult = row[platformColumn];
-            if (!platformResult) {
-              // added a new platform, but old results are not updated?
-              console.log('Not yet supported');
-              process.exit(1);
-            }
-
-            // update missing values and always overwrite current versions results
-            if (
-              row[platformColumn] === '-' ||
-              row.version === currentJaiVersion
-            ) {
-              const testResult =
-                allTestResults[issueNumber][version][platformColumn];
-              if (!testResult) {
-                console.log(
-                  'Error',
-                  JSON.stringify(allTestResults[issueNumber][version], null, 2),
-                  issueNumber,
-                  version,
-                  platformColumn,
-                );
-                console.log('Should never happen!');
-                process.exit(1);
-              }
-              const errorCode = testResult.is_runtime_test
-                ? testResult.run_exit_code
-                : testResult.compilation_exit_code;
-              row[platformColumn] = testResult.passed_test
-                ? `✅ - ExitCode ${errorCode}`
-                : `❌ - ExitCode ${errorCode} `;
-            }
-
-            // Otherwise do not update old history
+      } else {
+        // update row
+        for (const platformColumn of activePlatforms) {
+          let platformResult = row[platformColumn];
+          if (!platformResult) {
+            // added a new platform, but old results are not updated
+            throw new Error('Should never happen, since we migrated the issue body');
           }
+
+          // update missing values and always overwrite current versions results
+          if (row[platformColumn] === '-' || row.version === currentJaiVersion) {
+            const testResult = allTestResults[issueNumber][version][platformColumn];
+            if (!testResult) {
+              console.log(
+                'Error',
+                JSON.stringify(allTestResults[issueNumber][version], null, 2),
+                issueNumber,
+                version,
+                platformColumn,
+              );
+              throw new Error('Should never happen!');
+            }
+            const errorCode = testResult.is_runtime_test
+              ? testResult.run_exit_code
+              : testResult.compilation_exit_code;
+            row[platformColumn] = testResult.passed_test
+              ? `✅ - ExitCode ${errorCode}`
+              : `❌ - ExitCode ${errorCode} `;
+          }
+
+          // Otherwise do not update old history
         }
       }
-      console.log(
-        'fullHistoryDataByVersion after edit',
-        issueNumber,
-        JSON.stringify(fullHistoryDataByVersion, null, 2),
-      );
+    }
 
-      const sortedHistoryData = Object.keys(fullHistoryDataByVersion)
-        .map((k) => fullHistoryDataByVersion[k])
-        .sort((a, b) => -jaiVersionComparator(a.version, b.version)); // sort descending
 
-      console.log(
-        'sortedHistoryData',
-        issueNumber,
-        JSON.stringify(sortedHistoryData, null, 2),
-      );
+    console.log('fullHistoryDataByVersion after edit', issueNumber, JSON.stringify(fullHistoryDataByVersion, null, 2));
 
-      const brokenVersions = [];
-      const brokenPlatformsForCurrentVersion = [];
+    const sortedHistoryData = Object.keys(fullHistoryDataByVersion)
+      .map((k) => fullHistoryDataByVersion[k])
+      .sort((a, b) => -jaiVersionComparator(a.version, b.version)); // sort descending
 
-      // Insert update data into body
-      let replaceIndex = -1;
-      newIssueBody = newIssueBody.replace(parseIssueHistoryRegex, (match) => {
-        replaceIndex += 1;
-        if (replaceIndex === 0) {
-          // replace the first one with all data
-          let output = '';
-          sortedHistoryData.forEach((row) => {
-            // its already ordered!
-            for (const column of Object.keys(row)) {
-              // this data was ordered by regex matcher
-              // Keep track of all broken versions and platforms to add the labels later on
-              if (column !== 'version') {
-                // :historyColumns
-                if (row[column].includes('❌')) {
-                  // Github has a limit of 100 labels? Lets jut limit them!
-                  // As we iterate descendingly it will always include the latest
-                  // 50 broken versions
-                  if (brokenVersions.length < 50) {
-                    brokenVersions.push(row.version);
-                  }
+    console.log('sortedHistoryData', issueNumber, JSON.stringify(sortedHistoryData, null, 2));
 
-                  if (row.version === currentJaiVersion) {
-                    brokenPlatformsForCurrentVersion.push(column);
-                  }
+    const brokenVersions = [];
+    const brokenPlatformsForCurrentVersion = [];
+
+
+
+    // Insert updated data into issue body
+    let replaceIndex = -1;
+    newIssueBody = newIssueBody.replace(parseIssueHistoryRegex, (match) => {
+      replaceIndex += 1;
+      if (replaceIndex === 0) {
+        // replace the first row with all data to replace the whole list
+        let output = '';
+        sortedHistoryData.forEach((row) => { // its already ordered!
+          for (const column of Object.keys(row)) { // this data was ordered by regex matcher
+            // Keep track of all broken versions and platforms to add the labels later on
+            if (column !== 'version') {
+              // :historyColumns
+              if (row[column].includes('❌')) {
+                // Github has a limit of 100 labels? Lets jut limit them!
+                // As we iterate descendingly it will always include the latest
+                // 50 broken versions
+                if (brokenVersions.length < 50) {
+                  brokenVersions.push(row.version);
+                }
+
+                if (row.version === currentJaiVersion) {
+                  brokenPlatformsForCurrentVersion.push(column);
                 }
               }
-              output += `| ${row[column]} `;
             }
-            output += '|\n';
-          });
-          return output;
-        } else {
-          return ''; // delete all other rows
-        }
-      });
 
-      console.log('newIssueBody', issueNumber, replaceIndex, newIssueBody);
-      if (replaceIndex === -1) {
-        console.log(
-          'ERROR nothing was replaced in the issue history. This most likely happened because the regex was modified and does match the issue template.',
-        );
-        process.exit(1);
-      }
-
-      const historyColumns = getGroupNames(parseIssueHistoryRegex);
-      const existingLabelsWithoutPlatformsAndBrokenVersions = existingLabels
-        .filter((l) => historyColumns.includes(l) === false)
-        .filter((l) => jaiVersionRegex.test(l) === false);
-      const updatedUniqueLabels = [
-        ...new Set([
-          ...existingLabelsWithoutPlatformsAndBrokenVersions,
-          ...brokenVersions,
-          ...brokenPlatformsForCurrentVersion,
-        ]),
-      ];
-      console.log(
-        'updatedUniqueLabels',
-        issueNumber,
-        JSON.stringify(updatedUniqueLabels, null, 2),
-      );
-
-      // Update Header
-      replaceIndex = -1;
-      newIssueBody = newIssueBody.replace(
-        parseIssueHeaderRegex,
-        (match, ...args) => {
-          replaceIndex += 1;
-          const row = args.pop(); // grep the groups object
-          const columnNames = Object.keys(row);
-          console.log('updating header', issueNumber, match);
-
-          let output = '';
-          for (const column of columnNames) {
-            let value = row[column];
-            if (column === 'latestBrokenPlatforms') {
-              const latestBrokenVersion =
-                brokenVersions.sort((a, b) => -jaiVersionComparator(a, b))[0] ||
-                '-';
-              if (latestBrokenVersion === '-') {
-                value = '-';
-              } else {
-                const brokenPlatformsForLatestBrokenVersion = Object.keys(
-                  fullHistoryDataByVersion[latestBrokenVersion] || {},
-                ).filter(
-                  (k) =>
-                    k !== 'version' &&
-                    fullHistoryDataByVersion[latestBrokenVersion][k].includes(
-                      '❌',
-                    ),
-                );
-
-                value = brokenPlatformsForLatestBrokenVersion.join(', ') || '-';
-              }
-            } else if (column === 'latestBrokenVersion') {
-              value =
-                brokenVersions.sort((a, b) => -jaiVersionComparator(a, b))[0] ||
-                '-';
-            } else if (column === 'fixVersion') {
-              if (brokenPlatformsForCurrentVersion.length > 0) {
-                // we have broken platforms
-                value = '-';
-              } else if (value === '-') {
-                // we just fixed it
-                value = currentJaiVersion;
-              } // else leave it as it is
-            } else if (column === 'reportedVersion') {
-              if (row.reportedVersion === '-') {
-                value = currentJaiVersion;
-              }
-            }
-            output += `| ${value} `;
+            // Add column
+            output += `| ${row[column]} `;
           }
-          output += '|';
-          console.log('new header', issueNumber, output);
-          return output;
-        },
-      );
-      if (replaceIndex === -1) {
-        console.log(
-          'ERROR nothing was replaced in the issue header. This most likely happened because the regex was modified and does match the issue template.',
-        );
-        process.exit(1);
+          output += '|\n';
+        });
+        return output;
+      } else {
+        return ''; // delete all other rows
       }
+    });
 
-      // // Update History
-      // let replaceIndex = -1;
-      // // for all rows in the history
-      // newIssueBody = newIssueBody.replace(parseIssueHistoryRegex, (match, ...args) => {
-      //   replaceIndex += 1;
-      //   const row = args.pop(); // grep the groups object
-      //   const columnNames = Object.keys(row);
-      //   // When adding new rows that are not platforms :historyColumns
-      //   const filteredColumnNames = columnNames.filter(c => c !== 'version');
-      //   if (filteredColumnNames.length === 0) return match;
 
-      //   if (filteredColumnNames.length - 2 /* @todo remove -2*/ != activePlatforms.length ) {
-      //     console.log('Column names do not match active platforms:', filteredColumnNames, activePlatforms);
-      //     throw new Error('Column names do not match active platforms. Not yet supported');
-      //   }
+    console.log('newIssueBody', issueNumber, replaceIndex, newIssueBody);
+    if (replaceIndex === -1) {
+      throw new Error(
+        'ERROR nothing was replaced in the issue history. This most likely happened because the regex was modified and does match the issue template.',
+      );
+    }
 
-      //   let output = '';
 
-      //   // Add new row since the current version should be the latest, and therefore the first!
-      //   if (replaceIndex === 0 && row.version !== currentJaiVersion) {
-      //     console.log('Add new row', issueNumber, row.version);
-      //     // Should be in order as the captured groups
-      //     for (const column of columnNames) {
-      //       let value = '-';
-      //       if (column === 'version') {
-      //         value = currentJaiVersion; //  :historyColumns
-      //       } else {
-      //         const result = testResultForCurrentVersion[column];
-      //         if (result) {
-      //           const errorCode = result.is_runtime_test ? result.run_exit_code : result.compilation_exit_code;
 
-      //           if (result) value =
-      //                 result.passed_test ? `✅ - ExitCode ${errorCode}` : `❌ - ExitCode ${errorCode} `;
-      //         }
-      //       }
-      //       output += `| ${value} `;
-      //     }
-      //     output += '|';
 
-      //     // If its the very first entry in the history, we dont need to readd the
-      //     // empty template line
-      //     if (row.version === '-') {
-      //       console.log('Very first row', issueNumber, row.version);
-      //       return output;
-      //     } else {
-      //       console.log('NOT Very first row', issueNumber, row.version);
-      //       output += '\n';
-      //     }
-      //   }
+    // Update Header
+    replaceIndex = -1;
+    newIssueBody = newIssueBody.replace(parseIssueHeaderRegex, (match, ...args) => {
+      replaceIndex += 1;
+      const row = args.pop(); // grep the groups object
+      const columnNames = Object.keys(row);
+      console.log('updating header', issueNumber, match);
 
-      //   // Update the captured row
-      //   const resultForRowVersion = allTestResults[issueNumber][row.version]
-      //   if (!resultForRowVersion) {
-      //     if (row.version === currentJaiVersion) {
-      //       if (replaceIndex === 0) {
-      //         // :historyColumns
-      //         console.log(`No TestResults found for '${column}' while updating issue '${issueNumber} for version '${row.version}'`);
-      //         throw new Error('Error updating issue. This should only ever happen if the issue template was modified.');
-      //       } else {
-      //         throw new Error('Error only the first row should ever be the current version');
-      //       }
-      //     } else {
-      //       // We dont have any data for this version, so we can not update it
-      //       console.log('Skip update', issueNumber, row.version);
-      //       return output + match;
-      //     }
+      let output = '';
+      for (const column of columnNames) {
+        let value = row[column];
+        if (column === 'latestBrokenPlatforms') {
+          const latestBrokenVersion = brokenVersions.sort((a, b) => -jaiVersionComparator(a, b))[0] || '-';
+          if (latestBrokenVersion === '-') {
+            value = '-';
+          } else {
+            const brokenPlatformsForLatestBrokenVersion = Object.keys(
+              fullHistoryDataByVersion[latestBrokenVersion] || {},
+            ).filter((k) => 
+              k !== 'version' &&
+              fullHistoryDataByVersion[latestBrokenVersion][k].includes('❌')
+            );
 
-      //   }
-      //   output += `| ${row.version} |`; //  :historyColumns
-      //   for (const column of filteredColumnNames) { // windows, linux, mac
-      //     let value = row[column];
-      //     // always update first row, otherwise fill in missing data
-      //     if (value === '-' || replaceIndex === 0) {
-      //       // We dont know if we have data for the platform, just try
-      //       const result = resultForRowVersion[column];
-      //       if (result) {
-      //         const errorCode = result.is_runtime_test ? result.run_exit_code : result.compilation_exit_code;
-      //         value = result.passed_test ? `✅ - ExitCode ${errorCode}` : `❌ - ExitCode ${errorCode} `;
+            value = brokenPlatformsForLatestBrokenVersion.join(', ') || '-';
+          }
+        } else if (column === 'latestBrokenVersion') {
+          value = brokenVersions.sort((a, b) => -jaiVersionComparator(a, b))[0] || '-';
+        } else if (column === 'fixVersion') {
+          if (brokenPlatformsForCurrentVersion.length > 0) {
+            // we have broken platforms
+            value = '-';
+          } else if (value === '-') {
+            // we just fixed it
+            value = currentJaiVersion;
+          } // else leave it as it is
+        } else if (column === 'reportedVersion') {
+          if (row.reportedVersion === '-') {
+            value = currentJaiVersion;
+          }
+        }
+        output += `| ${value} `;
+      }
+      output += '|';
+      console.log('new header', issueNumber, output);
+      return output;
+    });
+    if (replaceIndex === -1) {
+      throw new Error(
+        'ERROR nothing was replaced in the issue header. This most likely happened because the regex was modified and does match the issue template.',
+      );
+    }
 
-      //         console.log('Force overwriting:', column, row.version);
-      //       }
-      //     }
-      //     output += ` ${value} |`;
-      //   }
 
-      //   return output;
-      // });
 
-      // console.log('newIssueBody', issueNumber, replaceIndex, JSON.stringify(newIssueBody, null, 2));
+    // Update Labels
+    const historyColumns = getGroupNames(parseIssueHistoryRegex);
 
-      // Update issue
+    const existingLabelsWithoutPlatformsAndBrokenVersions = existingLabels
+      .filter((l) => historyColumns.includes(l) === false) // remove platforms labels
+      .filter((l) => jaiVersionRegex.test(l) === false);   // remove versions labels
+
+    const updatedUniqueLabels = [
+      ...new Set([
+        ...existingLabelsWithoutPlatformsAndBrokenVersions,
+        ...brokenVersions,
+        ...brokenPlatformsForCurrentVersion,
+      ]),
+    ];
+
+    console.log('updatedUniqueLabels', issueNumber, JSON.stringify(updatedUniqueLabels, null, 2));
+
+
+
+    // Update issue
+    try {
       await github.rest.issues.update({
         ...context.repo,
         issue_number: issueNumber,
@@ -1205,16 +655,14 @@ const updateGithubIssuesAndFiles = async ({
     } catch (error) {
       if (error.status === 404) {
         console.log(
-          `Issue not found for '${issueNumber}'. The issue was most likely deleted. This should never happen.`,
+          `Issue not found for '${issueNumber}'. The issue was most likely deleted, but the test still exists. This should never happen. Skipping update`,
         );
+        continue;
       } else {
-        // print stack and error
-        console.log('An error occurred:', error.message);
         throw error;
       }
     }
   }
-
 
 
 
@@ -1241,11 +689,10 @@ const updateGithubIssuesAndFiles = async ({
       console.log('Closed Issue for removed test', issueNumber);
     } catch (error) {
       if (error.status === 404) {
-        console.log(
-          `Issue not found for '${issueNumber}'. The issue was most likely deleted.`,
-        );
+        console.log(`Issue not found for '${issueNumber}'. The issue was most likely deleted.`);
+        continue;
       } else {
-        console.log('An error occurred:', error.message);
+        throw error;
       }
     }
   }
@@ -1263,316 +710,6 @@ const updateGithubIssuesAndFiles = async ({
   //   path: 'old_test_results.json',
   //   message: '[CI] Update test results',
   //   content: Buffer.from(JSON.stringify(allTestResults, null, 2)).toString('base64'),
-  //   branch: 'master',
-  //   ...(oldData ? { sha: oldData.sha } : {})
-  // });
-
-
-
-
-
-
-
-
-
-  // const mergedPlatformIssues = {
-  //   // issueId: {
-  //   //   newLabels: [],
-  //   //   historyEntries: [
-  //   //     {
-  //   //        passedTest: '✅',
-  //   //        platforms: 'windows, linux',
-  //   //        date: '2021-09-07',
-  //   //        version: '0.1.093',
-  //   //        errorCode: '0',
-  //   //        expectedErrorCode: '0'
-  //   //     }
-  //   //   ]
-  //   // }
-  // };
-
-  // // Gather all isssue data from all platforms
-  // for (const platform in testSuitOutputs) {
-  //   console.log('platform', platform);
-  //   for (const issue of testSuitOutputs[platform]?.issues || []) {
-  //     console.log('issue', issue);
-  //     // All issues contain the updated history for each platform, we need to merge them
-  //     // to do that, we combine them into one object and then reduce them to the last entry per platform.
-  //     // While doing that, we also remove dublicates, and merge entries when possible
-  //     mergedPlatformIssues[issue.issueId] ||= {
-  //       newLabels: [],
-  //       newIssueStates: [],
-  //       historyEntries: [],
-  //       newCommentBodies: [],
-  //     };
-  //     // Add all labels except those of other platforms, because they could be outdated
-  //     mergedPlatformIssues[issue.issueId].newLabels.push(
-  //       ...issue.newLabels.filter(
-  //         (l) =>
-  //           !Object.keys(testSuitOutputs)
-  //             .filter((l) => l !== platform)
-  //             .includes(l),
-  //       ),
-  //     );
-  //     mergedPlatformIssues[issue.issueId].newCommentBodies.push(
-  //       issue.newCommentBody,
-  //     );
-  //     mergedPlatformIssues[issue.issueId].newIssueStates.push(
-  //       issue.newIssueState,
-  //     );
-
-  //     [...issue.newCommentBody.matchAll(parseIssueHistoryRegex)]
-  //       .map((e) => e.groups)
-  //       .forEach((g) => {
-  //         const passedTest = g.passedTest;
-  //         const platforms = g.platforms;
-  //         const date = g.date;
-  //         const version = g.version;
-  //         const errorCode = g.errorCode;
-  //         const expectedErrorCode = g.expectedErrorCode;
-
-  //         mergedPlatformIssues[issue.issueId].historyEntries.push({
-  //           passedTest,
-  //           platforms,
-  //           date,
-  //           version,
-  //           errorCode,
-  //           expectedErrorCode,
-  //         });
-  //       });
-
-  //     // const lastHistoryEntryOfPCurrentlatform = [...issue.newCommentBody.matchAll(parseIssueHistoryRegex)]
-  //     //   .map(match => match.groups) // Extract groups
-  //     //   .reduce((acc, item, i) => { // Reduce to last entry per platform
-  //     //     const platforms = item.platforms.split(',').map(p => p.trim()); // In case platforms are comma-separated
-  //     //     platforms.forEach(platform => {
-  //     //       if (!acc[platform]) {
-  //     //         acc[platform] = item;
-  //     //         acc[platform]['index'] = i; // Add row index for later use
-  //     //       }
-  //     //     });
-  //     //     return acc;
-  //     //   }, {})[platform];
-
-  //     // issue.newCommentBody = issue.newCommentBody.replace(parseIssueHeaderStatusRegex, (match, emailedIn, lastBrokenPlatforms, lastEncounteredVersion, fixVersion) => {
-  //     //   lastBrokenPlatforms = platform;
-  //     //   // Since its a new bug, we know the latest version is broken so we use it here
-  //     //   lastEncounteredVersion = currentVersion;
-  //     //   return `| ${emailedIn} | ${lastBrokenPlatforms} | ${lastEncounteredVersion} | ${fixVersion} |`;
-  //     // })
-  //   }
-  // }
-
-  // // Merge all information and update issues accordingly
-  // for (const issueId in mergedPlatformIssues) {
-  //   const issue = mergedPlatformIssues[issueId];
-  //   console.log('issue', issueId, JSON.stringify(issue, null, 2));
-
-  //   // Remove duplicates from history, and merge entries when all fields except platforms are the same
-  //   const mergedHistoryEntries = issue.historyEntries.reduce((acc, item) => {
-  //     const existingEntry = acc.reverse().find(
-  //       (e) =>
-  //         e.passedTest === item.passedTest &&
-  //         // && e.date === item.date
-  //         e.version === item.version &&
-  //         e.errorCode === item.errorCode &&
-  //         e.expectedErrorCode === item.expectedErrorCode,
-  //     );
-
-  //     console.log('existingEntry', existingEntry);
-
-  //     if (existingEntry) {
-  //       // If they are the same, skip, otherwise merge platforms
-  //       if (existingEntry.platforms !== item.platforms) {
-  //         // Merge platforms
-  //         existingEntry.platforms = [
-  //           ...new Set(
-  //             existingEntry.platforms
-  //               .split(', ')
-  //               .concat(item.platforms.split(', ')),
-  //           ),
-  //         ]
-  //           .filter((p) => p !== '-')
-  //           .sort()
-  //           .join(', ');
-  //       }
-  //     } else {
-  //       acc.push(item);
-  //     }
-  //     return acc;
-  //   }, []);
-
-  //   // Sort latest date first and then by version
-  //   mergedHistoryEntries.sort((a, b) => {
-  //     if (a.date === b.date) {
-  //       return b.version.localeCompare(a.version);
-  //     }
-  //     return b.date.localeCompare(a.date);
-  //   });
-
-  //   console.log(
-  //     'mergedHistoryEntries',
-  //     issueId,
-  //     JSON.stringify(mergedHistoryEntries, null, 2),
-  //   );
-
-  //   let newCommentBody = issue.newCommentBodies[0];
-  //   // Remove all history entries from the body
-  //   newCommentBody = newCommentBody.replace(
-  //     /(?<=History$\s(?:.*$\s){2,})\|.*\s?/gim,
-  //     '',
-  //   );
-  //   // Add all updated history entries
-  //   mergedHistoryEntries.forEach((entry) => {
-  //     newCommentBody =
-  //       newCommentBody.trimEnd() +
-  //       `\n| ${entry.passedTest} | ${entry.platforms} | ${entry.date} | ${entry.version} | ${entry.errorCode} - Expected ${entry.expectedErrorCode} |`;
-  //   });
-
-  //   // Get last history entry of every platform
-  //   const lastHistoryEntryByPlatform = [
-  //     ...newCommentBody.matchAll(parseIssueHistoryRegex),
-  //   ]
-  //     .map((match) => match.groups) // Extract groups
-  //     .reduce((acc, item, i) => {
-  //       // Reduce to last entry per platform
-  //       const platforms = item.platforms.split(',').map((p) => p.trim()); // In case platforms are comma-separated
-  //       platforms.forEach((platform) => {
-  //         if (!acc[platform]) {
-  //           acc[platform] = item;
-  //           acc[platform]['index'] = i; // Add row index for later use
-  //         }
-  //       });
-  //       return acc;
-  //     }, {});
-  //   console.log('lastHistoryEntryByPlatform', lastHistoryEntryByPlatform);
-
-  //   const statusHeaders = issue.newCommentBodies
-  //     .reduce((acc, item) => {
-  //       acc.push(item.match(parseIssueHeaderStatusRegex).groups);
-  //       return acc;
-  //     }, [])
-  //     .reduce(
-  //       (acc, item) => {
-  //         // Make it SOA
-  //         acc.emailedIn.push(item.emailedIn);
-  //         acc.lastBrokenPlatforms.push(...item.lastBrokenPlatforms.split(', '));
-  //         acc.lastEncounteredVersion.push(item.lastEncounteredVersion);
-  //         acc.fixVersion.push(item.fixVersion);
-  //         return acc;
-  //       },
-  //       {
-  //         emailedIn: [],
-  //         lastBrokenPlatforms: [],
-  //         lastEncounteredVersion: [],
-  //         fixVersion: [],
-  //       },
-  //     );
-  //   console.log('statusHeaders', statusHeaders);
-
-  //   let mergedHeaderState;
-  //   if (issue.newIssueStates.some((v) => v === 'open')) {
-  //     // newly failed on any platform
-  //     mergedHeaderState = 'open';
-  //   } else if (
-  //     issue.newIssueStates.some((v) => v === 'closed') &&
-  //     lastHistoryEntryByPlatform.map((i) => i.every((v) => v === '✅'))
-  //   ) {
-  //     // newly fixed on all platforms
-  //     mergedHeaderState = 'closed';
-  //   } else {
-  //     mergedHeaderState = undefined; // even if some closed, its irrelevant if not all are closed
-  //   }
-  //   console.log('mergedHeaderState', mergedHeaderState);
-
-  //   // Update header by merging the status of all platforms
-  //   newCommentBody = newCommentBody.replace(
-  //     parseIssueHeaderStatusRegex,
-  //     (
-  //       match,
-  //       emailedIn,
-  //       lastBrokenPlatforms,
-  //       lastEncounteredVersion,
-  //       fixVersion,
-  //     ) => {
-  //       const newLastBrokenPlatforms =
-  //         [...new Set(statusHeaders.lastBrokenPlatforms)]
-  //           .filter((p) => p !== '-')
-  //           .sort()
-  //           .join(', ') || '-';
-  //       const newLastEncounteredVersion = statusHeaders.lastEncounteredVersion
-  //         .sort()
-  //         .reverse()[0]; // Take latest
-  //       const newFixVersion = statusHeaders.fixVersion.some((v) => v === '-')
-  //         ? '-'
-  //         : statusHeaders.fixVersion
-  //             .filter((v) => v !== '-')
-  //             .sort()
-  //             .reverse()[0];
-  //       const newEmailedIn =
-  //         mergedHeaderState === 'open'
-  //           ? '❌'
-  //           : mergedHeaderState === 'closed'
-  //           ? '✅'
-  //           : emailedIn;
-  //       return `| ${newEmailedIn} | ${newLastBrokenPlatforms} | ${newLastEncounteredVersion} | ${newFixVersion} |`;
-  //     },
-  //   );
-
-  //   // Create Labels
-  //   const uniqueLabels = [...new Set(issue.newLabels)]; // remove duplicates
-  //   await createLabels({ github, context, labelNames: uniqueLabels });
-
-  //   // Update Body
-  //   await github.rest.issues.update({
-  //     ...context.repo,
-  //     issue_number: issueId,
-  //     body: newCommentBody,
-  //     ...(mergedHeaderState
-  //       ? {
-  //           state: mergedHeaderState,
-  //           state_reason:
-  //             mergedHeaderState === 'open' ? 'reopened' : 'completed',
-  //         }
-  //       : {}),
-  //     labels: uniqueLabels,
-  //   });
-  // }
-
-  // // Update test_results.json
-  // const { data: oldData } = await github.rest.repos
-  //   .getContent({ ...context.repo, path: 'old_test_results.json' })
-  //   .catch(() => ({ data: null }));
-
-  // const windowsTestResultContent = fs.readFileSync(
-  //   'windows/test_results.json',
-  //   'utf8',
-  // );
-  // const windowsTestResults = JSON.parse(windowsTestResultContent);
-
-  // const linuxTestResultContent = fs.readFileSync(
-  //   'linux/test_results.json',
-  //   'utf8',
-  // );
-  // const linuxTestResults = JSON.parse(linuxTestResultContent);
-
-  // const newTestResults = {
-  //   windows: windowsTestResults.windows,
-  //   linux: linuxTestResults.linux,
-  // };
-  // const newTestResultsContent = JSON.stringify(newTestResults, null, 2);
-
-  // if (oldData && atob(oldData.content) === newTestResultsContent) {
-  //   console.log('No changes in test results, skipping update');
-  //   return;
-  // }
-
-  // Commit new test_results.json
-  // await github.rest.repos.createOrUpdateFileContents({
-  //   ...context.repo,
-  //   path: 'test_results.json',
-  //   message: '[CI] Update test results',
-  //   content: Buffer.from(JSON.stringify(newTestResults, null, 2)).toString('base64'),
   //   branch: 'master',
   //   ...(oldData ? { sha: oldData.sha } : {})
   // });
