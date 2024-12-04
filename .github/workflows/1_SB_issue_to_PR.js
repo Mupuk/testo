@@ -212,6 +212,12 @@ const convertSBIssueToPR = async ({ github, context, exec }) => {
     base_tree: currentTreeSha,
   });
 
+  // Check if the new tree is identical to the current tree
+  if (newTreeResponse.data.sha === tree.data.sha) {
+    console.log('No changes detected. Skipping commit.');
+    return; // Exit the workflow or function
+  }
+
   // Step 6: Create a new commit
   const newCommit = await github.rest.git.createCommit({
     ...context.repo,
