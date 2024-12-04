@@ -103,11 +103,13 @@ const convertSBIssueToPR = async ({ github, context, exec }) => {
     });
 
     oldSha = fileData.data.sha;
+    console.log('branch already exists oldSha:', oldSha);
   } catch (error) {
   }
 
   // Create a new branch from the base branch since it doesn't exist
   if (!oldSha) {
+    console.log('creating branch', branchName);
     const {
       data: { commit },
     } = await github.rest.repos.getBranch({
