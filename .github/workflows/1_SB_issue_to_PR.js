@@ -83,7 +83,7 @@ const convertSBIssueToPR = async ({ github, context, exec }) => {
   issue.body = issue.body.replace(/\r\n/g, '\n').replace(/\r/g, '\n');
 
   // Check that its a SB
-  const isSB = /^\[SB\]:/.test(issue.title);
+  const isSB = /^### \[SB\]:/.test(issue.body);
   if (!isSB) {
     console.log('Issue is not a SB ... skipping');
     return;
@@ -100,6 +100,8 @@ const convertSBIssueToPR = async ({ github, context, exec }) => {
     workaround: parsedBody[4],
     code: parsedBody[5],
   };
+
+  return;
 
   const branchName = `issue-${context.issue.number}`;
   const baseBranch = 'master';
