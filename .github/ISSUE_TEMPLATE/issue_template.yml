@@ -84,6 +84,7 @@ body:
       label: Bug Description
       placeholder: Please fill this out if it is a more complicated bug.
       description: Please fill this out if it is a more complicated bug.
+      value: ""
 
   - type: textarea
     id: workaround
@@ -91,3 +92,4 @@ body:
       label: Workaround
       placeholder: If you have a workaround, please share it here.
       description: If you have a workaround, please share it here.
+      value: ""
