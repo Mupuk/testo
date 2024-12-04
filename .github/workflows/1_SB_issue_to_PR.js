@@ -78,10 +78,11 @@ const convertSBIssueToPR = async ({ github, context, exec }) => {
     throw new Error('Expected Error Code not found. Most likely the issue was not formatted correctly after editing.');
   }
 
-  const fileName = 
-    `compiler_bugs/${bug_type_letter}EC${Number.parseInt(expected_error_code,)}_${context.issue.number}.jai`;
+  const fileName = `${bug_type_letter}EC${Number.parseInt(expected_error_code,)}_${context.issue.number}`;
+  const filePath = `compiler_bugs/${fileName}.jai`;
 
   const code = issue.body.match(/^### Short Code Snippet\n[\S\s]*?```c\n(?<code>[\S\s]*?)```/mi);
+  console.log('parsed code', code);
   const fileContent = Buffer.from(code).toString('base64');
 
   const prBody = issue.body;
@@ -103,7 +104,7 @@ const convertSBIssueToPR = async ({ github, context, exec }) => {
   // Create a new file in the new branch
   await github.rest.repos.createOrUpdateFileContents({
     ...context.repo,
-    path: fileName,
+    path: filePath,
     message: 'Add test',
     content: fileContent,
     branch: branchName,
@@ -137,10 +138,10 @@ const convertSBIssueToPR = async ({ github, context, exec }) => {
   });
 
   // Not sure if we should close or lock the original issue
-  await github.rest.issues.lock({
-    ...context.repo,
-    issue_number: context.issue.number,
-  });
+  // await github.rest.issues.lock({
+  //   ...context.repo,
+  //   issue_number: context.issue.number,
+  // });
 
   // await github.rest.issues.update({
   //   ...context.repo,
@@ -150,10 +151,12 @@ const convertSBIssueToPR = async ({ github, context, exec }) => {
   // })
 
   // Create Labels if they dont exist
-  const { createLabels } = require('./_create_label.js');
+  // const { createLabels } = require('./_create_label.js');
   // const categoryLabels = params.categories.split(', ');
   // await createLabels({ github, context, labelNames: categoryLabels });
   const categories = issue.body.match(/^### Categories\n(?<categories>[\S\s]*?)###/mi)?.groups.categories.trim();
+  const categoryLabels = categories.split('\n').map((label) => label.trim());
+  console.log('categoryLabels', categoryLabels);
 
   // Add labels to PR
   await github.rest.issues.addLabels({
