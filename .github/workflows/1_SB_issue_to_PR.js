@@ -81,7 +81,7 @@ const convertSBIssueToPR = async ({ github, context, exec }) => {
   const fileName = 
     `compiler_bugs/${bug_type_letter}EC${Number.parseInt(expected_error_code,)}_${context.issue.number}.jai`;
 
-  const code = issue.body.match(/^### Short Code Snippet[\S\s]*?```c\n(?<code>[\S\s]*?)```/mi);
+  const code = issue.body.match(/^### Short Code Snippet\n[\S\s]*?```c\n(?<code>[\S\s]*?)```/mi);
   const fileContent = Buffer.from(code).toString('base64');
 
   const prBody = issue.body;
@@ -151,8 +151,9 @@ const convertSBIssueToPR = async ({ github, context, exec }) => {
 
   // Create Labels if they dont exist
   const { createLabels } = require('./_create_label.js');
-  const categoryLabels = params.categories.split(', ');
+  // const categoryLabels = params.categories.split(', ');
   // await createLabels({ github, context, labelNames: categoryLabels });
+  const categories = issue.body.match(/^### Categories\n(?<categories>[\S\s]*?)###/mi)?.groups.categories.trim();
 
   // Add labels to PR
   await github.rest.issues.addLabels({

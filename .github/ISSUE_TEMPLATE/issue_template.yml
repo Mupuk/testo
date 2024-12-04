@@ -57,7 +57,7 @@ body:
   - type: dropdown
     id: category
     attributes:
-      label: Categorization
+      label: Categories
       description: What category does this bug belong to the most / What features triggered the bug?
       multiple: true
       options:
