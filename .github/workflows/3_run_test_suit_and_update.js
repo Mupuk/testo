@@ -392,7 +392,7 @@ const updateGithubIssuesAndFiles = async ({
       issue = await github.rest.issues.get({
         ...context.repo,
         issue_number: issueNumber,
-      });
+      }).data;
     } catch (error) {
       if (error.status === 404) {
         console.log(
