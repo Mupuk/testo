@@ -403,7 +403,9 @@ const updateGithubIssuesAndFiles = async ({
         throw error;
       }
     }
-    assert(issue, 'Issue not found');
+    if (!issue) {
+      throw new Error('Issue not found, should never happen as we should have catched it already.');
+    }
 
     // Replace line endings
     let newIssueBody = issue.body.replace(/\r\n/g, '\n').replace(/\r/g, '\n');
