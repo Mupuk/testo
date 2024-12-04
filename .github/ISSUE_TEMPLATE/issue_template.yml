@@ -14,7 +14,7 @@ body:
     attributes:
       label: "[SB]: Bug Report - Single File"
       placeholder: "Leave empty, this field is needed for automation"
-      value: "Don't change the structure of this issue when edeting it manually!"
+      value: "Don't touch! Also don't change the structure of this issue when editing it manually!"
 
   - type: checkboxes
     id: general
