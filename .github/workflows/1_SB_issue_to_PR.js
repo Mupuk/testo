@@ -205,7 +205,7 @@ const convertSBIssueToPR = async ({ github, context, exec }) => {
   // Step 6: Create a new commit
   const newCommit = await github.rest.git.createCommit({
     ...context.repo,
-    message: `[CI] Issue was updated, delete '${fileToDelete}' and add '${fileToAdd}'`,
+    message: `[CI] Issue was updated, updating PR branch`,
     tree: newTreeResponse.data.sha,
     parents: [branchSha],
   });
