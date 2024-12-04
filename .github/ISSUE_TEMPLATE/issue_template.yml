@@ -10,11 +10,11 @@ body:
         If you have a more complicated bug, please create PR using the PR template.
 
   - type: input
-    id: mandatory
+    id: informational_input
     attributes:
       label: "[SB]: Bug Report - Single File"
       placeholder: "Leave empty, this field is needed for automation"
-      value: "Don't touch! Also don't change the structure of this issue when editing it manually!"
+      value: "Don't touch this! Also don't change the structure of this issue when editing it manually!"
 
   - type: checkboxes
     id: general
