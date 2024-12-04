@@ -9,11 +9,11 @@ body:
         Please fill out the form below to report a bug in a single file.
         If you have a more complicated bug, please create PR using the PR template.
 
-  - type: input
-    id: mandatory
-    attributes:
-      label: [SB]: Bug Report - Single File
-      placeholder: "Leave empty, this field is needed for automation"
+  # - type: input
+  #   id: mandatory
+  #   attributes:
+  #     label: [SB]: Bug Report - Single File
+  #     placeholder: "Leave empty, this field is needed for automation"
 
   - type: checkboxes
     id: general
