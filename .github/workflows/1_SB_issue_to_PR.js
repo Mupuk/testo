@@ -81,7 +81,7 @@ const convertSBIssueToPR = async ({ github, context, exec }) => {
   const fileName = `${bug_type_letter}EC${Number.parseInt(expected_error_code,)}_${context.issue.number}`;
   const filePath = `compiler_bugs/${fileName}.jai`;
 
-  const code = issue.body.match(/^### Short Code Snippet\n[\S\s]*?```c\n(?<code>[\S\s]*?)```/mi);
+  const code = issue.body.match(/^### Short Code Snippet\n[\S\s]*?```c\n(?<code>[\S\s]*?)```/mi).groups.code;
   console.log('parsed code', code);
   const fileContent = Buffer.from(code).toString('base64');
 
