@@ -32,7 +32,8 @@ const validateAddedTestAndMergeOnSuccess = async ({
     throw new Error('No File to run found. Should never happen');
   }
 
-  const exitCode = await exec.exec('jai ' + 'base/' + fileToRun, [], {
+  // # Untrusted Code Execution if review was sloppy!
+  const exitCode = await exec.exec('jai ' + 'PR/' + fileToRun, [], {
     ignoreReturnCode: true, // make this not throw an error when non 0 exit code
   });
   const expectedExitCode = Number.parseInt(
