@@ -38,6 +38,17 @@ jobs:
               pull_number: context.issue.number,
               per_page: 100
             });
+            console.log('data', data);
+
+            const { data: comparison } = await github.rest.repos.compareCommits({
+              owner: 'owner-name',
+              repo: 'repo-name',
+              base: pr.base.sha,
+              head: pr.head.sha
+            });
+            console.log('comparison', comparison);
+
+            throw new Error('xxxxxx')
 
             const filePaths = data.map(file => file.filename);
 
@@ -105,6 +116,7 @@ jobs:
       - name: Validate PR Structure
         uses: actions/github-script@v7
         id: validate_pr_structure
+        if: ${{ steps.pr_safety_check.outputs.run_validation == 'true' }}
         with:
           script: |
             const { validatePRStructure } = require('./.github/workflows/2_validate_PR_and_merge.js');
@@ -115,15 +127,14 @@ jobs:
 
 
   validate-added-test-and-merge-pr:
-    if: false
-    # if: ${{ needs.pr-validation.outputs.validation_passed == 'true' }}
     runs-on: [self-hosted]
     needs: pr-validation
+    if: ${{ needs.pr-validation.outputs.validation_passed == 'true' }}
     # fif: github.event.pull_request.head.repo.fork == true || github.event.pull_request.user.type == 'Bot'
 
     # This is insecure because it (1) checks out the PRs code and (2) runs jai code from the PR which could be malicious
     # so we need to make sure it got approved
-    environment: test # @todo do we only wanna run this on forks?
+    # environment: test # @todo do we only wanna run this on forks?
 
     steps:
       - uses: actions/create-github-app-token@v1
@@ -143,9 +154,6 @@ jobs:
         with:
           repository: ${{ github.repository }}
           ref: ${{ needs.pr-validation.outputs.validated_commit_sha }}
-        # with:
-        #   ref: ${{ github.event.pull_request.head.ref }}
-          
 
       - name: Validate new Test and Merge Pull Request
         uses: actions/github-script@v7
