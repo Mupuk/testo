@@ -23,7 +23,7 @@ jobs:
 
             const isSB = /^\[[SB]B\]:/.test(pr.title);
             if (!isSB) {
-              throw new Error('This PR is not a SB or BB, ignoring it.');
+              console.log('This PR is not a SB or BB, ignoring it.');
               core.setOutput("run_workflow", false);
               return;
             }
