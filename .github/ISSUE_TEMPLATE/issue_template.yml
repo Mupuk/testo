@@ -7,13 +7,18 @@ body:
     id: info_box
     attributes:
       value: |
-        **[SB]: Bug Report - Single File**
-        *DO NOT EDIT THE TITLE OF THIS ISSUE.*
+        **DO NOT EDIT THE TITLE OF THIS ISSUE!**
 
-        **NOTE:**
-        Please fill out the form below to report a bug in a single file.
-        As long the PR is not merged, changes made to this will be reflected in the PR.
-        If you have a more complicated bug, please create PR using the PR template.
+  - type: textarea
+    id: info_box_area
+    attributes:
+      label: "[SB]: Bug Report - Single File"
+      value: |
+        NOTE:
+          Please fill out the form below to report a bug in a single file.
+          As long the PR is not merged, changes made to this issue/PR will be 
+          reflected in the PRs commits. If you have a more complicated bug, please 
+          create PR using the PR template.
 
   - type: checkboxes
     id: general
