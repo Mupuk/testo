@@ -2,7 +2,7 @@ name: 2_validate_PR_and_merge
 
 on:
   pull_request_target:
-    types: [synchronize, edited] # @todo remove edited y
+    types: [synchronize, edited] # @todo remove edited yy
 
 jobs:
   # Since only workflow files themselves are safe when using pull_request_target
@@ -242,6 +242,15 @@ jobs:
         with:
           github-token: ${{ steps.app_token.outputs.token }}
           script: |
+            const fs = require('fs');
+            const path = require('path');
+
+            const directoryPath = '.'; // Replace with your local directory path
+            const files = fs.readdirSync(directoryPath);
+            core.info("Files in the directory:");
+            files.forEach(file => core.info(`- ${file}`));
+
+
             const { validateAddedTestAndMergeOnSuccess } = require('./.github/workflows/2_validate_PR_and_merge.js');
             await validateAddedTestAndMergeOnSuccess({ github, exec, io, context, is_single_file: ${{ needs.pr-validation.outputs.is_single_file }} });
 
