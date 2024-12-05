@@ -12,6 +12,12 @@ const convertSBIssueToPRAndSynchronize = async ({ github, context, exec }) => {
   const isIssue = eventType === 'issues';
   const issuePRData = isIssue ? context.payload.issue : context.payload.pull_request;
 
+  const state = issuePRData.state;
+  const isMerged = issuePRData.merged;
+  console.log('state', state);
+  console.log('isMerged', isMerged);
+
+
   // Make sure its a SB
   issuePRData.body = issuePRData.body.replace(/\r\n/g, '\n').replace(/\r/g, '\n');
   const isSB = /^### \[SB\]:/.test(issuePRData.body);
