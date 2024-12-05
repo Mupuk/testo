@@ -231,10 +231,10 @@ jobs:
       - name: Checkout Base Branch .github folder
         uses: actions/checkout@v4
         with:
-          repository: ${{ github.repository }}
+          # repository: ${{ github.repository }}
           sparse-checkout-cone-mode: false
           sparse-checkout: |
-            .github/workflows/2_validate_PR_and_merge.js
+            jai_version_workaround.jai
 
       # - name: Download file list artifact
       #   uses: actions/download-artifact@v4
