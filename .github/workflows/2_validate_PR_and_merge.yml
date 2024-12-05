@@ -50,7 +50,7 @@ jobs:
             const existingLabels = await github.rest.issues.listLabelsOnIssue({
               ...context.repo,
               issue_number: context.issue.number,
-            }).map((label) => label.name);
+            }).data.map((label) => label.name);
             console.log('existingLabels', existingLabels);
 
 
