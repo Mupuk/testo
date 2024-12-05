@@ -264,7 +264,7 @@ const convertSBIssueToPR = async ({ github, context, exec }) => {
 
     const existingLabelsResponse = await github.rest.issues.listLabelsOnIssue({
       ...context.repo,
-      issue_number: issueNumber,
+      issue_number: context.issue.number,
     });
 
     const existingLabelsToRetain = existingLabelsResponse.data
