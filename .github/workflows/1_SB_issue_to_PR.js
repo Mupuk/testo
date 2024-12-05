@@ -197,7 +197,6 @@ const convertSBIssueToPR = async ({ github, context, exec }) => {
   if (isIssue) {
     const { data: prData } = await github.rest.pulls.create({
       ...context.repo,
-      title: '[SB]: ' + fileName,
       head: branchName,
       base: baseBranch,
       body: prBody,
