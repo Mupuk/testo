@@ -1,12 +1,12 @@
 name: 2_validate_PR_and_merge
 
 on:
-  workflow_dispatch: # Manual trigger
-  # pull_request_target:
-  #   types: [opened, edited, synchronize]
+  pull_request_target:
+    types: [synchronize]
 
 jobs:
   # The workflow file itself can be trusted, since its pull_request_target
+  # Make sure the .github folder is not modified
   workflow-modification-check:
     runs-on: [ubuntu-latest]
     steps:
@@ -21,11 +21,11 @@ jobs:
               pull_number: context.issue.number
             });
 
-            // Check that its a SB or BB
-            const match = pr.title.match(/^\[([SB]B)\]:/)?.[1]
-            if (!match) {
+            const isSB = /^### \[[SB]B\]:/.test(pr.body);
+            if (!isSB) {
               console.log('This PR is not a SB or BB, ignoring it.');
-              process.exit(1);; // its not a SB or BB, ignore it since its probably a normal PR
+              core.setOutput("run_workflow", false);
+              return;
             }
 
             const { data } = await github.rest.pulls.listFiles({
@@ -43,30 +43,52 @@ jobs:
                 issue_number: context.issue.number,
                 body: `@Mupu, This PR has more than 100 files, please make this work and re-run the checks.`
               })
-              process.exit(1);
+              throw new Error('This PR has more than 100 files, please make this work and re-run the checks.');
             }
+
+
+            const existingLabels = await github.rest.issues.listLabelsOnIssue({
+              ...context.repo,
+              issue_number: context.issue.number,
+            });
+            console.log('existingLabels', existingLabels);
+
 
             // Make sure .github folder is not modified
             if (filePaths.some(filePath => filePath.includes('.github'))) {
               await github.rest.issues.createComment({
                 ...context.repo,
                 issue_number: context.issue.number,
-                body: `@Mupu, This PR has modified the .github folder, which is illegal!`
+                body: `This PR has modified the .github folder, which is illegal!`
               })
-              console.log('This PR has modified the .github folder, which is illegal!');
-              process.exit(1);
+
+              // Add labels to PR
+              await github.rest.issues.setLabels({
+                ...context.repo,
+                issue_number: context.issue.number,
+                labels: [...new Set(...existingLabelsToRetain, 'validation-failed') ],
+              });
+              throw new Error('This PR has modified the .github folder, which is illegal!');
             }
+
+            await github.rest.issues.setLabels({
+              ...context.repo,
+              issue_number: context.issue.number,
+              labels: [...existingLabelsToRetain.filter((l) => l !== 'validation-failed') ],
+            });
 
             // Pass on the exact sha of the commit
             const commitSha = pr.head.sha;
             console.log(`Commit SHA: ${commitSha}`);
             core.setOutput('commit_sha', commitSha);
+            core.setOutput("run_workflow", true);
 
 
 
   validate_pr_structure:
     runs-on: [self-hosted]
     needs: workflow-modification-check
+    if: ${{ needs.workflow-modification-check.outputs.run_workflow == 'true' }}
 
     steps:
       # https://docs.github.com/en/actions/writing-workflows/choosing-when-your-workflow-runs/events-that-trigger-workflows#pull_request_target
