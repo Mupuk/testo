@@ -7,6 +7,8 @@ const convertSBIssueToPR = async ({ github, context, exec }) => {
   const isIssue = eventType === 'issues';
   const issuePRData = isIssue ? context.payload.issue : context.payload.pull_request;
 
+  console.log('issuePRData', issuePRData);
+
   // // Check if issue is already closed
   // if (context.payload.issue.state === 'closed') {
   //   console.log('Issue is already closed ... skipping');
