@@ -204,6 +204,10 @@ jobs:
     # environment: test # @todo do we only wanna run this on forks?
 
     steps:
+      - name: List all files recursively with paths
+        run: |
+          find .
+
       - name: Get App Token
         uses: actions/create-github-app-token@v1
         id: app_token
