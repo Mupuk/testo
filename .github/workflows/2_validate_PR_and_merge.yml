@@ -51,7 +51,7 @@ jobs:
               ...context.repo,
               issue_number: context.issue.number,
             });
-            cosnt existingLabels = existingLabelsResponse.data.map((l) => l.name); 
+            const existingLabels = existingLabelsResponse.data.map((l) => l.name); 
             console.log('existingLabels', existingLabels);
 
 
