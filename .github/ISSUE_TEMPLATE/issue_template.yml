@@ -10,20 +10,15 @@ body:
         Note: As long the PR is not merged, changes made to this issue will be reflected in the PR.
         If you have a more complicated bug, please create PR using the PR template.
 
-  - type: input
-    id: informational_input
-    attributes:
-      label: "[SB]: Bug Report - Single File"
-      placeholder: "Leave empty, this field is needed for automation"
-      value: "Don't touch this! Also don't change the structure of this issue when editing it manually!"
-
   - type: textarea
     id: info_box
     attributes:
       label: "[SB]: Bug Report - Single File"
-      placeholder: testo
-      description: If you have a workaround, please share it here.
-      value: "Don't touch this! Also don't change the structure of this issue when editing it manually!"
+      value: |
+        ## [SB]: Bug Report - Single File
+        Please fill out the form below to report a bug in a single file.
+        Note: As long the PR is not merged, changes made to this issue will be reflected in the PR.
+        If you have a more complicated bug, please create PR using the PR template.
 
   - type: checkboxes
     id: general
