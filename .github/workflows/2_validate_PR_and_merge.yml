@@ -2,7 +2,7 @@ name: 2_validate_PR_and_merge
 
 on:
   pull_request_target:
-    types: [edited, synchronize] # so that name changes are also detected
+    types: [synchronize]
 
 jobs:
   # The workflow file itself can be trusted, since its pull_request_target
