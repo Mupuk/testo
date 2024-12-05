@@ -26,6 +26,8 @@ const convertSBIssueToPRAndSynchronize = async ({ github, context, exec }) => {
   issuePRData.body = issuePRData.body.replace(/\r\n/g, '\n').replace(/\r/g, '\n');
   const isSB = /^### \[SB\]:/.test(issuePRData.body);
   // @todo ENABLE AGAIN
+  // @todo maybe not silent drop, because if this check fails, the user would not
+  //       get notified that the issue was not formatted correctly
   // if (!isSB) {
   //   console.log('Issue is not a SB ... skipping');
   //   return;
