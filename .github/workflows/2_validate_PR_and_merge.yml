@@ -18,8 +18,9 @@ jobs:
   pr-validation:
     runs-on: [ubuntu-latest]
     outputs:
-      validation_passed: ${{ steps.validate_pr_structure.outputs.validation_passed }}
       validated_commit_sha: ${{ steps.pr_safety_check.outputs.validated_commit_sha }}
+      validation_passed: ${{ steps.validate_pr_structure.outputs.validation_passed }}
+      is_single_file: ${{ steps.validate_pr_structure.outputs.is_single_file }}
 
     steps:
       - name: Check if '.github' folder was modified
@@ -154,7 +155,7 @@ jobs:
             console.log('loaded pr_files.json', filePaths);
 
             // The file/folder must be named after the PR number
-            const validBugNameRegexTemplate = `^compiler_bugs/[CR]EC-?\\d+_${context.issue.number}`;
+            const validBugNameRegexTemplate = `^compiler_bugs/[CR]EC-?\\d+_${context.issue.number}`; // @copyPasta
             const singleFileValidBugNameRegex = new RegExp(`${validBugNameRegexTemplate}\\.jai`);
             const validFilePathRegex =          new RegExp(`${validBugNameRegexTemplate}/`);
             const validFirstJaiRegex =          new RegExp(`${validBugNameRegexTemplate}/first\\.jai`);
@@ -168,12 +169,11 @@ jobs:
 
             // Check if its a single folder with first.jai file
             const isSingleFolderWithFirstJaiFile =
-              filePaths.every((f) => validFilePathRegex.test(f)) && // All files are in the folder
+              filePaths.every((f) => validFilePathRegex.test(f)) && // All files are in one folder
               filePaths.some((f) => validFirstJaiRegex.test(f));    // At least one file is first.jai
 
             console.log('isSingleFile', isSingleFile);
             console.log('isSingleFolderWithFirstJaiFile', isSingleFolderWithFirstJaiFile);
-            console.log('filePaths', filePaths);
 
             // Error, PR doesnt match needed structure
             if (!isSingleFile && !isSingleFolderWithFirstJaiFile) {
@@ -182,6 +182,13 @@ jobs:
 
             // We passed the validation!
             core.setOutput("validation_passed", true);
+            core.setOutput("is_single_file", isSingleFile);
+
+      - name: Upload file list as an artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: pr_files
+          path: pr_files.json
 
 
 
@@ -196,7 +203,8 @@ jobs:
     # environment: test # @todo do we only wanna run this on forks?
 
     steps:
-      - uses: actions/create-github-app-token@v1
+      - name: Get App Token
+        uses: actions/create-github-app-token@v1
         id: app_token
         with:
           app-id: ${{ secrets.APP_ID }}
@@ -214,13 +222,18 @@ jobs:
           repository: ${{ github.repository }}
           ref: ${{ needs.pr-validation.outputs.validated_commit_sha }}
 
+      - name: Download file list artifact
+        uses: actions/download-artifact@v3
+        with:
+          name: pr_files
+
       - name: Validate new Test and Merge Pull Request
         uses: actions/github-script@v7
         with:
           github-token: ${{ steps.app_token.outputs.token }}
           script: |
             const { validateAddedTestAndMergeOnSuccess } = require('./.github/workflows/2_validate_PR_and_merge.js');
-            await validateAddedTestAndMergeOnSuccess({ github, exec, io, contextRepo: context.repo, prNumber: context.issue.number });
+            await validateAddedTestAndMergeOnSuccess({ github, exec, io, context, ${{ needs.pr-validation.outputs.is_single_file }} });
 
       # # Not sure why the merge below only works after Checking out the PR again.
       # # If we dont do this, the merge will fail with 'Head branch is out of date'
