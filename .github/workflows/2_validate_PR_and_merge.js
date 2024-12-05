@@ -193,6 +193,5 @@ const validateAddedTestAndMergeOnSuccess = async ({
 
 module.exports = {
   validatePRStructure,
-  _validatePRStructure,
   validateAddedTestAndMergeOnSuccess,
 };

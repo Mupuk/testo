@@ -12,7 +12,7 @@ jobs:
     runs-on: [ubuntu-latest]
     outputs:
       validation_passed: ${{ steps.validate_pr_structure.outputs.validation_passed }}
-      commit_sha: ${{ steps.pr_safety_check.outputs.commit_sha }}
+      validated_commit_sha: ${{ steps.pr_safety_check.outputs.validated_commit_sha }}
 
     steps:
       - name: Check if '.github' folder was modified
@@ -85,8 +85,8 @@ jobs:
 
             // Pass on the exact sha of the commit
             const commitSha = pr.head.sha;
-            console.log(`Commit SHA: ${commitSha}`);
-            core.setOutput('commit_sha', commitSha);
+            console.log(`Validated Commit SHA: ${commitSha}`);
+            core.setOutput('validated_commit_sha', commitSha);
             core.setOutput('run_validation', true);
 
       
@@ -142,7 +142,7 @@ jobs:
         uses: actions/checkout@v4
         with:
           repository: ${{ github.repository }}
-          ref: ${{ needs.workflow-modification-check.outputs.commit_sha }}
+          ref: ${{ needs.pr-validation.outputs.validated_commit_sha }}
         # with:
         #   ref: ${{ github.event.pull_request.head.ref }}
           
