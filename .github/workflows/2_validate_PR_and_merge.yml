@@ -221,21 +221,20 @@ jobs:
       # Use GITHUB_TOKEN so we dont trigger a infinite loop
       # when updateing the PR
 
-      # - name: Checkout PRs compiler_bugs folder
-      #   uses: actions/checkout@v4
-      #   with:
-      #     repository: ${{ github.repository }}
-      #     ref: ${{ needs.pr-validation.outputs.validated_commit_sha }}
-      #     sparse-checkout: |
-      #       compiler_bugs/
+      - name: Checkout PRs compiler_bugs folder
+        uses: actions/checkout@v4
+        with:
+          repository: ${{ github.repository }}
+          ref: ${{ needs.pr-validation.outputs.validated_commit_sha }}
+          sparse-checkout: |
+            compiler_bugs
 
       - name: Checkout Base Branch .github folder
         uses: actions/checkout@v4
         with:
-          # repository: ${{ github.repository }}
-          sparse-checkout-cone-mode: false
+          repository: ${{ github.repository }}
           sparse-checkout: |
-            jai_version_workaround.jai
+            .github
 
       # - name: Download file list artifact
       #   uses: actions/download-artifact@v4
@@ -297,17 +296,3 @@ jobs:
       #         merge_method: 'squash'  // Use 'merge', 'squash', or 'rebase' depending on your needs
       #       });
 
-      - name: Verify Git is Installed
-        uses: actions/github-script@v7
-        with:
-          script: |
-            const { execSync } = require('child_process');
-
-            try {
-              // Try to execute the 'git --version' command
-              execSync('git --version', { stdio: 'ignore' });
-              console.log('Git is installed.');
-            } catch (error) {
-              // Fail the action if git is not installed
-              core.setFailed('Git is not installed on the runner.');
-            }
