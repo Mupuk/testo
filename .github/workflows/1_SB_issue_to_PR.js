@@ -11,23 +11,7 @@ const convertSBIssueToPR = async ({ github, context, exec }) => {
   const isIssue = eventType === 'issues';
   const issuePRData = isIssue ? context.payload.issue : context.payload.pull_request;
 
-  console.log('issuePRData', issuePRData?.user?.login);
-
-  // // Check if issue is already closed
-  // if (context.payload.issue.state === 'closed') {
-  //   console.log('Issue is already closed ... skipping');
-  //   return;
-  // }
-
-  // Get issue
-  const { data: issue } = await github.rest.issues.get({
-    ...context.repo,
-    issue_number: context.issue.number,
-  });
-  console.log('issueOnPR', issue?.user?.login);
-  // issue.body = issue.body.replace(/\r\n/g, '\n').replace(/\r/g, '\n');
-
-  // Check that its a SB
+  // Make sure its a SB
   issuePRData.body = issuePRData.body.replace(/\r\n/g, '\n').replace(/\r/g, '\n');
   const isSB = /^### \[SB\]:/.test(issuePRData.body);
   if (!isSB) {
@@ -35,8 +19,19 @@ const convertSBIssueToPR = async ({ github, context, exec }) => {
     return;
   }
 
+  // Get issue, since its a converted issue, we need to get the original issue
+  // to get the originial issue creator
+  const { data: originalIssue } = await github.rest.issues.get({
+    ...context.repo,
+    issue_number: context.issue.number,
+  });
+  const originialIssueCreator = isIssue ? issuePRData.user.login : originalIssue.user.login;
+  console.log('originialIssueCreator', originialIssueCreator);
+  // issue.body = issue.body.replace(/\r\n/g, '\n').replace(/\r/g, '\n');
 
 
+
+  // Some variables we need for the PR
   const branchName = `issue-${context.issue.number}`;
   const baseBranch = context.payload.repository.default_branch;
 
@@ -110,7 +105,6 @@ const convertSBIssueToPR = async ({ github, context, exec }) => {
       throw error;
     }
   }
-
 
   const branchSha = branchRef.data.object.sha;
 
@@ -206,89 +200,43 @@ const convertSBIssueToPR = async ({ github, context, exec }) => {
     });
 
     // Add the issue owner as an assignee to the PR
-    const issueCreator = issuePRData.user.login; // Get the username of the issue creator
     await github.rest.issues.addAssignees({
       ...context.repo,
       issue_number: prData.number,
-      assignees: [issueCreator],
+      assignees: [originialIssueCreator],
     });
 
     await github.rest.issues.createComment({
       ...context.repo,
       issue_number: context.issue.number,
-      body: `👋 Thanks for the contribution @${issueCreator}! If you need to do modifications, you can do so, as long as the PR is not merged yet!`,
+      body: `👋 Thanks for the contribution @${originialIssueCreator}! If you need to do modifications, you can do so, as long as the PR is not merged yet!`,
     });
 
   }
 
-  // // Get all open PRs for the branch
-  // const prs = await github.rest.pulls.list({
-  //   ...context.repo,
-  //   head: `${context.repo.owner}:${branchName}`,
-  //   state: 'open',
-  // });
-  
-  // // Step 8: Create a Pull Request if it doesnt exist yet
-  // if (prs.data.length === 0) {
-  //   const pr = await github.rest.pulls.create({
-  //   ...context.repo,
-  //     title: '[SB]: ' + fileName,
-  //     body: prBody,
-  //     head: branchName,
-  //     base: context.payload.repository.default_branch,
-  //   });
-
-  //   console.log(`Created PR: ${pr.data.html_url}`);
 
 
-  //   Not sure if we should close or lock the original issue
-  //   await github.rest.issues.lock({
-  //     ...context.repo,
-  //     issue_number: context.issue.number,
-  //   });
+  // Set labels on PR
+  const categories = issuePRData.body.match(/^### Categories\n(?<categories>[\S\s]*?)###/mi)?.groups.categories.trim();
+  const categoryLabels = categories.split(', ').map((label) => label.trim()).filter((label) => whitelistedLabels.includes(label));
+  console.log('categoryLabels', categoryLabels);
 
-  //   await github.rest.issues.update({
-  //     ...context.repo,
-  //     issue_number: context.issue.number,
-  //     state: 'closed',
-  //     state_reason: 'completed'
-  //   })
+  const existingLabelsResponse = await github.rest.issues.listLabelsOnIssue({
+    ...context.repo,
+    issue_number: context.issue.number,
+  });
 
+  const existingLabelsToRetain = existingLabelsResponse.data
+                                  .map((label) => label.name)
+                                  .filter((label) => !whitelistedLabels.includes(label)); // remove categories
+  console.log('existingLabelsToRetain', existingLabelsToRetain);
 
-    // Add labels to PR
-    const categories = issuePRData.body.match(/^### Categories\n(?<categories>[\S\s]*?)###/mi)?.groups.categories.trim();
-    const categoryLabels = categories.split(', ').map((label) => label.trim()).filter((label) => whitelistedLabels.includes(label));
-    console.log('categoryLabels', categoryLabels);
-
-    const existingLabelsResponse = await github.rest.issues.listLabelsOnIssue({
-      ...context.repo,
-      issue_number: context.issue.number,
-    });
-
-    const existingLabelsToRetain = existingLabelsResponse.data
-                                    .map((label) => label.name)
-                                    .filter((label) => !whitelistedLabels.includes(label)); // remove categories
-    console.log('existingLabelsToRetain', existingLabelsToRetain);
-
-    // Add labels to PR
-    await github.rest.issues.setLabels({
-      ...context.repo,
-      issue_number: context.issue.number,
-      labels: [...existingLabelsToRetain, ...categoryLabels],
-    });
-
-  // } else {
-  //   console.log(`PR already exists for branch '${branchName}'.`);
-  // }
-
-
-
-
-
-
-
-
-
+  // Add labels to PR
+  await github.rest.issues.setLabels({
+    ...context.repo,
+    issue_number: context.issue.number,
+    labels: [...existingLabelsToRetain, ...categoryLabels],
+  });
 
 };
 
