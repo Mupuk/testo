@@ -233,8 +233,8 @@ jobs:
           script: |
             // Use Base Branch!
             const { validateAddedTestAndMergeOnSuccess } = require('./base/.github/workflows/2_validate_PR_and_merge.js');
-            const is_single_file = ${{ needs.pr-validation.outputs.is_single_file }} === 'true';
-            await validateAddedTestAndMergeOnSuccess({ github, exec, io, context, is_single_file });
+            const isSingleFile = ${{ needs.pr-validation.outputs.is_single_file }} === 'true';
+            await validateAddedTestAndMergeOnSuccess({ github, exec, io, context, isSingleFile });
 
 
       # # Not sure why the merge below only works after Checking out the PR again.
