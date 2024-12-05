@@ -132,7 +132,7 @@ jobs:
       - name: Validate PR Structure
         uses: actions/github-script@v7
         id: validate_pr_structure
-        if: ${{ steps.pr_safety_check.outputs.run_validation == 'true' }}
+        # if: ${{ steps.pr_safety_check.outputs.run_validation == 'true' }}
         with:
           script: |
             // const { validatePRStructure } = require('./.github/workflows/2_validate_PR_and_merge.js');
