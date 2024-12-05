@@ -248,7 +248,7 @@ const convertSBIssueToPR = async ({ github, context, exec }) => {
     // Add labels to PR
     // @todo on change whitelist the labels
     const categories = issuePRData.body.match(/^### Categories\n(?<categories>[\S\s]*?)###/mi)?.groups.categories.trim();
-    const categoryLabels = categories.split('\n').map((label) => label.trim());
+    const categoryLabels = categories.split(', ').map((label) => label.trim());
     console.log('categoryLabels', categoryLabels);
 
     // Add labels to PR
