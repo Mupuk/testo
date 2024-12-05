@@ -224,18 +224,17 @@ jobs:
       - name: Checkout PRs compiler_bugs folder
         uses: actions/checkout@v4
         with:
-          repository: ${{ github.repository }}
           ref: ${{ needs.pr-validation.outputs.validated_commit_sha }}
-          sparse-checkout: |
-            compiler_bugs
+          path: PR
+          # sparse-checkout: |
+          #   compiler_bugs
 
       - name: Checkout Base Branch .github folder
         uses: actions/checkout@v4
-        with:
-          repository: ${{ github.repository }}
-          clean: false
-          sparse-checkout: |
-            .github
+        # with:
+          # clean: false
+          # sparse-checkout: |
+          #   .github
 
       # - name: Download file list artifact
       #   uses: actions/download-artifact@v4
