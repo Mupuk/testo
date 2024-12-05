@@ -1,4 +1,4 @@
-name: PR Checker
+name: 2_validate_PR_and_merge
 
 on:
   workflow_dispatch: # Manual trigger
@@ -6,14 +6,13 @@ on:
   #   types: [opened, edited, synchronize]
 
 jobs:
+  # The workflow file itself can be trusted, since its pull_request_target
   workflow-modification-check:
     runs-on: [ubuntu-latest]
 
-    # @todo Make sure same version gets checked out that was previously checked. Race condition
-    #       maybe just merge the two steps, and make sure we just never call the js file if changes
-    #       are detected
     steps:
       - name: Check if '.github' folder was modified
+        id: modification_check
         uses: actions/github-script@v7
         with:
           script: |
@@ -59,13 +58,21 @@ jobs:
               process.exit(1);
             }
 
+            // Pass on the exact sha of the commit
+            const commitSha = pr.head.sha;
+            console.log(`Commit SHA: ${commitSha}`);
+            core.setOutput('commit_sha', commitSha);
+
+
+
   validate_pr_structure:
-    runs-on: [self-hosted, windows]
+    runs-on: [self-hosted]
     needs: workflow-modification-check
 
     steps:
       # https://docs.github.com/en/actions/writing-workflows/choosing-when-your-workflow-runs/events-that-trigger-workflows#pull_request_target
       # this is pull_request_target it will checkout the base branch
+      # therefore we can trust the js code that is run
       - name: Checkout repository
         uses: actions/checkout@v4
 
@@ -76,8 +83,10 @@ jobs:
             const { validatePRStructure } = require('./.github/workflows/2_validate_PR_and_merge.js');
             await validatePRStructure({ github, context });
 
+
+
   validate_added_test_and_merge_pr:
-    runs-on: [self-hosted, windows]
+    runs-on: [self-hosted]
     needs: validate_pr_structure
     # fif: github.event.pull_request.head.repo.fork == true || github.event.pull_request.user.type == 'Bot'
 
@@ -101,7 +110,11 @@ jobs:
       - name: Checkout PR
         uses: actions/checkout@v4
         with:
-          ref: ${{ github.event.pull_request.head.ref }}
+          repository: ${{ github.repository }}
+          ref: ${{ steps.modification_check.outputs.commit_sha }}
+        # with:
+        #   ref: ${{ github.event.pull_request.head.ref }}
+          
 
       - name: Validate new Test and Merge Pull Request
         uses: actions/github-script@v7

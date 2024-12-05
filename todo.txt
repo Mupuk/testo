@@ -4,7 +4,7 @@
 
 # [x] make bug_suit output new structure
 # [x] cleanup bugsuit
-# [ ] cleanup and rework (1)
+# [x] cleanup and rework (1)
 # [ ] cleanup and rework (2)
 # [ ] cleanup and rework (2.1)
     # [ ] Name tracker after test name
