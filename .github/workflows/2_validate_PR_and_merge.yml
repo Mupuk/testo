@@ -128,12 +128,14 @@ jobs:
             core.setOutput('run_validation', true);
 
       
+      - run: find .
 
       - name: Validate PR Structure
         uses: actions/github-script@v7
         id: validate_pr_structure
-        # if: ${{ steps.pr_safety_check.outputs.run_validation == 'true' }}
+        if: ${{ steps.pr_safety_check.outputs.run_validation == 'true' }} 
         with:
+        # @todo How does this run? we have not checked out
           script: |
             // const { validatePRStructure } = require('./.github/workflows/2_validate_PR_and_merge.js');
             // // This will throw an error if the PR structure is invalid
