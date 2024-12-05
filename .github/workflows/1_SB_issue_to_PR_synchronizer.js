@@ -11,6 +11,7 @@ const convertSBIssueToPRAndSynchronize = async ({ github, context, exec }) => {
   }
   const isIssue = eventType === 'issues';
   const issuePRData = isIssue ? context.payload.issue : context.payload.pull_request;
+  console.log('issuePRData', issuePRData);
 
   const state = issuePRData.state;
   const isMerged = issuePRData.merged;
