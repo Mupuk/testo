@@ -1,6 +1,6 @@
 
 const convertSBIssueToPR = async ({ github, context, exec }) => {
-  const eventType = github.context.eventName; // 'issues' or 'pull_request'
+  const eventType = context.eventName; // 'issues' or 'pull_request'
   const isIssue = eventType === 'issues';
 
   // // Check if issue is already closed
@@ -19,6 +19,7 @@ const convertSBIssueToPR = async ({ github, context, exec }) => {
   // Check that its a SB
   const body = context.payload.issue.body;
   console.log('issue body', body);
+  console.log('issue body', context.issue.body);
   return;
   const isSB = /^### \[SB\]:/.test(issue.body);
   if (!isSB) {
