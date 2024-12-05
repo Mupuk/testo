@@ -47,11 +47,11 @@ jobs:
             }
 
 
-            const existingLabels = await github.rest.issues.listLabelsOnIssue({
+            const existingLabelsResponse = await github.rest.issues.listLabelsOnIssue({
               ...context.repo,
               issue_number: context.issue.number,
-            }).data;
-            console.log('existingLabels', existingLabels);
+            });
+            console.log('existingLabels', JSON.stringify(existingLabelsResponse, null, 2));
 
 
             // Make sure .github folder is not modified
