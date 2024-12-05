@@ -207,12 +207,17 @@ const convertSBIssueToPR = async ({ github, context, exec }) => {
     pr = prData;
 
     // Add the issue owner as an assignee to the PR
-    const issueOwner = issuePRData.user.login;
+    const issueCreator = issuePRData.user.login; // Get the username of the issue creator
     await github.rest.issues.addAssignees({
-      owner: context.repo.owner,
-      repo: context.repo.repo,
+      ...context.repo,
       issue_number: pr.number,
-      assignees: [issueOwner],
+      assignees: [issueCreator],
+    });
+
+    await github.rest.issues.createComment({
+      ...context.repo,
+      issue_number: context.issue.number,
+      body: `👋 Thanks for the contribution @${issueCreator}! If you need to do modifications, you can do so, as long as the PR is not merged yet!`,
     });
 
   }
@@ -236,12 +241,6 @@ const convertSBIssueToPR = async ({ github, context, exec }) => {
 
   //   console.log(`Created PR: ${pr.data.html_url}`);
 
-  //   const issueCreator = context.payload.issue.user.login; // Get the username of the issue creator
-  //   await github.rest.issues.createComment({
-  //     ...context.repo,
-  //     issue_number: context.issue.number,
-  //     body: `👋 Thanks for the contribution @${issueCreator}, please continue further discussion on this matter here: ${pr.html_url}!`,
-  //   });
 
   //   Not sure if we should close or lock the original issue
   //   await github.rest.issues.lock({
