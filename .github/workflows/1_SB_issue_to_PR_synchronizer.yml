@@ -18,8 +18,14 @@ jobs:
           app-id: ${{ secrets.APP_ID }}
           private-key: ${{ secrets.APP_PRIVATE_KEY }}
 
-      # - name: Checkout repository
-      #   uses: actions/checkout@v4
+      # If this was triggered by pull_request_target it will checkout the base branch
+      # by default. Therefore we can trust the js code that is run below.
+      #
+      # https://docs.github.com/en/actions/writing-workflows/choosing-when-your-workflow-runs/events-that-trigger-workflows#pull_request_target
+      #
+      # We need the js files
+      - name: Checkout repository 
+        uses: actions/checkout@v4
       #   with: 
       #     token: ${{ steps.app_token.outputs.token }}
       #     persist-credentials: false
