@@ -254,7 +254,7 @@ const convertSBIssueToPR = async ({ github, context, exec }) => {
     // Add labels to PR
     await github.rest.issues.addLabels({
       ...context.repo,
-      issue_number: pr.number,
+      issue_number: context.issue.number,
       labels: [...categoryLabels],
     });
 
