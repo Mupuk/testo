@@ -4,6 +4,7 @@ const whitelistedLabels = ['insert', 'leak'];
 
 const convertSBIssueToPR = async ({ github, context, exec }) => {
   const eventType = context.eventName; // 'issues' or 'pull_request'
+  console.log('eventType', eventType);
   if (eventType !== 'issues' && eventType !== 'pull_request') {
     throw new Error('This action can only be triggered by issues or pull_request events.');
   }
