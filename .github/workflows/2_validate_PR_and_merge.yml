@@ -43,8 +43,7 @@ jobs:
             console.log('pr.base.sha', pr.base.sha);
             console.log('pr.head.sha', pr.head.sha);
             const { data: comparison } = await github.rest.repos.compareCommits({
-              owner: 'owner-name',
-              repo: 'repo-name',
+              ...context.repo,
               base: pr.base.sha,
               head: pr.head.sha
             });
