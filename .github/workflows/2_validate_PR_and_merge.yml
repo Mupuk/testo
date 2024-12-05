@@ -13,7 +13,8 @@ jobs:
   # WARNING: THE REST OF THE CODE IS STILL TO BE CONSIDERED UNSAFE
   
 
-  # Make sure the .github folder is not modified
+  # Make sure the .github folder is not modified. After that we can trust the 
+  # .githubs JavaScript code.
   # Then validate the PR structure to be single file or folder with first.jai 
   pr-validation:
     runs-on: [ubuntu-latest]
@@ -128,17 +129,6 @@ jobs:
 
       
 
-      # This was triggered by pull_request_target it will checkout the base branch
-      # by default. Therefore we can trust the js code that is run below.
-      # Alternatively we could use the sha from above and checkout the PRs code.
-      # That sounds worse though
-      #
-      # https://docs.github.com/en/actions/writing-workflows/choosing-when-your-workflow-runs/events-that-trigger-workflows#pull_request_target
-      #
-      # We need the js files
-      # - name: Checkout repository  # we will never have pr_files.json in the base branch so its fine
-      #   uses: actions/checkout@v4
-
       - name: Validate PR Structure
         uses: actions/github-script@v7
         id: validate_pr_structure
@@ -217,6 +207,14 @@ jobs:
         uses: actions/checkout@v4
         with:
           ref: ${{ needs.pr-validation.outputs.validated_commit_sha }}
+          path: PR
+
+      # But, this is generally safer, so we can trust the js code that is run below
+      # Ofc, if validation above fails, we would still run the untrusted Jai code
+      - name: Checkout Base Branch
+        uses: actions/checkout@v4
+        with:
+          path: base
 
 
       - name: Validate new Test and Merge Pull Request
@@ -248,7 +246,7 @@ jobs:
 
 
 
-            const { validateAddedTestAndMergeOnSuccess } = require('./.github/workflows/2_validate_PR_and_merge.js');
+            const { validateAddedTestAndMergeOnSuccess } = require('./base/.github/workflows/2_validate_PR_and_merge.js');
             await validateAddedTestAndMergeOnSuccess({ github, exec, io, context, is_single_file: ${{ needs.pr-validation.outputs.is_single_file }} });
 
 
