@@ -18,11 +18,12 @@ const convertSBIssueToPR = async ({ github, context, exec }) => {
   //   return;
   // }
 
-  // // Get issue
-  // const { data: issue } = await github.rest.issues.get({
-  //   ...context.repo,
-  //   issue_number: context.issue.number,
-  // });
+  // Get issue
+  const { data: issue } = await github.rest.issues.get({
+    ...context.repo,
+    issue_number: context.issue.number,
+  });
+  console.log('issueOnPR', issue);
   // issue.body = issue.body.replace(/\r\n/g, '\n').replace(/\r/g, '\n');
 
   // Check that its a SB
