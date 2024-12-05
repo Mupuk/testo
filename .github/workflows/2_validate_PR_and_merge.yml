@@ -235,7 +235,7 @@ jobs:
           repository: ${{ github.repository }}
           # clean: false
           filter: |
-            .github
+            .github/**
           # sparse-checkout: |
           #   .github
 
