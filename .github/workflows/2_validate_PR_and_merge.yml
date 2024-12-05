@@ -90,16 +90,16 @@ jobs:
 
 
   validate_pr_structure:
-    runs-on: [self-hosted]
+    runs-on: [ubuntu-latest]
     needs: workflow-modification-check
     if: ${{ needs.workflow-modification-check.outputs.run_workflow == 'true' }}
 
     steps:
-      # https://docs.github.com/en/actions/writing-workflows/choosing-when-your-workflow-runs/events-that-trigger-workflows#pull_request_target
-      # this is pull_request_target it will checkout the base branch
-      # therefore we can trust the js code that is run
-      - name: Checkout repository
-        uses: actions/checkout@v4
+      # # https://docs.github.com/en/actions/writing-workflows/choosing-when-your-workflow-runs/events-that-trigger-workflows#pull_request_target
+      # # this is pull_request_target it will checkout the base branch
+      # # therefore we can trust the js code that is run
+      # - name: Checkout repository
+      #   uses: actions/checkout@v4
 
       - name: PR Checker
         uses: actions/github-script@v7
