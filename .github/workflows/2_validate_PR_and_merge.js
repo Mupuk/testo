@@ -11,6 +11,7 @@ const validatePRStructure = async ({ github, context }) => {
   }
 
   // Get all files in the PR
+  // TODO BAD BAD BAD, USE SHA !!!!
   const fileResponse = await github.rest.pulls.listFiles({
     ...context.repo,
     pull_number: context.issue.number,
