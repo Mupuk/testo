@@ -13,8 +13,8 @@ jobs:
   # WARNING: THE REST OF THE CODE IS STILL TO BE CONSIDERED UNSAFE
   
 
-  # Make sure the .github folder is not modified. After that we can trust the 
-  # .githubs JavaScript code.
+  # Make sure the .github folder is not modified. After that we *should* be
+  # able to trust the .githubs JavaScript code - even on PRs from forks.
   # Then validate the PR structure to be single file or folder with first.jai 
   pr-validation:
     runs-on: [ubuntu-latest]
@@ -135,13 +135,7 @@ jobs:
         id: validate_pr_structure
         if: ${{ steps.pr_safety_check.outputs.run_validation == 'true' }} 
         with:
-        # @todo How does this run? we have not checked out
           script: |
-            // const { validatePRStructure } = require('./.github/workflows/2_validate_PR_and_merge.js');
-            // // This will throw an error if the PR structure is invalid
-            // await validatePRStructure({ github, context });
-
-
             const fs = require('fs');
             const filePaths = JSON.parse(fs.readFileSync('pr_files.json', 'utf-8'));
             console.log('loaded pr_files.json', filePaths);
