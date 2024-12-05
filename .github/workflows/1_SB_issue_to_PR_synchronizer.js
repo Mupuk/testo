@@ -14,10 +14,12 @@ const convertSBIssueToPRAndSynchronize = async ({ github, context, exec }) => {
   console.log('issuePRData', issuePRData);
 
   const state = issuePRData.state;
-  const isMerged = issuePRData.merged === true;
   console.log('state', state);
-  console.log('isMerged', isMerged);
-  return;
+
+  if (state !== 'open') {
+    console.log('Issue/PR is not open ... skipping');
+    return;
+  }
 
 
   // Make sure its a SB
