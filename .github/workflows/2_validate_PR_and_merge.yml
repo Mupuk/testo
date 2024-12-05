@@ -229,8 +229,8 @@ jobs:
           # sparse-checkout: |
           #   compiler_bugs
 
-      - name: Checkout Base Branch .github folder
-        uses: actions/checkout@v4
+      # - name: Checkout Base Branch .github folder
+      #   uses: actions/checkout@v4
         # with:
           # clean: false
           # sparse-checkout: |
