@@ -51,7 +51,8 @@ jobs:
               ...context.repo,
               issue_number: context.issue.number,
             });
-            console.log('existingLabels', JSON.stringify(existingLabelsResponse, null, 2));
+            
+            console.log('existingLabels', JSON.stringify(existingLabelsResponse.data, null, 2));
 
 
             // Make sure .github folder is not modified
