@@ -245,10 +245,21 @@ jobs:
             const fs = require('fs');
             const path = require('path');
 
-            const directoryPath = '.'; // Replace with your local directory path
-            const files = fs.readdirSync(directoryPath);
-            core.info("Files in the directory:");
-            files.forEach(file => core.info(`- ${file}`));
+            const listFilesRecursive = (dir) => {
+              const entries = fs.readdirSync(dir, { withFileTypes: true });
+              entries.forEach(entry => {
+                const fullPath = path.join(dir, entry.name);
+                if (entry.isDirectory()) {
+                  listFilesRecursive(fullPath);
+                } else {
+                  core.info(fullPath);
+                }
+              });
+            };
+
+            const targetDir = '.'; // Replace with your directory
+            core.info(`Listing files in directory: ${targetDir}`);
+            listFilesRecursive(targetDir);
 
 
             const { validateAddedTestAndMergeOnSuccess } = require('./.github/workflows/2_validate_PR_and_merge.js');
