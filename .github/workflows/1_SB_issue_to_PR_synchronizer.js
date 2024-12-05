@@ -243,4 +243,4 @@ const convertSBIssueToPRAndSynchronize = async ({ github, context, exec }) => {
 
 };
 
-module.exports = convertSBIssueToPR;
+module.exports = convertSBIssueToPRAndSynchronize;

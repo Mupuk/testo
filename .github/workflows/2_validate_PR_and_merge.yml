@@ -9,7 +9,6 @@ jobs:
   # The workflow file itself can be trusted, since its pull_request_target
   workflow-modification-check:
     runs-on: [ubuntu-latest]
-
     steps:
       - name: Check if '.github' folder was modified
         id: modification_check
