@@ -5,10 +5,11 @@
 # [x] make bug_suit output new structure
 # [x] cleanup bugsuit
 # [x] cleanup and rework (1)
-# [ ] cleanup and rework (2)
+# [x] cleanup and rework (2)
 # [ ] cleanup and rework (2.1)
     # [ ] Name tracker after test name
 # [x] cleanup and rework (3)
+# [ ] check all code again
 # [ ] look at concurrency locks
 
 # [-] making the test run without offline platform? How?
