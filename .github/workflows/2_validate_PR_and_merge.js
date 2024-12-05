@@ -8,6 +8,7 @@ const validateAddedTestAndMergeOnSuccess = async ({
   context,
   isSingleFile,
 }) => {
+  console.log(context)
   console.log(`Manual approval was given for Pull Request #${context.issue.number}...`);
 
   // Load the files that were added in the PR

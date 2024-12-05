@@ -189,6 +189,7 @@ jobs:
         with:
           name: pr_files
           path: pr_files.json
+          retention-days: 1 # we only need this for the next job
 
 
 
