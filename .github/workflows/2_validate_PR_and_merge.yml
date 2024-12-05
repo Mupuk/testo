@@ -194,7 +194,7 @@ jobs:
 
 
   validate-added-test-and-merge-pr:
-    runs-on: [self-hosted, windows] # @todo remove
+    runs-on: [self-hosted, linux] # @todo remove
     needs: pr-validation
     if: ${{ needs.pr-validation.outputs.validation_passed == 'true' }}
     # fif: github.event.pull_request.head.repo.fork == true || github.event.pull_request.user.type == 'Bot'
@@ -204,6 +204,7 @@ jobs:
     # environment: test # @todo do we only wanna run this on forks?
 
     steps:
+      - run: pwd
       - name: List all files recursively with paths
         continue-on-error: true
         run: |
