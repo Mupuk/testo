@@ -208,12 +208,12 @@ jobs:
         run: |
           find .
 
-      - name: Get App Token
-        uses: actions/create-github-app-token@v1
-        id: app_token
-        with:
-          app-id: ${{ secrets.APP_ID }}
-          private-key: ${{ secrets.APP_PRIVATE_KEY }}
+      # - name: Get App Token
+      #   uses: actions/create-github-app-token@v1
+      #   id: app_token
+      #   with:
+      #     app-id: ${{ secrets.APP_ID }}
+      #     private-key: ${{ secrets.APP_PRIVATE_KEY }}
 
       # Use GITHUB_TOKEN so we dont trigger a infinite loop
       # when updateing the PR
@@ -241,33 +241,33 @@ jobs:
       #   with:
       #     name: pr_files
 
-      - name: Validate new Test and Merge Pull Request
-        uses: actions/github-script@v7
-        with:
-          github-token: ${{ steps.app_token.outputs.token }}
-          script: |
-            const fs = require('fs');
-            const path = require('path');
+      # - name: Validate new Test and Merge Pull Request
+      #   uses: actions/github-script@v7
+      #   with:
+      #     github-token: ${{ steps.app_token.outputs.token }}
+      #     script: |
+      #       const fs = require('fs');
+      #       const path = require('path');
 
-            const listFilesRecursive = (dir) => {
-              const entries = fs.readdirSync(dir, { withFileTypes: true });
-              entries.forEach(entry => {
-                const fullPath = path.join(dir, entry.name);
-                if (entry.isDirectory()) {
-                  listFilesRecursive(fullPath);
-                } else {
-                  core.info(fullPath);
-                }
-              });
-            };
+      #       const listFilesRecursive = (dir) => {
+      #         const entries = fs.readdirSync(dir, { withFileTypes: true });
+      #         entries.forEach(entry => {
+      #           const fullPath = path.join(dir, entry.name);
+      #           if (entry.isDirectory()) {
+      #             listFilesRecursive(fullPath);
+      #           } else {
+      #             core.info(fullPath);
+      #           }
+      #         });
+      #       };
 
-            const targetDir = '.'; // Replace with your directory
-            core.info(`Listing files in directory: ${targetDir}`);
-            listFilesRecursive(targetDir);
+      #       const targetDir = '.'; // Replace with your directory
+      #       core.info(`Listing files in directory: ${targetDir}`);
+      #       listFilesRecursive(targetDir);
 
 
-            const { validateAddedTestAndMergeOnSuccess } = require('./.github/workflows/2_validate_PR_and_merge.js');
-            await validateAddedTestAndMergeOnSuccess({ github, exec, io, context, is_single_file: ${{ needs.pr-validation.outputs.is_single_file }} });
+      #       const { validateAddedTestAndMergeOnSuccess } = require('./.github/workflows/2_validate_PR_and_merge.js');
+      #       await validateAddedTestAndMergeOnSuccess({ github, exec, io, context, is_single_file: ${{ needs.pr-validation.outputs.is_single_file }} });
 
       # # Not sure why the merge below only works after Checking out the PR again.
       # # If we dont do this, the merge will fail with 'Head branch is out of date'
