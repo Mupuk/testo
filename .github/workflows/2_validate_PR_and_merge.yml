@@ -233,11 +233,9 @@ jobs:
         uses: actions/checkout@v4
         with:
           repository: ${{ github.repository }}
-          # clean: false
-          filter: |
-            .github/**
-          # sparse-checkout: |
-          #   .github
+          clean: false
+          sparse-checkout: |
+            .github
 
       # - name: Download file list artifact
       #   uses: actions/download-artifact@v4
