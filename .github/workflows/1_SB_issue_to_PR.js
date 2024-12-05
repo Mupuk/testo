@@ -263,8 +263,7 @@ const convertSBIssueToPR = async ({ github, context, exec }) => {
     console.log('categoryLabels', categoryLabels);
 
     const existingLabelsResponse = await github.rest.issues.listLabelsOnIssue({
-      owner: repoOwner,
-      repo: repoName,
+      ...context.repo,
       issue_number: issueNumber,
     });
 
