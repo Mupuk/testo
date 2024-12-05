@@ -40,7 +40,7 @@ jobs:
             });
             console.log('data', data);
 
-            const { data: comparison } = await github.rest.repos.compareCommits({
+            const { data: comparison } = await github.rest.repos.compare({
               owner: 'owner-name',
               repo: 'repo-name',
               base: pr.base.sha,
@@ -48,6 +48,15 @@ jobs:
             });
             console.log('comparison', comparison);
 
+            const { data: latestPr } = await github.rest.pulls.get({
+              ...context.repo,
+              pull_number: context.issue.number
+            });
+
+            if (latestPr.head.sha !== headSha) {
+              console.error('PR head changed during processing. Aborting validation.');
+              throw new Error('PR head changed during processing.');
+            }
             throw new Error('xxxxxx')
 
             const filePaths = data.map(file => file.filename);
