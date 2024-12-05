@@ -1,6 +1,9 @@
 
 const convertSBIssueToPR = async ({ github, context, exec }) => {
   const eventType = context.eventName; // 'issues' or 'pull_request'
+  if (eventType !== 'issues' && eventType !== 'pull_request') {
+    throw new Error('This action can only be triggered by issues or pull_request events.');
+  }
   const isIssue = eventType === 'issues';
   const issuePRData = isIssue ? context.payload.issue : context.payload.pull_request;
 
