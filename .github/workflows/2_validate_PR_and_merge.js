@@ -1,5 +1,9 @@
 
 const validatePRStructure = async ({ github, context }) => {
+
+  const { data } = await github.rest.rateLimit.get();
+
+
   const { data: pr } = await github.rest.pulls.get({
     ...context.repo,
     pull_number: context.issue.number,
