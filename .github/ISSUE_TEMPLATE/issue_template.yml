@@ -14,7 +14,7 @@ body:
     attributes:
       label: "[SB]: Bug Report - Single File"
       value: |
-          NOTE: Please fill out the form below to report a bug in a single file.
+          Please fill out the form below to report a bug in a single file.
           As long the PR is not merged, changes made to this issue/PR will be 
           reflected in the PRs commits. If you have a more complicated bug, please 
           create PR using the PR template.
