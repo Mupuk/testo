@@ -25,10 +25,11 @@ const convertSBIssueToPRAndSynchronize = async ({ github, context, exec }) => {
   // Make sure its a SB
   issuePRData.body = issuePRData.body.replace(/\r\n/g, '\n').replace(/\r/g, '\n');
   const isSB = /^### \[SB\]:/.test(issuePRData.body);
-  if (!isSB) {
-    console.log('Issue is not a SB ... skipping');
-    return;
-  }
+  // @todo ENABLE AGAIN
+  // if (!isSB) {
+  //   console.log('Issue is not a SB ... skipping');
+  //   return;
+  // }
 
   // Get issue, since its a converted issue, we need to get the original issue
   // to get the originial issue creator
