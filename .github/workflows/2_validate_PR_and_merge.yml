@@ -216,6 +216,11 @@ jobs:
         with:
           path: base
 
+      - name: Download file list artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: pr_files
+
 
       - name: Validate new Test and Merge Pull Request
         uses: actions/github-script@v7
