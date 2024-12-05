@@ -1,7 +1,7 @@
 name: 2_validate_PR_and_merge
 
 on:
-  pull_request: # @todo make target again
+  pull_request_target:
     types: [synchronize, edited] # @todo remove edited
 
 jobs:
