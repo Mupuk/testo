@@ -3,9 +3,9 @@ name: Convert SB Issue to PR
 on:
   workflow_dispatch: # Manual trigger
   issues:
-    types: [opened, edited]
+    types: [opened]
   pull_request:
-    types: [edited, edited]
+    types: [edited]
 
 jobs:
   convertSBIssueToPR:

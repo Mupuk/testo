@@ -55,7 +55,9 @@ body:
     id: category
     attributes:
       label: Categories
-      description: What category does this bug belong to the most / What features triggered the bug?
+      description: |
+        What category does this bug belong to the most / What features triggered the bug?
+        If you have suggestions for new categories, please let us know by pining the maintainer.
       multiple: true
       options:
         - if

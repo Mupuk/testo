@@ -1,4 +1,7 @@
 
+const whitelistedLabels = ['insert', 'leak'];
+
+
 const convertSBIssueToPR = async ({ github, context, exec }) => {
   const eventType = context.eventName; // 'issues' or 'pull_request'
   if (eventType !== 'issues' && eventType !== 'pull_request') {
@@ -30,9 +33,6 @@ const convertSBIssueToPR = async ({ github, context, exec }) => {
     return;
   }
 
-  // const parsedBody = parseIssueBody(issue.body);
-  // console.log(JSON.stringify(parsedBody, null, 2));
-
 
 
   const branchName = `issue-${context.issue.number}`;
@@ -61,9 +61,8 @@ const convertSBIssueToPR = async ({ github, context, exec }) => {
 
 
 
-
   // Because of untrusted code, we will have to update and create the 
-  // branch via the API. The alternative is to also validate the PR branch
+  // branch via the API. The alternative is to validate the PR branch.
 
   // Step 1: Check if the branch exists
   let branchRef = null;
@@ -194,8 +193,7 @@ const convertSBIssueToPR = async ({ github, context, exec }) => {
 
 
   
-  // Convert issue to a pull request
-  let pr = null;
+  // Convert issue to a pull request if it isn't already
   if (isIssue) {
     const { data: prData } = await github.rest.pulls.create({
       ...context.repo,
@@ -204,13 +202,12 @@ const convertSBIssueToPR = async ({ github, context, exec }) => {
       body: prBody,
       issue: context.issue.number
     });
-    pr = prData;
 
     // Add the issue owner as an assignee to the PR
     const issueCreator = issuePRData.user.login; // Get the username of the issue creator
     await github.rest.issues.addAssignees({
       ...context.repo,
-      issue_number: pr.number,
+      issue_number: prData.number,
       assignees: [issueCreator],
     });
 
@@ -257,9 +254,8 @@ const convertSBIssueToPR = async ({ github, context, exec }) => {
 
 
     // Add labels to PR
-    const whitelistLabels = ['insert', 'leak'];
     const categories = issuePRData.body.match(/^### Categories\n(?<categories>[\S\s]*?)###/mi)?.groups.categories.trim();
-    const categoryLabels = categories.split(', ').map((label) => label.trim()).filter((label) => whitelistLabels.includes(label));
+    const categoryLabels = categories.split(', ').map((label) => label.trim()).filter((label) => whitelistedLabels.includes(label));
     console.log('categoryLabels', categoryLabels);
 
     const existingLabelsResponse = await github.rest.issues.listLabelsOnIssue({
@@ -269,7 +265,7 @@ const convertSBIssueToPR = async ({ github, context, exec }) => {
 
     const existingLabelsToRetain = existingLabelsResponse.data
                                     .map((label) => label.name)
-                                    .filter((label) => !whitelistLabels.includes(label)); // remove categories
+                                    .filter((label) => !whitelistedLabels.includes(label)); // remove categories
     console.log('existingLabelsToRetain', existingLabelsToRetain);
 
     // Add labels to PR
