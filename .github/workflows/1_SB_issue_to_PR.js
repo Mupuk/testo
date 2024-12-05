@@ -1,20 +1,25 @@
 
 const convertSBIssueToPR = async ({ github, context, exec }) => {
+  const eventType = github.context.eventName; // 'issues' or 'pull_request'
+  const isIssue = eventType === 'issues';
 
-  // Check if issue is already closed
-  if (context.payload.issue.state === 'closed') {
-    console.log('Issue is already closed ... skipping');
-    return;
-  }
+  // // Check if issue is already closed
+  // if (context.payload.issue.state === 'closed') {
+  //   console.log('Issue is already closed ... skipping');
+  //   return;
+  // }
 
-  // Get issue
-  const { data: issue } = await github.rest.issues.get({
-    ...context.repo,
-    issue_number: context.issue.number,
-  });
-  issue.body = issue.body.replace(/\r\n/g, '\n').replace(/\r/g, '\n');
+  // // Get issue
+  // const { data: issue } = await github.rest.issues.get({
+  //   ...context.repo,
+  //   issue_number: context.issue.number,
+  // });
+  // issue.body = issue.body.replace(/\r\n/g, '\n').replace(/\r/g, '\n');
 
   // Check that its a SB
+  const body = context.payload.issue.body;
+  console.log('issue body', body);
+  return;
   const isSB = /^### \[SB\]:/.test(issue.body);
   if (!isSB) {
     console.log('Issue is not a SB ... skipping');
