@@ -228,12 +228,12 @@ jobs:
       #     sparse-checkout: |
       #       compiler_bugs/
 
-      # - name: Checkout Base Branch .github folder
-      #   uses: actions/checkout@v4
-      #   with:
-      #     repository: ${{ github.repository }}
-      #     sparse-checkout: |
-      #       .github/ 
+      - name: Checkout Base Branch .github folder
+        uses: actions/checkout@v4
+        with:
+          repository: ${{ github.repository }}
+          sparse-checkout: |
+            .github/** 
 
       # - name: Download file list artifact
       #   uses: actions/download-artifact@v4
