@@ -205,6 +205,16 @@ const convertSBIssueToPR = async ({ github, context, exec }) => {
       issue: context.issue.number
     });
     pr = prData;
+
+    // Add the issue owner as an assignee to the PR
+    const issueOwner = issuePRData.data.user.login;
+    await github.rest.issues.addAssignees({
+      owner: context.repo.owner,
+      repo: context.repo.repo,
+      issue_number: pr.number,
+      assignees: [issueOwner],
+    });
+
   }
 
   // // Get all open PRs for the branch
@@ -248,16 +258,26 @@ const convertSBIssueToPR = async ({ github, context, exec }) => {
 
 
     // Add labels to PR
-    // @todo on change whitelist the labels
+    const whitelistLabels = ['insert', 'leak'];
     const categories = issuePRData.body.match(/^### Categories\n(?<categories>[\S\s]*?)###/mi)?.groups.categories.trim();
-    const categoryLabels = categories.split(', ').map((label) => label.trim());
+    const categoryLabels = categories.split(', ').map((label) => label.trim()).filter((label) => whitelistLabels.includes(label));
     console.log('categoryLabels', categoryLabels);
+
+    const existingLabelsResponse = await github.rest.issues.listLabelsOnIssue({
+      owner: repoOwner,
+      repo: repoName,
+      issue_number: issueNumber,
+    });
+
+    const existingLabelsToRetain = existingLabelsResponse.data
+                                    .map((label) => label.name)
+                                    .filter((label) => !whitelistLabels.includes(label)); // remove categories
 
     // Add labels to PR
     await github.rest.issues.addLabels({
       ...context.repo,
       issue_number: context.issue.number,
-      labels: [...categoryLabels],
+      labels: [...existingLabelsToRetain, ...categoryLabels],
     });
 
   // } else {
