@@ -14,7 +14,7 @@ jobs:
   
 
   # Make sure the .github folder is not modified
-  # Then validate 
+  # Then validate the PR structure to be single file or folder with first.jai 
   pr-validation:
     runs-on: [ubuntu-latest]
     outputs:
@@ -78,6 +78,11 @@ jobs:
               throw new Error('This PR has more than 300 files.');
             }
 
+            const fs = require('fs');
+            // Could get to big to pass around via outputs
+            console.log('saving pr_files.json');
+            fs.writeFileSync('pr_files.json', JSON.stringify(filePaths, null, 2));
+
 
             // Get existing labels
             const existingLabelsResponse = await github.rest.issues.listLabelsOnIssue({
@@ -130,8 +135,8 @@ jobs:
       # https://docs.github.com/en/actions/writing-workflows/choosing-when-your-workflow-runs/events-that-trigger-workflows#pull_request_target
       #
       # We need the js files
-      - name: Checkout repository 
-        uses: actions/checkout@v4
+      # - name: Checkout repository  # we will never have pr_files.json in the base branch so its fine
+      #   uses: actions/checkout@v4
 
       - name: Validate PR Structure
         uses: actions/github-script@v7
@@ -139,9 +144,43 @@ jobs:
         if: ${{ steps.pr_safety_check.outputs.run_validation == 'true' }}
         with:
           script: |
-            const { validatePRStructure } = require('./.github/workflows/2_validate_PR_and_merge.js');
-            // This will throw an error if the PR structure is invalid
-            await validatePRStructure({ github, context });
+            // const { validatePRStructure } = require('./.github/workflows/2_validate_PR_and_merge.js');
+            // // This will throw an error if the PR structure is invalid
+            // await validatePRStructure({ github, context });
+
+
+            const fs = require('fs');
+            const filePaths = JSON.parse(fs.readFileSync('pr_files.json', 'utf-8'));
+            console.log('loaded pr_files.json', filePaths);
+
+            // The file/folder must be named after the PR number
+            const validBugNameRegexTemplate = `^compiler_bugs/[CR]EC-?\\d+_${context.issue.number}`;
+            const singleFileValidBugNameRegex = new RegExp(`${validBugNameRegexTemplate}\\.jai`);
+            const validFilePathRegex =          new RegExp(`${validBugNameRegexTemplate}/`);
+            const validFirstJaiRegex =          new RegExp(`${validBugNameRegexTemplate}/first\\.jai`);
+            console.log('validBugNameRegexTemplate', validBugNameRegexTemplate);
+            console.log('singleFileValidBugNameRegex', singleFileValidBugNameRegex);
+            console.log('validFilePathRegex', validFilePathRegex);
+            console.log('validFirstJaiRegex', validFirstJaiRegex);
+
+            // Check if its a single file bug PR
+            const isSingleFile = filePaths.length === 1 && singleFileValidBugNameRegex.test(filePaths[0]);
+
+            // Check if its a single folder with first.jai file
+            const isSingleFolderWithFirstJaiFile =
+              filePaths.every((f) => validFilePathRegex.test(f)) && // All files are in the folder
+              filePaths.some((f) => validFirstJaiRegex.test(f));    // At least one file is first.jai
+
+            console.log('isSingleFile', isSingleFile);
+            console.log('isSingleFolderWithFirstJaiFile', isSingleFolderWithFirstJaiFile);
+            console.log('filePaths', filePaths);
+
+            // Error, PR doesnt match needed structure
+            if (!isSingleFile && !isSingleFolderWithFirstJaiFile) {
+              throw new Error('This PR does not match the needed structure.');
+            }
+
+            // We passed the validation!
             core.setOutput("validation_passed", true);
 
 

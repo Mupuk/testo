@@ -14,24 +14,8 @@ const validatePRStructure = async ({ github, context }) => {
     throw new Error('This PR is not a SB or BB.');
   }
 
-  // Get all files in the PR
-  // TODO BAD BAD BAD, USE SHA !!!!
-  const fileResponse = await github.rest.pulls.listFiles({
-    ...context.repo,
-    pull_number: context.issue.number,
-    per_page: 100,
-  });
-  const filePaths = fileResponse.data.map((file) => file.filename);
-
-  // @todo also fix validateAddedTestAndMergeOnSuccess
-  if (filePaths.length >= 100) {
-    await github.rest.issues.createComment({
-      ...context.repo,
-      issue_number: context.issue.number,
-      body: `@Mupu, This PR has more than 100 files, please make this work and re-run the checks.`,
-    });
-    throw new Error('This PR has more than 100 files. Please make this work.');
-  }
+  const filePaths = JSON.parse(fs.readFileSync('pr_files.json', 'utf-8'));
+  console.log('loaded pr_files.json', filePaths);
 
   const validBugNameRegexTemplate = `^compiler_bugs/[CR]EC-?\\d+_${context.issue.number}`;
   const singleFileValidBugNameRegex = new RegExp(`${validBugNameRegexTemplate}\\.jai`);
