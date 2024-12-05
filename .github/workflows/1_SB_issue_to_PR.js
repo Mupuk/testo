@@ -2,6 +2,7 @@
 const convertSBIssueToPR = async ({ github, context, exec }) => {
   const eventType = context.eventName; // 'issues' or 'pull_request'
   const isIssue = eventType === 'issues';
+  const issuePRData = isIssue ? context.payload.issue : context.payload.pull_request;
 
   // // Check if issue is already closed
   // if (context.payload.issue.state === 'closed') {
@@ -17,9 +18,8 @@ const convertSBIssueToPR = async ({ github, context, exec }) => {
   // issue.body = issue.body.replace(/\r\n/g, '\n').replace(/\r/g, '\n');
 
   // Check that its a SB
-  const body = context.payload.issue.body;
+  const body = issuePRData.body.replace(/\r\n/g, '\n').replace(/\r/g, '\n');
   console.log('issue body', body);
-  console.log('issue body', context.issue.body);
   return;
   const isSB = /^### \[SB\]:/.test(issue.body);
   if (!isSB) {
