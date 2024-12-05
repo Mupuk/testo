@@ -43,9 +43,9 @@ const validatePRStructure = async ({ github, context }) => {
     filePaths.every((f) => validFilePathRegex.test(f)) &&
     filePaths.some((f) => validFirstJaiRegex.test(f));
 
-  console.log(isSingleFile);
-  console.log(isSingleFolderWithFirstJaiFile);
-  console.log(filePaths);
+  console.log('isSingleFile', isSingleFile);
+  console.log('isSingleFolderWithFirstJaiFile', isSingleFolderWithFirstJaiFile);
+  console.log('filePaths', filePaths);
 
   // Error, PR doesnt match needed structure
   if (!isSingleFile && !isSingleFolderWithFirstJaiFile) {

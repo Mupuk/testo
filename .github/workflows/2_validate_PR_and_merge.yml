@@ -114,7 +114,7 @@ jobs:
 
 
 
-  validate_added_test_and_merge_pr:
+  validate-added-test-and-merge-pr:
     if: false
     # if: ${{ needs.pr-validation.outputs.validation_passed == 'true' }}
     runs-on: [self-hosted]
@@ -127,7 +127,7 @@ jobs:
 
     steps:
       - uses: actions/create-github-app-token@v1
-        id: app-token
+        id: app_token
         with:
           app-id: ${{ secrets.APP_ID }}
           private-key: ${{ secrets.APP_PRIVATE_KEY }}
@@ -150,26 +150,26 @@ jobs:
       - name: Validate new Test and Merge Pull Request
         uses: actions/github-script@v7
         with:
-          github-token: ${{ steps.app-token.outputs.token }}
+          github-token: ${{ steps.app_token.outputs.token }}
           script: |
             const { validateAddedTestAndMergeOnSuccess } = require('./.github/workflows/2_validate_PR_and_merge.js');
             await validateAddedTestAndMergeOnSuccess({ github, exec, io, contextRepo: context.repo, prNumber: context.issue.number });
 
       # # Not sure why the merge below only works after Checking out the PR again.
       # # If we dont do this, the merge will fail with 'Head branch is out of date'
-      # # Use the app-token to checkout the PR, so we can trigger
+      # # Use the app_token to checkout the PR, so we can trigger
       # # the push event when merging the PR
       # - name: Checkout Updated PR
       #   uses: actions/checkout@v4
       #   with:
-      #     token: ${{ steps.app-token.outputs.token }}
+      #     token: ${{ steps.app_token.outputs.token }}
       #     persist-credentials: false
       #     ref: ${{ github.event.pull_request.head.ref }}
 
       # - name: Merge PR
       #   uses: actions/github-script@v7
       #   with:
-      #     github-token: ${{ steps.app-token.outputs.token }}
+      #     github-token: ${{ steps.app_token.outputs.token }}
       #     script: |
       #       const mergeResponse = await github.rest.pulls.merge({
       #         ...context.repo,
