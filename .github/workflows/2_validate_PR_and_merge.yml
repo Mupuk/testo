@@ -206,8 +206,9 @@ jobs:
     steps:
       - name: List all files recursively with paths
         continue-on-error: true
+        shell: cmd
         run: |
-          Get-ChildItem -Recurse -Force | Select-Object LastWriteTime, FullName | Format-Table -AutoSize
+          for /r %i in (*) do @echo %~ti %~fi
 
       - name: List all files recursively with paths
         continue-on-error: true
