@@ -2,23 +2,16 @@ name: Bug Report - Single File (Automated PR)
 description: Report your bug here if its a small one(one file).
 title: "[SB]: Bug Report - Single File"
 body:
-  - type: markdown
-    attributes:
-      value: |
-        ## [SB]: Bug Report - Single File
-        Please fill out the form below to report a bug in a single file.
-        Note: As long the PR is not merged, changes made to this issue will be reflected in the PR.
-        If you have a more complicated bug, please create PR using the PR template.
 
   - type: textarea
     id: info_box
     attributes:
       label: "[SB]: Bug Report - Single File"
       value: |
-        ## [SB]: Bug Report - Single File
-        Please fill out the form below to report a bug in a single file.
-        Note: As long the PR is not merged, changes made to this issue will be reflected in the PR.
-        If you have a more complicated bug, please create PR using the PR template.
+        NOTE:
+          Please fill out the form below to report a bug in a single file.
+          As long the PR is not merged, changes made to this will be reflected in the PR.
+          If you have a more complicated bug, please create PR using the PR template.
 
   - type: checkboxes
     id: general
