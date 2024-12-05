@@ -216,34 +216,30 @@ jobs:
           find . -type f -exec ls -lh --time-style=+"%Y-%m-%d %H:%M:%S" {} \;
 
 
+      - name: Get App Token
+        uses: actions/create-github-app-token@v1
+        id: app_token
+        with:
+          app-id: ${{ secrets.APP_ID }}
+          private-key: ${{ secrets.APP_PRIVATE_KEY }}
+
+      # Use GITHUB_TOKEN so we dont trigger a infinite loop
+      # when updateing the PR
+
+      - name: Checkout PRs compiler_bugs folder
+        uses: actions/checkout@v4
+        with:
+          repository: ${{ github.repository }}
+          ref: ${{ needs.pr-validation.outputs.validated_commit_sha }}
+          sparse-checkout: |
+            compiler_bugs/
+
       # - name: Checkout Base Branch .github folder
       #   uses: actions/checkout@v4
       #   with:
       #     repository: ${{ github.repository }}
       #     sparse-checkout: |
       #       .github/ 
-
-      # - name: Get App Token
-      #   uses: actions/create-github-app-token@v1
-      #   id: app_token
-      #   with:
-      #     app-id: ${{ secrets.APP_ID }}
-      #     private-key: ${{ secrets.APP_PRIVATE_KEY }}
-
-      # Use GITHUB_TOKEN so we dont trigger a infinite loop
-      # when updateing the PR
-
-      # @todo potentially unsafe, the only reason we are using this is because
-      # updating many files via the api is bad?
-      # check again if maybe a folder is also just one call then we could checkout the base branch instead
-      # - name: Checkout PRs compiler_bugs folder
-      #   uses: actions/checkout@v4
-      #   with:
-      #     repository: ${{ github.repository }}
-      #     ref: ${{ needs.pr-validation.outputs.validated_commit_sha }}
-      #     sparse-checkout: |
-      #       compiler_bugs/
-
 
       # - name: Download file list artifact
       #   uses: actions/download-artifact@v4
