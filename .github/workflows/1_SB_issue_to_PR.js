@@ -21,10 +21,8 @@ const convertSBIssueToPR = async ({ github, context, exec }) => {
   // issue.body = issue.body.replace(/\r\n/g, '\n').replace(/\r/g, '\n');
 
   // Check that its a SB
-  const body = issuePRData.body.replace(/\r\n/g, '\n').replace(/\r/g, '\n');
-  console.log('issue body', body);
-  return;
-  const isSB = /^### \[SB\]:/.test(issue.body);
+  issuePRData.body = issuePRData.body.replace(/\r\n/g, '\n').replace(/\r/g, '\n');
+  const isSB = /^### \[SB\]:/.test(issuePRData.body);
   if (!isSB) {
     console.log('Issue is not a SB ... skipping');
     return;
@@ -38,13 +36,13 @@ const convertSBIssueToPR = async ({ github, context, exec }) => {
   const branchName = `issue-${context.issue.number}`;
   const baseBranch = context.payload.repository.default_branch;
 
-  const bug_type = issue.body.match(/^### Bug Type\n\n(?<type>(?:Compiletime)|(?:Runtime))/mi)?.groups.type
+  const bug_type = issuePRData.body.match(/^### Bug Type\n\n(?<type>(?:Compiletime)|(?:Runtime))/mi)?.groups.type
   if (!bug_type) {
     throw new Error('Bug Type not found. Most likely the issue was not formatted correctly after editing.');
   }
   const bug_type_letter = bug_type[0].toUpperCase(); // C or R
 
-  const expected_error_code = issue.body.match(/^### Expected Error Code\n\n(?<errorCode>-?\d+)/mi)?.groups.errorCode
+  const expected_error_code = issuePRData.body.match(/^### Expected Error Code\n\n(?<errorCode>-?\d+)/mi)?.groups.errorCode
   if (!expected_error_code) {
     throw new Error('Expected Error Code not found. Most likely the issue was not formatted correctly after editing.');
   }
@@ -52,11 +50,11 @@ const convertSBIssueToPR = async ({ github, context, exec }) => {
   const fileName = `${bug_type_letter}EC${Number.parseInt(expected_error_code,)}_${context.issue.number}`;
   const filePath = `compiler_bugs/${fileName}.jai`;
 
-  const code = issue.body.match(/^### Short Code Snippet\n[\S\s]*?```c\n(?<code>[\S\s]*?)```/mi).groups.code;
+  const code = issuePRData.body.match(/^### Short Code Snippet\n[\S\s]*?```c\n(?<code>[\S\s]*?)```/mi).groups.code;
   console.log('parsed code', code);
   const newFileContent = Buffer.from(code).toString('base64');
 
-  const prBody = issue.body;
+  const prBody = issuePRData.body;
 
 
 
@@ -76,8 +74,6 @@ const convertSBIssueToPR = async ({ github, context, exec }) => {
     console.log(`Branch '${branchName}' already exists.`);
   } catch (error) {
     if (error.status === 404) {
-      // Create a new branch and PR
-
       // Branch does not exist, create it
       console.log(`Branch '${branchName}' does not exist. Creating it...`);
 
@@ -192,55 +188,67 @@ const convertSBIssueToPR = async ({ github, context, exec }) => {
     console.log(`Branch '${branchName}' updated with new commit.`);
   } else {
     console.log('No changes detected. Skipping commit.');
-    return; // Exit the workflow or function
   }
 
 
-  // Get all open PRs for the branch
-  const prs = await github.rest.pulls.list({
-    ...context.repo,
-    head: `${context.repo.owner}:${branchName}`,
-    state: 'open',
-  });
   
-  // Step 8: Create a Pull Request if it doesnt exist yet
-  if (prs.data.length === 0) {
-    const pr = await github.rest.pulls.create({
-    ...context.repo,
-      title: '[SB]: ' + fileName,
-      body: prBody,
-      head: branchName,
-      base: context.payload.repository.default_branch,
-    });
-
-    console.log(`Created PR: ${pr.data.html_url}`);
-
-    // Link PR to issue
-    const issueCreator = context.payload.issue.user.login; // Get the username of the issue creator
-    await github.rest.issues.createComment({
+  // Convert issue to a pull request
+  const pr = null;
+  if (isIssue) {
+    const { data: prData } = await github.rest.pulls.create({
       ...context.repo,
-      issue_number: context.issue.number,
-      body: `👋 Thanks for the contribution @${issueCreator}, please continue further discussion on this matter here: ${pr.html_url}!`,
+      title: '[SB]: ' + fileName,
+      head: branchName,
+      base: baseBranch,
+      body: prBody,
+      issue: context.issue.number
     });
+    pr = prData;
+  }
 
-    // Not sure if we should close or lock the original issue
-    // await github.rest.issues.lock({
-    //   ...context.repo,
-    //   issue_number: context.issue.number,
-    // });
+  // // Get all open PRs for the branch
+  // const prs = await github.rest.pulls.list({
+  //   ...context.repo,
+  //   head: `${context.repo.owner}:${branchName}`,
+  //   state: 'open',
+  // });
+  
+  // // Step 8: Create a Pull Request if it doesnt exist yet
+  // if (prs.data.length === 0) {
+  //   const pr = await github.rest.pulls.create({
+  //   ...context.repo,
+  //     title: '[SB]: ' + fileName,
+  //     body: prBody,
+  //     head: branchName,
+  //     base: context.payload.repository.default_branch,
+  //   });
 
-    // await github.rest.issues.update({
-    //   ...context.repo,
-    //   issue_number: context.issue.number,
-    //   state: 'closed',
-    //   state_reason: 'completed'
-    // })
+  //   console.log(`Created PR: ${pr.data.html_url}`);
+
+  //   const issueCreator = context.payload.issue.user.login; // Get the username of the issue creator
+  //   await github.rest.issues.createComment({
+  //     ...context.repo,
+  //     issue_number: context.issue.number,
+  //     body: `👋 Thanks for the contribution @${issueCreator}, please continue further discussion on this matter here: ${pr.html_url}!`,
+  //   });
+
+  //   Not sure if we should close or lock the original issue
+  //   await github.rest.issues.lock({
+  //     ...context.repo,
+  //     issue_number: context.issue.number,
+  //   });
+
+  //   await github.rest.issues.update({
+  //     ...context.repo,
+  //     issue_number: context.issue.number,
+  //     state: 'closed',
+  //     state_reason: 'completed'
+  //   })
 
 
     // Add labels to PR
-    // @note we can not allow changes to labels to propagate, since these are controlled
-    // by the user. On initial creation, we can, because the template is controlled by us.
-    const categories = issue.body.match(/^### Categories\n(?<categories>[\S\s]*?)###/mi)?.groups.categories.trim();
+    // @todo on change whitelist the labels
+    const categories = issuePRData.body.match(/^### Categories\n(?<categories>[\S\s]*?)###/mi)?.groups.categories.trim();
     const categoryLabels = categories.split('\n').map((label) => label.trim());
     console.log('categoryLabels', categoryLabels);
 
@@ -251,20 +259,10 @@ const convertSBIssueToPR = async ({ github, context, exec }) => {
       labels: [...categoryLabels],
     });
 
-  } else {
-    console.log(`PR already exists for branch '${branchName}'.`);
-  }
+  // } else {
+  //   console.log(`PR already exists for branch '${branchName}'.`);
+  // }
 
-  // @todo maybe this is better?
-  // // Convert issue to a pull request
-  // const { data: pr } = await github.rest.pulls.create({
-  //   ...context.repo,
-  //   // title: fileName,
-  //   head: branchName,
-  //   base: baseBranch,
-  //   // body: prBody,
-  //   issue: context.issue.number
-  // });
 
 
 
