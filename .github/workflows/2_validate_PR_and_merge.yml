@@ -206,7 +206,12 @@ jobs:
     steps:
       - name: List all files recursively with paths
         run: |
+          dir /A-D /S /B
+
+      - name: List all files recursively with paths
+        run: |
           find .
+
 
       # - name: Checkout Base Branch .github folder
       #   uses: actions/checkout@v4
