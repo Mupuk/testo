@@ -207,7 +207,7 @@ jobs:
       - name: List all files recursively with paths
         continue-on-error: true
         run: |
-          for /r %i in (*) do @echo %~ti %~fi
+          Get-ChildItem -Recurse | Select-Object LastWriteTime, FullName | Format-Table -AutoSize
 
       - name: List all files recursively with paths
         continue-on-error: true
