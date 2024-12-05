@@ -14,17 +14,17 @@ const _validatePRStructure = async ({ github, contextRepo, prNumber }) => {
     pull_number: prNumber,
   });
 
-  // Check that its a SB or BB
-  const match = pr.title.match(/^\[([SB]B)\]:/)?.[1];
-  // @todo convert this to proper input/outputs?
-  if (!match) process.exit(1); // its not a SB or BB, ignore it since its probably a normal PR
+  const isSBOrBB = /^\[[SB]B\]:/.test(pr.title);
+  if (!isSBOrBB) {
+    throw new Error('This PR is not a SB or BB.');
+  }
 
+  // Get all files in the PR
   const fileResponse = await github.rest.pulls.listFiles({
     ...contextRepo,
     pull_number: prNumber,
     per_page: 100,
   });
-
   const filePaths = fileResponse.data.map((file) => file.filename);
 
   // @todo also fix validateAddedTestAndMergeOnSuccess
@@ -34,21 +34,23 @@ const _validatePRStructure = async ({ github, contextRepo, prNumber }) => {
       issue_number: prNumber,
       body: `@Mupu, This PR has more than 100 files, please make this work and re-run the checks.`,
     });
-    process.exit(1);
+    throw new Error('This PR has more than 100 files. Please make this work.');
   }
 
-  const isSingleFile =
-    filePaths.length === 1 &&
-    /^compiler_bugs\/EC\d+_\S+\.jai/.test(filePaths[0]);
+  const validBugNameRegexTemplate = `^compiler_bugs/[CR]EC-?\\d+_${1}`;
+  const singleFileValidBugNameRegex = new RegExp(`${validBugNameRegexTemplate}\\.jai`);
+  const validFilePathRegex =          new RegExp(`${validBugNameRegexTemplate}/`);
+  const validFirstJaiRegex =          new RegExp(`${validBugNameRegexTemplate}/first\\.jai`);
+  console.log('validBugNameRegexTemplate', validBugNameRegexTemplate);
+  console.log('singleFileValidBugNameRegex', singleFileValidBugNameRegex);
+  console.log('validFilePathRegex', validFilePathRegex);
+  console.log('validFirstJaiRegex', validFirstJaiRegex);
 
-  const folders = filePaths.map((file) =>
-    file.split('/').slice(0, -1).join('/'),
-  );
-  const uniqueFolders = [...new Set(folders)];
+  const isSingleFile = filePaths.length === 1 && singleFileValidBugNameRegex.test(filePaths[0]);
+
   const isSingleFolderWithFirstJaiFile =
-    uniqueFolders.length === 1 &&
-    /^compiler_bugs\/EC\d+_\S+\//.test(uniqueFolders[0]) && // this is redundant because of below?
-    filePaths.some((f) => /^compiler_bugs\/EC\d+_\S+\/first.jai/.test(f));
+    filePaths.every((f) => validFilePathRegex.test(f)) &&
+    filePaths.some((f) => validFirstJaiRegex.test(f));
 
   console.log(isSingleFile);
   console.log(isSingleFolderWithFirstJaiFile);
@@ -56,7 +58,7 @@ const _validatePRStructure = async ({ github, contextRepo, prNumber }) => {
 
   // Error, PR doesnt match needed structure
   if (!isSingleFile && !isSingleFolderWithFirstJaiFile) {
-    process.exit(1);
+    throw new Error('This PR does not match the needed structure.');
   }
 };
 
