@@ -208,7 +208,7 @@ jobs:
         continue-on-error: true
         shell: cmd
         run: |
-          for /r %i in (*) do @echo %~ti %~fi
+          dir /s
 
       - name: List all files recursively with paths
         continue-on-error: true
