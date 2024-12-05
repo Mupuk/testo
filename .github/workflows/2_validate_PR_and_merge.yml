@@ -65,7 +65,7 @@ jobs:
               page: 1,             // Fetch only the first page; file list is always here
               per_page: 100,       
             });
-            const filePaths = comparison.map(file => file.filename);
+            const filePaths = comparison.files.map(file => file.filename);
             console.log('filePaths', filePaths);
 
             // https://docs.github.com/en/rest/commits/commits?apiVersion=2022-11-28#compare-two-commits
