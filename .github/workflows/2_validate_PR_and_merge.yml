@@ -66,7 +66,7 @@ jobs:
               await github.rest.issues.setLabels({
                 ...context.repo,
                 issue_number: context.issue.number,
-                labels: [...new Set(...existingLabelsToRetain, 'validation-failed') ],
+                labels: [...new Set(...existingLabels, 'validation-failed') ],
               });
               throw new Error('This PR has modified the .github folder, which is illegal!');
             }
@@ -74,7 +74,7 @@ jobs:
             await github.rest.issues.setLabels({
               ...context.repo,
               issue_number: context.issue.number,
-              labels: [...existingLabelsToRetain.filter((l) => l !== 'validation-failed') ],
+              labels: [...existingLabels.filter((l) => l !== 'validation-failed') ],
             });
 
             // Pass on the exact sha of the commit
