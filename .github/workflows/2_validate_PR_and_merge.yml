@@ -7,14 +7,16 @@ on:
 jobs:
   # The workflow file itself can be trusted, since its pull_request_target
   # Make sure the .github folder is not modified
-  workflow-modification-check:
+  # Then validate 
+  pr-validation:
     runs-on: [ubuntu-latest]
     outputs:
-      run_workflow: ${{ steps.modification_check.outputs.run_workflow }}
-      commit_sha: ${{ steps.modification_check.outputs.commit_sha }}
+      validation_passed: ${{ steps.validate_pr_structure.outputs.validation_passed }}
+      commit_sha: ${{ steps.pr_safety_check.outputs.commit_sha }}
+
     steps:
       - name: Check if '.github' folder was modified
-        id: modification_check
+        id: pr_safety_check
         uses: actions/github-script@v7
         with:
           script: |
@@ -27,7 +29,7 @@ jobs:
             const isSBOrBB = /^\[[SB]B\]:/.test(pr.title);
             if (!isSBOrBB) {
               console.log('This PR is not a SB or BB, ignoring it.');
-              core.setOutput("run_workflow", false);
+              core.setOutput("run_validation", false);
               return;
             }
 
@@ -85,35 +87,38 @@ jobs:
             const commitSha = pr.head.sha;
             console.log(`Commit SHA: ${commitSha}`);
             core.setOutput('commit_sha', commitSha);
-            core.setOutput("run_workflow", true);
+            core.setOutput('run_validation', true);
 
+      
 
+      # This was triggered by pull_request_target it will checkout the base branch
+      # by default. Therefore we can trust the js code that is run below.
+      # Alternatively we could use the sha from above and checkout the PRs code.
+      # That sounds worse though
+      #
+      # https://docs.github.com/en/actions/writing-workflows/choosing-when-your-workflow-runs/events-that-trigger-workflows#pull_request_target
+      #
+      # We need the js files
+      - name: Checkout repository 
+        uses: actions/checkout@v4
 
-  validate_pr_structure:
-    runs-on: [ubuntu-latest]
-    needs: workflow-modification-check
-    if: ${{ needs.workflow-modification-check.outputs.run_workflow == 'true' }}
-
-    steps:
-      # # https://docs.github.com/en/actions/writing-workflows/choosing-when-your-workflow-runs/events-that-trigger-workflows#pull_request_target
-      # # this is pull_request_target it will checkout the base branch
-      # # therefore we can trust the js code that is run
-      # - name: Checkout repository
-      #   uses: actions/checkout@v4
-
-      - name: PR Checker
+      - name: Validate PR Structure
         uses: actions/github-script@v7
+        id: validate_pr_structure
         with:
           script: |
             const { validatePRStructure } = require('./.github/workflows/2_validate_PR_and_merge.js');
+            // This will throw an error if the PR structure is invalid
             await validatePRStructure({ github, context });
+            core.setOutput("validation_passed", true);
 
 
 
   validate_added_test_and_merge_pr:
     if: false
+    # if: ${{ needs.pr-validation.outputs.validation_passed == 'true' }}
     runs-on: [self-hosted]
-    needs: validate_pr_structure
+    needs: pr-validation
     # fif: github.event.pull_request.head.repo.fork == true || github.event.pull_request.user.type == 'Bot'
 
     # This is insecure because it (1) checks out the PRs code and (2) runs jai code from the PR which could be malicious
