@@ -194,7 +194,7 @@ jobs:
 
 
   validate-added-test-and-merge-pr:
-    runs-on: [self-hosted, linux] # @todo remove
+    runs-on: [self-hosted, windows] # @todo remove
     needs: pr-validation
     if: ${{ needs.pr-validation.outputs.validation_passed == 'true' }}
     # fif: github.event.pull_request.head.repo.fork == true || github.event.pull_request.user.type == 'Bot'
@@ -207,6 +207,13 @@ jobs:
       - name: List all files recursively with paths
         run: |
           find .
+
+      # - name: Checkout Base Branch .github folder
+      #   uses: actions/checkout@v4
+      #   with:
+      #     repository: ${{ github.repository }}
+      #     sparse-checkout: |
+      #       .github/ 
 
       # - name: Get App Token
       #   uses: actions/create-github-app-token@v1
@@ -229,12 +236,6 @@ jobs:
       #     sparse-checkout: |
       #       compiler_bugs/
 
-      # - name: Checkout Base Branch .github folder
-      #   uses: actions/checkout@v4
-      #   with:
-      #     repository: ${{ github.repository }}
-      #     sparse-checkout: |
-      #       .github/ 
 
       # - name: Download file list artifact
       #   uses: actions/download-artifact@v4
