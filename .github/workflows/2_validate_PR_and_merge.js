@@ -1,17 +1,8 @@
-// @todo cleanup
-const validatePRStructure = async ({ github, context }) => {
-  await _validatePRStructure({
-    github,
-    contextRepo: context.repo,
-    prNumber: context.issue.number,
-  });
-};
 
-// @todo test if folder checks are correct
-const _validatePRStructure = async ({ github, contextRepo, prNumber }) => {
+const validatePRStructure = async ({ github, context }) => {
   const { data: pr } = await github.rest.pulls.get({
-    ...contextRepo,
-    pull_number: prNumber,
+    ...context.repo,
+    pull_number: context.issue.number,
   });
 
   const isSBOrBB = /^\[[SB]B\]:/.test(pr.title);
@@ -21,8 +12,8 @@ const _validatePRStructure = async ({ github, contextRepo, prNumber }) => {
 
   // Get all files in the PR
   const fileResponse = await github.rest.pulls.listFiles({
-    ...contextRepo,
-    pull_number: prNumber,
+    ...context.repo,
+    pull_number: context.issue.number,
     per_page: 100,
   });
   const filePaths = fileResponse.data.map((file) => file.filename);
@@ -30,14 +21,14 @@ const _validatePRStructure = async ({ github, contextRepo, prNumber }) => {
   // @todo also fix validateAddedTestAndMergeOnSuccess
   if (filePaths.length >= 100) {
     await github.rest.issues.createComment({
-      ...contextRepo,
-      issue_number: prNumber,
+      ...context.repo,
+      issue_number: context.issue.number,
       body: `@Mupu, This PR has more than 100 files, please make this work and re-run the checks.`,
     });
     throw new Error('This PR has more than 100 files. Please make this work.');
   }
 
-  const validBugNameRegexTemplate = `^compiler_bugs/[CR]EC-?\\d+_${1}`;
+  const validBugNameRegexTemplate = `^compiler_bugs/[CR]EC-?\\d+_${context.issue.number}`;
   const singleFileValidBugNameRegex = new RegExp(`${validBugNameRegexTemplate}\\.jai`);
   const validFilePathRegex =          new RegExp(`${validBugNameRegexTemplate}/`);
   const validFirstJaiRegex =          new RegExp(`${validBugNameRegexTemplate}/first\\.jai`);
