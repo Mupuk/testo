@@ -1,8 +1,9 @@
 name: 2_validate_PR_and_merge
 
 on:
-  pull_request_target:
-    types: [synchronize, edited] # @todo remove edited
+  workflow_dispatch: # Manual trigger
+  # pull_request_target:
+  #   types: [synchronize, edited] # @todo remove edited
 
 jobs:
   # Since only workflow files themselves are safe when using pull_request_target
