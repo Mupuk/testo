@@ -193,7 +193,7 @@ const convertSBIssueToPR = async ({ github, context, exec }) => {
 
   
   // Convert issue to a pull request
-  const pr = null;
+  let pr = null;
   if (isIssue) {
     const { data: prData } = await github.rest.pulls.create({
       ...context.repo,
