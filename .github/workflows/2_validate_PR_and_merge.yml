@@ -42,7 +42,7 @@ jobs:
 
             
             const { data } = await github.rest.rateLimit.get();
-            throw new Error(JSON.stringify(data));
+            throw new Error(JSON.stringify(data, null, 2));
 
             // THIS IS UNSAFE because we have a race condition from our
             // sha of workflow trigger, to here! But it should support 3000
