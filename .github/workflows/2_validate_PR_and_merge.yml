@@ -217,11 +217,20 @@ jobs:
       # @todo potentially unsafe, the only reason we are using this is because
       # updating many files via the api is bad?
       # check again if maybe a folder is also just one call then we could checkout the base branch instead
-      - name: Checkout PR
+      - name: Checkout PRs compiler_bugs folder
         uses: actions/checkout@v4
         with:
           repository: ${{ github.repository }}
           ref: ${{ needs.pr-validation.outputs.validated_commit_sha }}
+          sparse-checkout: |
+            compiler_bugs/
+
+      # - name: Checkout Base Branch .github folder
+      #   uses: actions/checkout@v4
+      #   with:
+      #     repository: ${{ github.repository }}
+      #     sparse-checkout: |
+      #       .github/
 
       - name: Download file list artifact
         uses: actions/download-artifact@v4
