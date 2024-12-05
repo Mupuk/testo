@@ -28,7 +28,7 @@ const validateAddedTestAndMergeOnSuccess = async ({
     ? filePaths[0]
     : filePaths.find((f) => validFirstJaiRegex.test(f));
 
-  const exitCode = await exec.exec('jai ' + fileToRun, [], {
+  const exitCode = await exec.exec('jai ' + 'base/' + fileToRun, [], {
     ignoreReturnCode: true, // make this not throw an error when non 0 exit code
   });
   const expectedExitCode = Number.parseInt(

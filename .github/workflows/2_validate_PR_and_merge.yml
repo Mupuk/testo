@@ -202,7 +202,8 @@ jobs:
           private-key: ${{ secrets.APP_PRIVATE_KEY }}
 
 
-      # This *should* be safe, as we validated that the .github was not modified
+
+      # The JS in here *should* be safe, as we validated that the .github was not modified
       - name: Checkout Validated PRs 
         uses: actions/checkout@v4
         with:
@@ -216,10 +217,13 @@ jobs:
         with:
           path: base
 
+
+
       - name: Download file list artifact
         uses: actions/download-artifact@v4
         with:
           name: pr_files
+
 
 
       - name: Validate new Test and Merge Pull Request
@@ -227,30 +231,7 @@ jobs:
         with:
           github-token: ${{ steps.app_token.outputs.token }}
           script: |
-            const fs = require('fs');
-            const path = require('path');
-
-            const listFilesRecursive = (dir) => {
-              const entries = fs.readdirSync(dir, { withFileTypes: true });
-              entries.forEach(entry => {
-                const fullPath = path.join(dir, entry.name);
-                if (entry.isDirectory()) {
-                  listFilesRecursive(fullPath);
-                } else {
-                  core.info(fullPath);
-                }
-              });
-            };
-
-            const targetDir = '.'; // Replace with your directory
-            core.info(`Listing files in directory: ${targetDir}`);
-            listFilesRecursive(targetDir);
-
-
-            console.log("Current working directory:", process.cwd());
-
-
-
+            // Use Base Branch!
             const { validateAddedTestAndMergeOnSuccess } = require('./base/.github/workflows/2_validate_PR_and_merge.js');
             await validateAddedTestAndMergeOnSuccess({ github, exec, io, context, is_single_file: ${{ needs.pr-validation.outputs.is_single_file }} });
 
