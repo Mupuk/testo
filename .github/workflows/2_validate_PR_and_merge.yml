@@ -205,10 +205,6 @@ jobs:
 
     steps:
       - run: pwd
-      - name: List all files recursively with paths
-        continue-on-error: true
-        run: |
-          find . -type f -exec ls -lh --time-style=+"%Y-%m-%d %H:%M:%S" {} \;
 
 
       - name: Get App Token
@@ -267,13 +263,17 @@ jobs:
             listFilesRecursive(targetDir);
 
 
+            console.log("Current working directory:", process.cwd());
+
+
+
       #       const { validateAddedTestAndMergeOnSuccess } = require('./.github/workflows/2_validate_PR_and_merge.js');
       #       await validateAddedTestAndMergeOnSuccess({ github, exec, io, context, is_single_file: ${{ needs.pr-validation.outputs.is_single_file }} });
 
-      - name: List all files recursively with paths
-        continue-on-error: true
-        run: |
-          find . -type f -exec ls -lh --time-style=+"%Y-%m-%d %H:%M:%S" {} \;
+      # - name: List all files recursively with paths
+      #   continue-on-error: true
+      #   run: |
+      #     find . -type f -exec ls -lh --time-style=+"%Y-%m-%d %H:%M:%S" {} \;
 
       # # Not sure why the merge below only works after Checking out the PR again.
       # # If we dont do this, the merge will fail with 'Head branch is out of date'
