@@ -207,7 +207,7 @@ jobs:
       - name: List all files recursively with paths
         continue-on-error: true
         run: |
-          Get-ChildItem -Recurse | Select-Object LastWriteTime, FullName | Format-Table -AutoSize
+          Get-ChildItem -Recurse -Force | Select-Object LastWriteTime, FullName | Format-Table -AutoSize
 
       - name: List all files recursively with paths
         continue-on-error: true
