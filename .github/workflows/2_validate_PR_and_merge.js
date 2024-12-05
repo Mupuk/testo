@@ -8,7 +8,6 @@ const validateAddedTestAndMergeOnSuccess = async ({
   context,
   isSingleFile,
 }) => {
-  console.log(context)
   console.log(`Manual approval was given for Pull Request #${context.issue.number}...`);
 
   // Load the files that were added in the PR
@@ -27,6 +26,11 @@ const validateAddedTestAndMergeOnSuccess = async ({
   const fileToRun = isSingleFile
     ? filePaths[0]
     : filePaths.find((f) => validFirstJaiRegex.test(f));
+
+  console.log('isSingleFile', isSingleFile);
+  if (!fileToRun) {
+    throw new Error('No File to run found. Should never happen');
+  }
 
   const exitCode = await exec.exec('jai ' + 'base/' + fileToRun, [], {
     ignoreReturnCode: true, // make this not throw an error when non 0 exit code
