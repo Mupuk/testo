@@ -24,13 +24,10 @@ const convertSBIssueToPRAndSynchronize = async ({ github, context, exec }) => {
   // Make sure its a SB
   issuePRData.body = issuePRData.body.replace(/\r\n/g, '\n').replace(/\r/g, '\n');
   const isSB = /^\[SB\]:/.test(issuePRData.title);
-  // @todo ENABLE AGAIN
-  // @todo maybe not silent drop, because if this check fails, the user would not
-  //       get notified that the issue was not formatted correctly
-  // if (!isSB) {
-  //   console.log('Issue is not a SB ... skipping');
-  //   return;
-  // }
+  if (!isSB) {
+    console.log('Issue is not a SB ... skipping');
+    return;
+  }
 
   // Get issue, since its a converted issue, we need to get the original issue
   // to get the originial issue creator
@@ -195,7 +192,7 @@ const convertSBIssueToPRAndSynchronize = async ({ github, context, exec }) => {
         ...context.repo,
         ref: `heads/${branchName}`,
         sha: newCommit.data.sha,
-        force: true,
+        // force: true,
       });
 
       console.log(`Branch '${branchName}' updated with new commit.`);

@@ -5,7 +5,14 @@ on:
     types: [synchronize, edited] # @todo remove edited
 
 jobs:
-  # The workflow file itself can be trusted, since its pull_request_target
+  # Since only workflow files themselves are safe when using pull_request_target
+  # we have to write the validation logic in the workflow file itself
+  # After that its safe to checkout the PRs code and run the validation
+  # as we know for sure, that the .github folder was not modified
+  #
+  # WARNING: THE REST OF THE CODE IS STILL TO BE CONSIDERED UNSAFE
+  
+
   # Make sure the .github folder is not modified
   # Then validate 
   pr-validation:
@@ -33,52 +40,56 @@ jobs:
               return;
             }
 
-            const { data } = await github.rest.pulls.listFiles({
-              ...context.repo,
-              pull_number: context.issue.number,
-              per_page: 100
-            });
-            console.log('data', data);
+            
+            const { data } = await github.rest.rateLimit.get();
+            throw new Error(JSON.stringify(data));
 
-            console.log('pr.base.sha', pr.base.sha);
-            console.log('pr.head.sha', pr.head.sha);
+            // THIS IS UNSAFE because we have a race condition from our
+            // sha of workflow trigger, to here! But it should support 3000
+            // Files via pagination.
+            // const { data } = await github.rest.pulls.listFiles({
+            //   ...context.repo,
+            //   pull_number: context.issue.number,
+            //   per_page: 100
+            // });
+            // console.log('data', data);
+            // const filePathsBad = data.map(file => file.filename);
+
+            
+
+            // This api seems to be limited to 300 files. Sadly we cant get more without splitting up the commits.
+            // Also although listFiles seems to support up to 3000, we cant use it as it does not support the 
+            // option for a sha, to remove our race condition.
+            // https://docs.github.com/en/rest/commits/commits?apiVersion=2022-11-28#compare-two-commits
             const { data: comparison } = await github.rest.repos.compareCommits({
               ...context.repo,
-              base: pr.base.sha,
-              head: pr.head.sha
+              base: pr.base.sha,   // Compare base branch
+              head: pr.head.sha,   // Against head of PR
+              page: 1,             // Fetch only the first page; file list is always here
+              per_page: 100,       
             });
-            console.log('comparison', comparison);
+            const filePaths = comparison.map(file => file.filename);
+            console.log('filePaths', filePaths);
 
-            const { data: latestPr } = await github.rest.pulls.get({
-              ...context.repo,
-              pull_number: context.issue.number
-            });
-
-            if (latestPr.head.sha !== headSha) {
-              console.error('PR head changed during processing. Aborting validation.');
-              throw new Error('PR head changed during processing.');
-            }
-            throw new Error('xxxxxx')
-
-            const filePaths = data.map(file => file.filename);
-
-            // @todo pagination not supported yet
-            if (filePaths.length >= 100) {
+            // https://docs.github.com/en/rest/commits/commits?apiVersion=2022-11-28#compare-two-commits
+            if (filePaths.length >= 300) {
               await github.rest.issues.createComment({
                 ...context.repo,
                 issue_number: context.issue.number,
-                body: `@Mupu, This PR has more than 100 files, please make this work and re-run the checks.`
+                body: `This PR has more than 300 files. Please reduce the number of files.`
               })
-              throw new Error('This PR has more than 100 files, please make this work and re-run the checks.');
+              throw new Error('This PR has more than 300 files.');
             }
 
 
+            // Get existing labels
             const existingLabelsResponse = await github.rest.issues.listLabelsOnIssue({
               ...context.repo,
               issue_number: context.issue.number,
             });
             const existingLabels = existingLabelsResponse.data.map((l) => l.name); 
             console.log('existingLabels', existingLabels);
+
 
 
             // Make sure .github folder is not modified
@@ -95,9 +106,11 @@ jobs:
                 issue_number: context.issue.number,
                 labels: [...new Set([...existingLabels, 'validation-failed']) ],
               });
+
               throw new Error('This PR has modified the .github folder, which is illegal!');
             }
 
+            // Remove validation-failed label
             await github.rest.issues.setLabels({
               ...context.repo,
               issue_number: context.issue.number,
