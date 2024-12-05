@@ -191,7 +191,7 @@ jobs:
 
     # This is insecure because it (1) checks out the PRs code and (2) runs jai code from the PR which could be malicious
     # so we need to make sure it got approved
-    # environment: test # @todo do we only wanna run this on forks?
+    # environment: test
 
     steps:
       - name: Get App Token
@@ -233,7 +233,7 @@ jobs:
           script: |
             // Use Base Branch!
             const { validateAddedTestAndMergeOnSuccess } = require('./base/.github/workflows/2_validate_PR_and_merge.js');
-            await validateAddedTestAndMergeOnSuccess({ github, exec, io, context, is_single_file: ${{ needs.pr-validation.outputs.is_single_file }} });
+            await validateAddedTestAndMergeOnSuccess({ github, exec, io, context, is_single_file: ${{ needs.pr-validation.outputs.is_single_file == 'true' }} });
 
 
       # # Not sure why the merge below only works after Checking out the PR again.
