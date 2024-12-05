@@ -6,7 +6,7 @@ const validateAddedTestAndMergeOnSuccess = async ({
   exec,
   io,
   context,
-  isSingleFile,
+  is_single_file,
 }) => {
   console.log(`Manual approval was given for Pull Request #${context.issue.number}...`);
 
