@@ -207,7 +207,7 @@ const convertSBIssueToPR = async ({ github, context, exec }) => {
     pr = prData;
 
     // Add the issue owner as an assignee to the PR
-    const issueOwner = issuePRData.data.user.login;
+    const issueOwner = issuePRData.user.login;
     await github.rest.issues.addAssignees({
       owner: context.repo.owner,
       repo: context.repo.repo,
