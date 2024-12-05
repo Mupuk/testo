@@ -272,9 +272,10 @@ const convertSBIssueToPR = async ({ github, context, exec }) => {
     const existingLabelsToRetain = existingLabelsResponse.data
                                     .map((label) => label.name)
                                     .filter((label) => !whitelistLabels.includes(label)); // remove categories
+    console.log('existingLabelsToRetain', existingLabelsToRetain);
 
     // Add labels to PR
-    await github.rest.issues.addLabels({
+    await github.rest.issues.setLabels({
       ...context.repo,
       issue_number: context.issue.number,
       labels: [...existingLabelsToRetain, ...categoryLabels],
