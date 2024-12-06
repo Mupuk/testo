@@ -154,7 +154,8 @@ const renameAllFilesToMatchTracker = async ({ github, context, originalPRData, v
   // Create a new tree
   const { data: newTree } = await github.rest.git.createTree({
     ...context.repo,
-    tree: updatedTree
+    tree: updatedTree,
+    base_tree: commit.tree.sha,
   });
 
   // Create a new commit with the updated tree
