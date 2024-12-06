@@ -126,27 +126,30 @@ const renameAllFilesToMatchTracker = async ({ github, context, originalPRData, v
     recursive: true
   });
 
-  // Update the tree by renaming files
+  // Update the tree by renaming files and removing the old ones
   const validBugNameRegex = /^compiler_bugs\/[CR]EC-?\d+_new/; // @copyPasta
-  const deletedFiles = [];
-  const updatedTree = tree.tree.map(file => {
-    // Skip files that don't match the pattern
-    if (!validBugNameRegex.test(file.path)) {
-      return file;
+  const updatedTree = tree.tree.flatMap(file => {
+    if (validBugNameRegex.test(file.path)) {
+      // If the file matches, rename it and mark the old one for deletion
+      return [
+        {
+          path: file.path.replace(/_new/, `_${trackerIssueNumber}`),
+          mode: file.mode,
+          type: file.type,
+          sha: file.sha, // Keep the file content for the renamed file
+        },
+        {
+          path: file.path,
+          mode: file.mode, // Preserve the original mode
+          type: file.type, // Preserve the original type
+          sha: null, // Mark the original file for deletion
+        },
+      ];
     } else {
-      deletedFiles.push(file);
-      return {
-        path: file.path,
-        mode: file.mode,
-        type: file.type,
-        sha: null,  // Mark file for deletion
-      };
+      // If the file doesn't match, return it unchanged
+      return file;
     }
   });
-  // Add the renamed files back to the tree
-  updatedTree.push(...deletedFiles.map(file => {
-    return file.path.replace(/_new/, `_${trackerIssueNumber}`);
-  }));
 
   // Create a new tree
   const { data: newTree } = await github.rest.git.createTree({
