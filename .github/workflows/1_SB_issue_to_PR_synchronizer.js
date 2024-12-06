@@ -73,7 +73,7 @@ const convertSBIssueToPRAndSynchronize = async ({ github, context, exec }) => {
     throw new Error('Categories not found. Most likely the issue was not formatted correctly after editing.');
   }
 
-  const code = issuePRData.body.match(/^### Short Code Snippet\n[\S\s]*?```c\n(?<code>[\S\s]*?)```/mi).groups.code;
+  let code = issuePRData.body.match(/^### Short Code Snippet\n[\S\s]*?```c\n(?<code>[\S\s]*?)```/mi).groups.code;
   if (!code) {
     throw new Error('Code Snippet not found. Most likely the issue was not formatted correctly after editing.');
   }
