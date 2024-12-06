@@ -4,11 +4,6 @@ const whitelistedLabels = ['insert', 'leak'];
 
 
 const convertSBIssueToPRAndSynchronize = async ({ github, context, exec }) => {
-  const eventType = context.eventName; // 'issues' or 'pull_request'
-  console.log('eventType', eventType);
-  if (eventType !== 'issues' && eventType !== 'pull_request_target') {
-    throw new Error('This action can only be triggered by issues or pull_request_target events.');
-  }
   const isIssue = eventType === 'issues';
   const issuePRData = isIssue ? context.payload.issue : context.payload.pull_request;
 

@@ -7,6 +7,9 @@ on:
     # edited PRs will update the PRs commits
     types: [edited] 
 
+concurrency:
+  group: ${{ github.workflow }}-${{ github.event.issue.number }}
+
 jobs:
   convert-SB-issue-to-PR-and-synchronize:
     runs-on: [ubuntu-latest]
@@ -36,6 +39,12 @@ jobs:
         with:
           github-token: ${{ steps.app_token.outputs.token }}
           script: |
+            console.log('Concurrency Group', process.env.GITHUB_CONCURRENCY_GROUP);
+            console.log('Concurrency Group', '${{ github.workflow }}-${{ github.event.issue.number }}');
+
+            console.log('eventType', context.eventName);
+            console.log('context.payload.sender', context.payload.sender)
+
             const convertSBIssueToPRAndSynchronize = require('./.github/workflows/1_SB_issue_to_PR_synchronizer.js');
             await convertSBIssueToPRAndSynchronize({ github, context, exec });
 
