@@ -269,11 +269,6 @@ jobs:
               throw new Error('The PR title has changed since validation! Aborting ...');
             }
 
-            // Check if labels have changed
-            if (pr.labels.length !== originalPRData.labels.length || !pr.labels.every((l) => originalPRData.labels.includes(l))) {
-              throw new Error('The PR labels have changed since validation! Aborting ...');
-            }
-
             // We could check if bodies are the same, im not sure if we want that though
             if (pr.body !== originalPRData.body) {
               throw new Error('The PR body has changed since validation! Aborting ...');
