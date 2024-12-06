@@ -39,9 +39,9 @@ function parsePrBody(text) {
 
   let parsedData = {
     alreadyReported:(text.match(regexEmailedIn)?.[1] || ' ').toLowerCase() === 'x' ? '✅' : '❌',
-    description: text.match(regexDescription)?.[1] || '-',
-    workaround: text.match(regexWorkaround)?.[1] || '-',
-    code: text.match(regexCode)?.[1] || '-',
+    description: (text.match(regexDescription)?.[1] || '-').replace(/_No response_/, '-'),
+    workaround: (text.match(regexWorkaround)?.[1] || '-').replace(/_No response_/, '-'),
+    code: (text.match(regexCode)?.[1] || '-').replace(/_No response_/, '-'),
   };
 
   return parsedData;
@@ -75,6 +75,16 @@ const createTrackingIssueFromPR = async ({ github, context }) => {
   const date = new Date().toISOString().split('T')[0];
   const parsedBody = parsePrBody(pr.body);
   console.log('parsed PR Body', parsedBody);
+  
+
+
+  // Get issue, since its a converted issue, and we want to get the original creator
+  const { data: originalIssue } = await github.rest.issues.get({
+    ...context.repo,
+    issue_number: context.issue.number,
+  });
+  const originialIssueCreator = originalIssue.user.login;
+  console.log('originialIssueCreator', originialIssueCreator);
 
   // Create Tracking Issue
   const { format } = require('./_utils.js');
@@ -84,18 +94,12 @@ const createTrackingIssueFromPR = async ({ github, context }) => {
     ...context.repo,
     title: issueTitle,
     body: issueBody,
+    assignees: [originialIssueCreator], // assign the original issue creator so we can use it to notify them or not
     labels: pr.labels.map((label) => label.name),
   });
 
-  // Get issue, since its a converted issue, and we want to get the original creator
-  const { data: originalIssue } = await github.rest.issues.get({
-    ...context.repo,
-    issue_number: context.issue.number,
-    assignees: [originialIssueCreator], // assign the original issue creator so we can use it to notify them or not
-  });
-  const originialIssueCreator = originalIssue.user.login;
-  console.log('originialIssueCreator', originialIssueCreator);
 
+  // Notify the original issue creator
   await github.rest.issues.createComment({
     ...context.repo,
     issue_number: context.issue.number,
