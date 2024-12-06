@@ -236,7 +236,7 @@ jobs:
 
             // Use Base Branch! Create Tracking issue so the bug suit already can use it.
             // Throws if issue already exists
-            const { createTrackingIssueFromPR } = require('./base/.github/workflows/2_create_tracking_issue_from_PR.js');
+            const createTrackingIssueFromPR = require('./base/.github/workflows/2_create_tracking_issue_from_PR.js');
             createTrackingIssueFromPR({ github, context });
 
             // const mergeResponse = await github.rest.pulls.merge({
