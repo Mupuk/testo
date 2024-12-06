@@ -38,8 +38,8 @@ jobs:
             console.log('eventType', context.eventName);
             console.log('context.payload.sender', context.payload.sender)
 
-            const isBot = context.payload.pull_request.user.type === 'Bot';
-            const userName = context.payload.pull_request.user.login;
+            const isBot = context.payload.sender.type === 'Bot';
+            const userName = context.payload.sender.login;
 
             if (isBot) {
               console.log(`This PR was created by a bot '${userName}'. Skipping ...`);
