@@ -128,47 +128,42 @@ const convertSBIssueToPRAndSynchronize = async ({ github, context, exec }) => {
       recursive: true,
     });
 
-    const validBugNameRegex = /^compiler_bugs\/[CR]EC-?\d+_new/; // @copyPasta
-    let deletionCounter = 0;
-    const newTree = tree.data.tree
-      // The bug type or error code may have changed, so we need to delete the old one
-      .map(file => {
-        if (validBugNameRegex.test(file.path)) {
-          deletionCounter++;
-          console.log('Deleting file:', file.path);
-          return {
-            path: file.path,
-            mode: file.mode,
-            type: file.type,
-            sha: null, // Mark file for deletion
-          };
-        }
-        return {
-          path: file.path,
-          mode: file.mode,
-          type: file.type,
-          sha: file.sha,
-        };
-      });
-
-    if (deletionCounter > 1) {
-      throw new Error('Deleted more than one file. This should never happen');
-    }
-
-    // Add new file to the tree
+    // Add new file content
     const blob = await github.rest.git.createBlob({
       ...context.repo,
       content: newFileContent,
       encoding: 'base64',
     });
 
-    console.log('Adding file:', filePath);
-    newTree.push({
-      path: filePath,
-      mode: '100644', // https://docs.github.com/en/rest/git/trees?apiVersion=2022-11-28
-      type: 'blob',
-      sha: blob.data.sha,
-    });
+    // @todo we dont have any checks in place for when its a SB from a user PR.
+    const validBugNameRegex = /^compiler_bugs\/[CR]EC-?\d+_(?:new|\d+)\.jai$/; // @copyPasta
+    let replacedFile = false;
+    const newTree = tree.data.tree
+      // The bug type or error code may have changed, so we need to delete the old one
+      .map(file => {
+        if (validBugNameRegex.test(file.path)) {
+          console.log('Changing Content of file:', file.path);
+          replacedFile = true;
+          return {
+            path: file.path,
+            mode: file.mode,
+            type: file.type,
+            sha: blob.data.sha,
+          };
+        }
+        return file;
+      });
+
+
+    if (!replacedFile) {
+      console.log('Adding file:', filePath);
+      newTree.push({
+        path: filePath,
+        mode: '100644', // https://docs.github.com/en/rest/git/trees?apiVersion=2022-11-28
+        type: 'blob',
+        sha: blob.data.sha,
+      });
+    }
 
     // Step 5: Create the new tree
     const newTreeResponse = await github.rest.git.createTree({
@@ -205,6 +200,7 @@ const convertSBIssueToPRAndSynchronize = async ({ github, context, exec }) => {
     
   // Convert issue to a pull request if it isn't already
   if (isIssue) {
+    console.log('Converting issue to PR...');
     const { data: prData } = await github.rest.pulls.create({
       ...context.repo,
       head: branchName,
