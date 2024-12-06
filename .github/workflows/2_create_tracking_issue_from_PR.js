@@ -129,7 +129,7 @@ const renameAllFilesToMatchTracker = async ({ github, context, originalPRData, v
   });
 
   // Update the tree by renaming files of this PR to match the tracker issue number
-  const validBugNameRegexTemplate = `^compiler_bugs/${context.issue.number}_{TRACKERNUMBER}_[CR]EC-?\\d+`; // @copyPasta
+  const validBugNameRegexTemplate = `^compiler_bugs/${context.issue.number}_{TRACKERNUMBER}_[CR]EC-?\\d+(?:\\.jai$|/)`; // @copyPasta
   // When running the first time, the trackerIssueNumber is 0, so we need to replace it with the actual number
   const validBugNameRegex = new RegExp(validBugNameRegexTemplate.replace('{TRACKERNUMBER}', 0));
   const validBugNameTrackerRegex = new RegExp(validBugNameRegexTemplate.replace('{TRACKERNUMBER}', 0));
