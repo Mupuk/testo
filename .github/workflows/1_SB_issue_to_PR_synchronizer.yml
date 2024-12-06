@@ -2,7 +2,7 @@ name: 1_SB_issue_to_PR_synchronizer
 
 on:
   issues:
-    types: [opened] # new issues will be converted to PR
+    types: [opened, edited] # new issues will be converted to PR
   pull_request_target:
     # edited PRs will update the PRs commits
     types: [edited] 
