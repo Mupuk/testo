@@ -2,7 +2,7 @@ name: 2_validate_PR_and_merge
 
 on:
   pull_request_target:
-    types: [synchronize, edited] # @todo remove edited
+    types: [opened, synchronize, edited] # @todo remove edited
 
 jobs:
   # Since only workflow files themselves are safe when using pull_request_target
@@ -178,6 +178,7 @@ jobs:
 
       # We need this for later validation as the approval could be given quite some time later
       - name: Upload PR Response as an artifact
+        if: ${{ steps.pr_safety_check.outputs.run_validation == 'true' }} 
         uses: actions/upload-artifact@v4
         with:
           name: pr_response
