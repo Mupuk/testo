@@ -11,6 +11,7 @@
 # [x] cleanup and rework (3)
 # [ ] check all code again
 # [ ] look at concurrency locks
+# [ ] check if we can reduce needed permissions and filters.
 
 # [-] making the test run without offline platform? How?
        NOTE: Not directly possible (https://github.com/orgs/community/discussions/50926)

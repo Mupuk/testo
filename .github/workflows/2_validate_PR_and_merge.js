@@ -7,13 +7,9 @@ const validateAddedTestAndMergeOnSuccess = async ({
   io,
   context,
   isSingleFile,
+  validatedCommitSha,
 }) => {
   console.log(`Manual approval was given for Pull Request #${context.issue.number}...`);
-
-  // Load the files that were added in the PR
-  const fs = require('fs');
-  const filePaths = JSON.parse(fs.readFileSync('pr_files.json', 'utf-8'));
-  console.log('loaded pr_files.json', filePaths);
 
 
 
@@ -21,31 +17,43 @@ const validateAddedTestAndMergeOnSuccess = async ({
   // Run the test and see if it fails as expected
   //
 
-  const validBugNameRegexTemplate = `^compiler_bugs/[CR]EC-?\\d+_${context.issue.number}`; // @copyPasta
-  const validFirstJaiRegex = new RegExp(`${validBugNameRegexTemplate}/first\\.jai`);
-  const fileToRun = isSingleFile
-    ? filePaths[0]
-    : filePaths.find((f) => validFirstJaiRegex.test(f));
+  // // Load the files that were added in the PR
+  // const fs = require('fs');
+  // const filePaths = JSON.parse(fs.readFileSync('pr_files.json', 'utf-8'));
+  // console.log('loaded pr_files.json', filePaths);
 
-  console.log('isSingleFile', isSingleFile);
-  if (!fileToRun) {
-    throw new Error('No File to run found. Should never happen');
-  }
+  // @todo run this on all platforms instead!
+  // const validBugNameRegexTemplate = `^compiler_bugs/[CR]EC-?\\d+_${context.issue.number}`; // @copyPasta
+  // const validFirstJaiRegex = new RegExp(`${validBugNameRegexTemplate}/first\\.jai`);
+  // const fileToRun = isSingleFile
+  //   ? filePaths[0]
+  //   : filePaths.find((f) => validFirstJaiRegex.test(f));
 
-  // # Untrusted Code Execution if review was sloppy!
-  const exitCode = await exec.exec('jai ' + 'PR/' + fileToRun, [], {
-    ignoreReturnCode: true, // make this not throw an error when non 0 exit code
+  // console.log('isSingleFile', isSingleFile);
+  // if (!fileToRun) {
+  //   throw new Error('No File to run found. Should never happen');
+  // }
+
+  // // # Untrusted Code Execution if review was sloppy!
+  // const exitCode = await exec.exec('jai ' + 'PR/' + fileToRun, [], {
+  //   ignoreReturnCode: true, // make this not throw an error when non 0 exit code
+  // });
+  // const expectedExitCode = Number.parseInt(
+  //   fileToRun.match(/(?<=[CR]EC)-?\d+(?=_)/)[0],
+  // );
+  // console.log('exitCode', exitCode);
+  // console.log('expectedExitCode', expectedExitCode);
+  // if (exitCode === expectedExitCode) {
+  //   throw new Error(`Test already passes, exit code: ${exitCode}, expected ${expectedExitCode}`);
+  // }
+
+
+  const mergeResponse = await github.rest.pulls.merge({
+    ...context.repo,
+    pull_number: context.issue.number,
+    merge_method: 'squash', // Use 'merge', 'squash', or 'rebase'
+    sha: validatedCommitSha, // make sure the head has not changed, from what we expected and validated!
   });
-  const expectedExitCode = Number.parseInt(
-    fileToRun.match(/(?<=[CR]EC)-?\d+(?=_)/)[0],
-  );
-  console.log('exitCode', exitCode);
-  console.log('expectedExitCode', expectedExitCode);
-  if (exitCode === expectedExitCode) {
-    throw new Error(`Test already passes, exit code: ${exitCode}, expected ${expectedExitCode}`);
-  }
-
-
 
 
 

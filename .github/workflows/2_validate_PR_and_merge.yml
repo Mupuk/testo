@@ -182,20 +182,22 @@ jobs:
   validate-added-test-and-merge-pr:
     runs-on: [self-hosted, linux] # @todo remove
     needs: pr-validation
-    if: ${{ needs.pr-validation.outputs.validation_passed == 'true' }}
-    # fif: github.event.pull_request.head.repo.fork == true || github.event.pull_request.user.type == 'Bot'
+    # Only run if validation passed
+    if: ${{ needs.pr-validation.outputs.validation_passed == 'true' }} 
 
-    # This is insecure because it (1) checks out the PRs code and (2) runs jai code from the PR which could be malicious
-    # so we need to make sure it got approved
+    # Make sure this run is manually approved, because we run untrusted code.
+    # The validation above, only makes sure the JS files are safe and that the
+    # commit has the correct structure. But the jai files themselves are still
+    # untrusted.
     # environment: test
 
     steps:
-      - name: Get App Token
-        uses: actions/create-github-app-token@v1
-        id: app_token
-        with:
-          app-id: ${{ secrets.APP_ID }}
-          private-key: ${{ secrets.APP_PRIVATE_KEY }}
+      # - name: Get App Token
+      #   uses: actions/create-github-app-token@v1
+      #   id: app_token
+      #   with:
+      #     app-id: ${{ secrets.APP_ID }}
+      #     private-key: ${{ secrets.APP_PRIVATE_KEY }}
 
 
 
@@ -225,12 +227,13 @@ jobs:
       - name: Validate new Test and Merge Pull Request
         uses: actions/github-script@v7
         with:
-          github-token: ${{ steps.app_token.outputs.token }}
+          # github-token: ${{ steps.app_token.outputs.token }}
           script: |
             // Use Base Branch!
             const { validateAddedTestAndMergeOnSuccess } = require('./base/.github/workflows/2_validate_PR_and_merge.js');
             const isSingleFile = ${{ needs.pr-validation.outputs.is_single_file == 'true' }};
-            await validateAddedTestAndMergeOnSuccess({ github, exec, io, context, isSingleFile });
+            const validatedCommitSha = '${{ needs.pr-validation.outputs.validated_commit_sha }}';
+            await validateAddedTestAndMergeOnSuccess({ github, exec, io, context, isSingleFile, validatedCommitSha });
 
 
       # # Not sure why the merge below only works after Checking out the PR again.

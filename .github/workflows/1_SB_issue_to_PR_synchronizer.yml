@@ -21,16 +21,16 @@ jobs:
       # If this was triggered by pull_request_target it will checkout the base branch
       # by default. Therefore we can trust the js code that is run below.
       #
-      # https://docs.github.com/en/actions/writing-workflows/choosing-when-your-workflow-runs/events-that-trigger-workflows#pull_request_target
+      # https://github.com/actions/checkout/tree/v4/#:~:text=%23%20The%20branch%2C%20tag%20or%20SHA%20to%20checkout.%20When%20checking%20out%20the%20repository%20that%0A%20%20%20%20%23%20triggered%20a%20workflow%2C%20this%20defaults%20to%20the%20reference%20or%20SHA%20for%20that%20event.%0A%20%20%20%20%23%20Otherwise%2C%20uses%20the%20default%20branch.%0A%20%20%20%20ref%3A%20%27%27
+      #
+      # https://docs.github.com/en/actions/writing-workflows/choosing-when-your-workflow-runs/events-that-trigger-workflows#pull_request_target:~:text=Last%20commit%20on%20the%20PR,PR%20base%20branch
       #
       # We need the js files
       - name: Checkout repository 
         uses: actions/checkout@v4
-      #   with: 
-      #     token: ${{ steps.app_token.outputs.token }}
-      #     persist-credentials: false
 
       # Use the app_token to trigger validation
+      # https://docs.github.com/en/actions/writing-workflows/choosing-when-your-workflow-runs/triggering-a-workflow#triggering-a-workflow-from-a-workflow
       - name: Create a new PR from SB Issue
         uses: actions/github-script@v7
         with:
