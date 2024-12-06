@@ -127,7 +127,7 @@ const renameAllFilesToMatchTracker = async ({ github, context, originalPRData, v
   });
 
   // Update the tree by renaming files and removing the old ones
-  const validBugNameRegex = /^compiler_bugs\/[CR]EC-?\d+_(?:new|\d+)(?:\.jai$|\/)/; // @copyPasta
+  const validBugNameRegex = /^compiler_bugs\/[CR]EC-?\d+_new(?:\.jai$|\/)/; // @copyPasta
   const updatedTree = tree.tree.flatMap(file => {
     if (validBugNameRegex.test(file.path)) {
       // If the file matches, rename it and mark the old one for deletion
