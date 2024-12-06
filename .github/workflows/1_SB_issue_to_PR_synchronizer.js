@@ -88,19 +88,27 @@ const convertSBIssueToPRAndSynchronize = async ({ github, context, exec }) => {
   // Convert issue to a pull request if it isn't already
   if (isIssue) {
     console.log('Creating Branch', branchName);
+    try {
+      branchRef = await github.rest.git.getRef({
+        ...context.repo,
+        ref: `heads/${branchName}`,
+      });
+    } catch (error) {
+      if (error.status === 404) {
+        const { data: baseBranchData } = await github.rest.repos.getBranch({
+          owner: context.repo.owner,
+          repo: context.repo.repo,
+          branch: 'master',
+        });
 
-    const { data: baseBranchData } = await github.rest.repos.getBranch({
-      owner: context.repo.owner,
-      repo: context.repo.repo,
-      branch: 'master',
-    });
-
-    // Create a new branch for the PR
-    await github.rest.git.createRef({
-      ...context.repo,
-      ref: `refs/heads/${branchName}`,
-      sha: baseBranchData.commit.sha,
-    });
+        // Create a new branch for the PR
+        await github.rest.git.createRef({
+          ...context.repo,
+          ref: `refs/heads/${branchName}`,
+          sha: baseBranchData.commit.sha,
+        });
+      }
+    }
 
 
   } else { 
