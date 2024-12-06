@@ -57,6 +57,13 @@ const createTrackingIssueFromPR = async ({ github, context }) => {
 
   const existingIssue = searchResults.data.items;
   console.log('existingIssue', existingIssue);
+  if (existingIssue.length > 0) {
+    if (existingIssue.length > 1) {
+      console.warn('Multiple trackers found, this should not happen!');
+    }
+    console.log('Tracker already exists, skipping');
+    return existingIssue[0].number;
+  }
 
 
 
