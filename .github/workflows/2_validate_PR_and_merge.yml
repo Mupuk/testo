@@ -304,11 +304,11 @@ jobs:
             // Rename all files to match the tracker issue number
             const newSafeSha = await renameAllFilesToMatchTracker({ github, context, validatedCommitSha, trackerIssueNumber });
 
-            // const mergeResponse = await github.rest.pulls.merge({
-            //   ...context.repo,
-            //   pull_number: context.issue.number,
-            //   merge_method: 'squash', // Use 'merge', 'squash', or 'rebase'
-            //   sha: newSafeSha, // make sure the head has not changed, from what we expected and validated!
-            // });
+            const mergeResponse = await github.rest.pulls.merge({
+              ...context.repo,
+              pull_number: context.issue.number,
+              merge_method: 'squash', // Use 'merge', 'squash', or 'rebase'
+              sha: newSafeSha, // make sure the head has not changed, from what we expected and validated!
+            });
 
 

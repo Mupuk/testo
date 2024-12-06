@@ -150,7 +150,7 @@ const renameAllFilesToMatchTracker = async ({ github, context, validatedCommitSh
   // Create a new commit with the updated tree
   const { data: newCommit } = await github.rest.git.createCommit({
     ...context.repo,
-    message: `Renamed files to use number ${number}`,
+    message: `Renamed files to use tracker issue number '${trackerIssueNumber}'`,
     tree: newTree.sha,
     parents: [validatedCommitSha]
   });
