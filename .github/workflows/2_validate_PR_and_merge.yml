@@ -32,6 +32,9 @@ jobs:
         uses: actions/github-script@v7
         with:
           script: |
+            console.log('eventType', conext.eventName);
+            console.log('context.payload.sender', context.payload.sender)
+
             // Get PR data. This PR anchors the sha for the whole workflow
             const { data: pr } = await github.rest.pulls.get({
               ...context.repo,
@@ -311,8 +314,6 @@ jobs:
             const newSafeSha = await renameAllFilesToMatchTracker({ github, context, originalPRData, validatedCommitSha, trackerIssueNumber });
             console.log('newSafeSha', newSafeSha);
             console.log('validatedCommitSha', validatedCommitSha);
-            console.log('originalPRData.head.sha', originalPRData.head.sha);
-            console.log('pr.head.sha', pr.head.sha);
 
             const sleep = (ms) => new Promise(resolve => setTimeout(resolve, ms));
             await sleep(5000); // Wait for the force commit to be processed
