@@ -149,10 +149,10 @@ jobs:
             console.log('loaded pr_files.json', filePaths);
 
             // The file/folder must be named after the PR number
-            const validBugNameRegexTemplate = `^compiler_bugs/[CR]EC-?\\d+_new`; // @copyPasta
-            const singleFileValidBugNameRegex = new RegExp(`${validBugNameRegexTemplate}\\.jai`);
+            const validBugNameRegexTemplate = `^compiler_bugs/[CR]EC-?\\d+_(?:new|\\d+)`; // @copyPasta
+            const singleFileValidBugNameRegex = new RegExp(`${validBugNameRegexTemplate}\\.jai$`);
             const validFilePathRegex =          new RegExp(`${validBugNameRegexTemplate}/`);
-            const validFirstJaiRegex =          new RegExp(`${validBugNameRegexTemplate}/first\\.jai`);
+            const validFirstJaiRegex =          new RegExp(`${validBugNameRegexTemplate}/first\\.jai$`);
             console.log('validBugNameRegexTemplate', validBugNameRegexTemplate);
             console.log('singleFileValidBugNameRegex', singleFileValidBugNameRegex);
             console.log('validFilePathRegex', validFilePathRegex);
