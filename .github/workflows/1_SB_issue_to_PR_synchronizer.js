@@ -136,6 +136,7 @@ const convertSBIssueToPRAndSynchronize = async ({ github, context, exec }) => {
   }
 
   // Update the file in the PR
+  console.log('Updating file:', filePath);
   await github.rest.repos.createOrUpdateFileContents({
     ...context.repo,
     branch: branchName,
