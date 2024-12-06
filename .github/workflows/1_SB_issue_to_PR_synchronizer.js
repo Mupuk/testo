@@ -87,7 +87,7 @@ const convertSBIssueToPRAndSynchronize = async ({ github, context, exec }) => {
 
   // Convert issue to a pull request if it isn't already
   if (isIssue) {
-    console.log('Converting issue to PR...');
+    console.log('Creating Branch', branchName);
 
     const { data: baseBranchData } = await github.rest.repos.getBranch({
       owner: context.repo.owner,
@@ -102,14 +102,6 @@ const convertSBIssueToPRAndSynchronize = async ({ github, context, exec }) => {
       sha: baseBranchData.commit.sha,
     });
 
-    const { data: prData } = await github.rest.pulls.create({
-      ...context.repo,
-      head: branchName,
-      base: baseBranch,
-      body: issuePRData.body,
-      issue: context.issue.number
-    });
-
     // Add the issue owner as an assignee to the PR
     await github.rest.issues.addAssignees({
       ...context.repo,
@@ -122,7 +114,6 @@ const convertSBIssueToPRAndSynchronize = async ({ github, context, exec }) => {
       issue_number: context.issue.number,
       body: `👋 Thanks for the contribution @${originialIssueCreator}! If you need to do modifications, you can do so, as long as the PR is not merged yet!`,
     });
-
 
 
   } else { // !isIssue
@@ -157,6 +148,18 @@ const convertSBIssueToPRAndSynchronize = async ({ github, context, exec }) => {
     content: updatedContent,
     ...(oldFileSha ? { sha: oldFileSha } : {}),
   });
+
+
+  if (isIssue) {
+    console.log('Converting Issue to PR');
+    const { data: prData } = await github.rest.pulls.create({
+      ...context.repo,
+      head: branchName,
+      base: baseBranch,
+      body: issuePRData.body,
+      issue: context.issue.number
+    });
+  }
 
   // const prBody = issuePRData.body;
   // // Delete old file if it exists, create new file, commit if it changed
