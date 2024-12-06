@@ -92,7 +92,7 @@ const convertSBIssueToPRAndSynchronize = async ({ github, context, exec }) => {
       ...context.repo,
       head: branchName,
       base: baseBranch,
-      // body: issuePRData.body,
+      body: issuePRData.body,
       issue: context.issue.number
     });
 
