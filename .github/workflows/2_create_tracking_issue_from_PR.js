@@ -47,9 +47,9 @@ function parsePrBody(text) {
   return parsedData;
 }
 
-const createTrackingIssueFromPR = async ({ github, context }) => {
-  // Search of existing tracker, sadly we dont know the trackers issue number
-  const query = `repo:${context.repo.owner}/${context.repo.repo} is:issue in:title TRACKER ${context.issue.number}`;
+const createTrackingIssueFromPR = async ({ github, context, originalPRData }) => {
+  // Search of existing tracker, sadly we dont know the trackers issue number, so we use the PR number to find it
+  const query = `repo:${context.repo.owner}/${context.repo.repo} is:issue in:title TRACKER PR ${context.issue.number}`;
   const searchResults = await github.rest.search.issuesAndPullRequests({
     q: query,
     per_page: 100 // Fetch up to 100 results
@@ -59,42 +59,36 @@ const createTrackingIssueFromPR = async ({ github, context }) => {
   console.log('existingIssue', existingIssue);
   if (existingIssue.length > 0) {
     if (existingIssue.length > 1) {
-      console.warn('Multiple trackers found, this should not happen!');
+      throw new Error('Multiple trackers found, this should not happen! Most likely it clashes with another PR. Manual intervention required.');
     }
-    console.log('Tracker already exists, skipping');
-    return existingIssue[0].number;
+    if (existingIssue[0].title === `[TRACKER] (PR #${context.issue.number})`) {
+      // @todo check that it matches template
+      // :trackerTemplate
+      if (true) {
+        console.log('Tracker already exists, skipping');
+        return existingIssue[0].number;
+      }
+    } else {
+      throw new Error('Tracker found, but does not match the template. Manual intervention required.');
+    }
   }
 
 
+  console.log('Creating tracker issue...');
 
-  // get PR - only for the body description etc!
-  // @todo it could have changed, it wouldnt break anything,
-  // but it would be inconsistent :/ maybe this is solved
-  // when we use concurency to cancel pending workflows
-  // and use the pr data from the validation step
-  const { data: pr } = await github.rest.pulls.get({
-    ...context.repo,
-    pull_number: context.issue.number,
-  });
-  pr.body = pr.body.replace(/\r\n/g, '\n').replace(/\r/g, '\n');
-
-  // parse PR body
-  const date = new Date().toISOString().split('T')[0];
-  const parsedBody = parsePrBody(pr.body);
+  // Parse PR body
+  const parsedBody = parsePrBody(originalPRData.body);
   console.log('parsed PR Body', parsedBody);
-  
-
-
   
   // Create Tracking Issue
   const { format } = require('./_utils.js');
-  const issueTitle = `[TRACKER] #${context.issue.number}`; // if this change also change the tracker search query
+  const issueTitle = `[TRACKER] (PR #${context.issue.number})`; // if this changes, also change the tracker search query
   const issueBody = format(issueTrackerTemplate, parsedBody);
   const { data: issue } = await github.rest.issues.create({
     ...context.repo,
     title: issueTitle,
     body: issueBody,
-    labels: pr.labels.map((label) => label.name),
+    labels: originalPRData.labels.map((label) => label.name),
   });
 
 
@@ -115,6 +109,65 @@ const createTrackingIssueFromPR = async ({ github, context }) => {
   });
 
   return issue.number;
+}
+
+// We force overwite all changes, since its the only way for us to commit and be sure 
+// that no other commits got in the way, that we dont trust.
+const renameAllFilesToMatchTracker = async ({ github, context, validatedCommitSha, trackerIssueNumber }) => {
+  // Fetch the commit and its tree
+  const { data: commit } = await github.rest.git.getCommit({
+    ...context.repo,
+    commit_sha: validatedCommitSha
+  });
+
+  const { data: tree } = await github.rest.git.getTree({
+    ...context.repo,
+    tree_sha: commit.tree.sha,
+    recursive: true
+  });
+
+  // Update the tree by renaming files
+  const validBugNameRegex = /^compiler_bugs\/[CR]EC-?\\d+_new\//; // @copyPasta
+  const updatedTree = tree.tree.map(file => {
+    if (!validBugNameRegex.test(file.path)) {
+      throw new Error(`Invalid file name: '${file.path}'. This should never happen as valdiation should have taken care of this`);
+    }
+    return {
+      path: file.path.replace(/_new\//, `_${trackerIssueNumber}\/`),
+      mode: file.mode,
+      type: file.type,
+      sha: file.sha
+    };
+  });
+
+  // Create a new tree
+  const { data: newTree } = await github.rest.git.createTree({
+    ...context.repo,
+    tree: updatedTree
+  });
+
+  // Create a new commit with the updated tree
+  const { data: newCommit } = await github.rest.git.createCommit({
+    ...context.repo,
+    message: `Renamed files to use number ${number}`,
+    tree: newTree.sha,
+    parents: [validatedCommitSha]
+  });
+
+  // Force push the new commit
+  const branch = context.ref.replace("refs/heads/", "");
+  await github.rest.git.updateRef({
+    ...context.repo,
+    ref: `heads/${branch}`,
+    sha: newCommit.sha,
+    force: true
+  });
+
+  return newCommit.sha
 };
 
-module.exports = createTrackingIssueFromPR;
+
+module.exports = {
+  createTrackingIssueFromPR,
+  renameAllFilesToMatchTracker,
+};

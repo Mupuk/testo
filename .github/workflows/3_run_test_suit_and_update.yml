@@ -20,6 +20,7 @@ jobs:
      - ${{ matrix.platform }}
 
     steps:
+      # @todo check if we really need git for all workflows
       - name: Verify Git is Installed
         uses: actions/github-script@v7
         with:

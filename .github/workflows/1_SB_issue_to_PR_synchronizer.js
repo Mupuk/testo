@@ -56,7 +56,8 @@ const convertSBIssueToPRAndSynchronize = async ({ github, context, exec }) => {
     throw new Error('Expected Error Code not found. Most likely the issue was not formatted correctly after editing.');
   }
 
-  const fileName = `${bug_type_letter}EC${Number.parseInt(expected_error_code)}_${context.issue.number}`;
+  // 'new' will be replaced with the tracker id later on
+  const fileName = `${bug_type_letter}EC${Number.parseInt(expected_error_code)}_new`; 
   const filePath = `compiler_bugs/${fileName}.jai`;
 
   const code = issuePRData.body.match(/^### Short Code Snippet\n[\S\s]*?```c\n(?<code>[\S\s]*?)```/mi).groups.code;
@@ -67,11 +68,7 @@ const convertSBIssueToPRAndSynchronize = async ({ github, context, exec }) => {
 
 
 
-
-  // Because of untrusted code, we will have to update and create the 
-  // branch via the API. The alternative is to validate the PR branch.
-
-  // Manage PR branch and commits
+  // Delete old file if it exists, create new file, commit if it changed
   {
     // Step 1: Check if the branch exists
     let branchRef = null;
@@ -192,7 +189,7 @@ const convertSBIssueToPRAndSynchronize = async ({ github, context, exec }) => {
         ...context.repo,
         ref: `heads/${branchName}`,
         sha: newCommit.data.sha,
-        // force: true,
+        // force: true,         // Fail if a new update happened, and restart this workflow
       });
 
       console.log(`Branch '${branchName}' updated with new commit.`);

@@ -35,6 +35,7 @@ jobs:
               pull_number: context.issue.number
             });
 
+            // We put this here as an exception to safe processing time, as an early exit
             const isSBOrBB = /^\[[SB]B\]:/.test(pr.title);
             if (!isSBOrBB) {
               console.log('This PR is not a SB or BB, ignoring it.');
@@ -80,12 +81,6 @@ jobs:
               throw new Error('This PR has more than 300 files.');
             }
 
-            // Save the file paths instead of using outputs, because they could be to big
-            const fs = require('fs');
-            // Could get to big to pass around via outputs
-            console.log('saving pr_files.json');
-            fs.writeFileSync('pr_files.json', JSON.stringify(filePaths, null, 2));
-
 
             // Get existing labels
             const existingLabelsResponse = await github.rest.issues.listLabelsOnIssue({
@@ -122,6 +117,16 @@ jobs:
               labels: [...existingLabels.filter((l) => l !== 'validation-failed') ],
             });
 
+            // Save the file paths instead of using outputs, because they could be to big
+            const fs = require('fs');
+            // Could get to big to pass around via outputs
+            console.log('saving pr_files.json');
+            fs.writeFileSync('pr_files.json', JSON.stringify(filePaths, null, 2));
+
+            // Could get to big to pass around via outputs
+            console.log('saving pr_response.json');
+            fs.writeFileSync('pr_response.json', JSON.stringify(pr, null, 2));
+
             // Pass on the exact sha of the commit
             const commitSha = pr.head.sha;
             console.log(`Validated Commit SHA: ${commitSha}`);
@@ -141,7 +146,7 @@ jobs:
             console.log('loaded pr_files.json', filePaths);
 
             // The file/folder must be named after the PR number
-            const validBugNameRegexTemplate = `^compiler_bugs/[CR]EC-?\\d+_${context.issue.number}`; // @copyPasta
+            const validBugNameRegexTemplate = `^compiler_bugs/[CR]EC-?\\d+_new`; // @copyPasta
             const singleFileValidBugNameRegex = new RegExp(`${validBugNameRegexTemplate}\\.jai`);
             const validFilePathRegex =          new RegExp(`${validBugNameRegexTemplate}/`);
             const validFirstJaiRegex =          new RegExp(`${validBugNameRegexTemplate}/first\\.jai`);
@@ -171,12 +176,13 @@ jobs:
             core.setOutput("is_single_file", isSingleFile);
 
 
-      # - name: Upload file list as an artifact
-      #   uses: actions/upload-artifact@v4
-      #   with:
-      #     name: pr_files
-      #     path: pr_files.json
-      #     retention-days: 1 # we only need this for the next job
+      # We need this for later validation as the approval could be given quite some time later
+      - name: Upload PR Response as an artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: pr_response
+          path: pr_response.json
+          retention-days: 1 # we only need this for the next job
 
 
 
@@ -210,10 +216,10 @@ jobs:
 
 
 
-      # - name: Download file list artifact
-      #   uses: actions/download-artifact@v4
-      #   with:
-      #     name: pr_files
+      - name: Download PR Response artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: pr_response
 
 
       - name: Get App Token
@@ -228,22 +234,77 @@ jobs:
         with:
           github-token: ${{ steps.app_token.outputs.token }} # we need to trigger the bugsuit on merge
           script: |
-            // @todo make sure a) issue does not exist already b) same sha c) then use PR data from validation d) pr still open
             console.log(`Manual approval was given for Pull Request #${context.issue.number}...`);
 
             const isSingleFile = ${{ needs.pr-validation.outputs.is_single_file == 'true' }};
             const validatedCommitSha = '${{ needs.pr-validation.outputs.validated_commit_sha }}';
 
+            // Load the PR data
+            const fs = require('fs');
+            const originalPRData = JSON.parse(fs.readFileSync('pr_response.json', 'utf-8'));
+            console.log('loaded pr_response.json', originalPRData);
+            originalPRData.body = originalPRData.body.replace(/\r\n/g, '\n').replace(/\r/g, '\n');
+
+
+            // Do some validations against the current version of PR, as a lot of time could have passed
+            // We do this not for security, but to avoid deleting commits in the force push for file renaming
+            const { data: pr } = await github.rest.pulls.get({
+              ...context.repo,
+              pull_number: context.issue.number
+            });
+
+            // Make sure PR is still open
+            if (pr.state !== 'open') {
+              throw new Error('The PR is not open anymore! Aborting ...');
+            }
+
+            // Make sure head sha is the same!
+            if (pr.head.sha !== validatedCommitSha) {
+              throw new Error('The head sha has changed since validation! This could happen when changes happened since the time validation was requested, and manual approval was given. Aborting ...');
+            }
+
+            // Check if title has changed
+            if (pr.title !== originalPRData.title) {
+              throw new Error('The PR title has changed since validation! Aborting ...');
+            }
+
+            // Check if labels have changed
+            if (pr.labels.length !== originalPRData.labels.length || !pr.labels.every((l) => originalPRData.labels.includes(l))) {
+              throw new Error('The PR labels have changed since validation! Aborting ...');
+            }
+
+            // We could check if bodies are the same, im not sure if we want that though
+            if (pr.body !== originalPRData.body) {
+              throw new Error('The PR body has changed since validation! Aborting ...');
+            }
+
+            //
+            // Ofc, in here we could also get new race conditions, from here on. To mitigate these, we use
+            // force commit while renaming, and make sure only the resulting sha is accepted for merge.
+            //
+
+
+            //
+            // If we get to here, no further changes will we accepted, and even will be overwritten.
+            // From here on out we finish the job, and merge the PR.
+            // @todo think about if that fails because of errors we might get orphan tracking issue?
+
+
+            const { createTrackingIssueFromPR, renameAllFilesToMatchTracker } = require('./base/.github/workflows/2_create_tracking_issue_from_PR.js');
+
             // Use Base Branch! Create Tracking issue so the bug suit already can use it.
-            // Throws if issue already exists
-            const createTrackingIssueFromPR = require('./base/.github/workflows/2_create_tracking_issue_from_PR.js');
-            createTrackingIssueFromPR({ github, context });
+            // Throws if issue already exists, but is not isnt a valid template
+            const trackerIssueNumber = await createTrackingIssueFromPR({ github, context, originalPRData });
+
+
+            // Rename all files to match the tracker issue number
+            const newSafeSha = await renameAllFilesToMatchTracker({ github, context, validatedCommitSha, trackerIssueNumber });
 
             // const mergeResponse = await github.rest.pulls.merge({
             //   ...context.repo,
             //   pull_number: context.issue.number,
             //   merge_method: 'squash', // Use 'merge', 'squash', or 'rebase'
-            //   sha: validatedCommitSha, // make sure the head has not changed, from what we expected and validated!
+            //   sha: newSafeSha, // make sure the head has not changed, from what we expected and validated!
             // });
 
 
