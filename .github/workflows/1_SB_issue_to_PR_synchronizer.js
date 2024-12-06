@@ -89,6 +89,7 @@ const convertSBIssueToPRAndSynchronize = async ({ github, context, exec }) => {
   if (isIssue) {
     console.log('Creating Branch', branchName);
     try {
+      // Check if the branch already exists
       branchRef = await github.rest.git.getRef({
         ...context.repo,
         ref: `heads/${branchName}`,
@@ -140,7 +141,7 @@ const convertSBIssueToPRAndSynchronize = async ({ github, context, exec }) => {
     branch: branchName,
     path: filePath,
     message: `[CI] Synchronizing issue content to PR branch`,
-    content: updatedContent,
+    content: newFileContent,
     ...(oldFileSha ? { sha: oldFileSha } : {}),
   });
 
