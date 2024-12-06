@@ -296,7 +296,7 @@ jobs:
             //
             // If we get to here, no further changes will we accepted, and even will be overwritten.
             // From here on out we finish the job, and merge the PR.
-            // @todo think about if that fails because of errors we might get orphan tracking issue?
+            //
 
 
             const { createTrackingIssueFromPR, renameAllFilesToMatchTracker } = require('./base/.github/workflows/2_create_tracking_issue_from_PR.js');
@@ -304,10 +304,16 @@ jobs:
             // Use Base Branch! Create Tracking issue so the bug suit already can use it.
             // Throws if issue already exists, but is not isnt a valid template
             const trackerIssueNumber = await createTrackingIssueFromPR({ github, context, originalPRData });
+            console.log('trackerIssueNumber', trackerIssueNumber);
 
 
             // Rename all files to match the tracker issue number via force commit
             const newSafeSha = await renameAllFilesToMatchTracker({ github, context, originalPRData, validatedCommitSha, trackerIssueNumber });
+            console.log('newSafeSha', newSafeSha);
+            console.log('validatedCommitSha', validatedCommitSha);
+            console.log('originalPRData.head.sha', originalPRData.head.sha);
+            console.log('pr.head.sha', pr.head.sha);
+
 
             const mergeResponse = await github.rest.pulls.merge({
               ...context.repo,
