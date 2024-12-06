@@ -48,8 +48,10 @@ function parsePrBody(text) {
 }
 
 const createTrackingIssueFromPR = async ({ github, context, originalPRData }) => {
+  // @todo swap to using the PR number of the file list
+
   // Search of existing tracker, sadly we dont know the trackers issue number, so we use the PR number to find it
-  const query = `repo:${context.repo.owner}/${context.repo.repo} is:issue in:title TRACKER PR ${context.issue.number}`;
+  const query = `repo:${context.repo.owner}/${context.repo.repo} is:issue in:title TRACKER for PR ${context.issue.number}`;
   const searchResults = await github.rest.search.issuesAndPullRequests({
     q: query,
     per_page: 100 // Fetch up to 100 results
@@ -61,7 +63,7 @@ const createTrackingIssueFromPR = async ({ github, context, originalPRData }) =>
     if (existingIssue.length > 1) {
       throw new Error('Multiple trackers found, this should not happen! Most likely it clashes with another PR. Manual intervention required.');
     }
-    if (existingIssue[0].title === `[TRACKER] (PR #${context.issue.number})`) {
+    if (existingIssue[0].title === `[TRACKER] for PR #${context.issue.number}`) {
       // @todo check that it matches template
       // :trackerTemplate
       if (true) {
@@ -82,7 +84,7 @@ const createTrackingIssueFromPR = async ({ github, context, originalPRData }) =>
   
   // Create Tracking Issue
   const { format } = require('./_utils.js');
-  const issueTitle = `[TRACKER] (PR #${context.issue.number})`; // if this changes, also change the tracker search query
+  const issueTitle = `[TRACKER] for PR #${context.issue.number}`; // if this changes, also change the tracker search query
   const issueBody = format(issueTrackerTemplate, parsedBody);
   const { data: issue } = await github.rest.issues.create({
     ...context.repo,
@@ -126,14 +128,20 @@ const renameAllFilesToMatchTracker = async ({ github, context, originalPRData, v
     recursive: true
   });
 
-  // Update the tree by renaming files and removing the old ones
-  const validBugNameRegex = /^compiler_bugs\/[CR]EC-?\d+_new(?:\.jai$|\/)/; // @copyPasta
+  // Update the tree by renaming files of this PR to match the tracker issue number
+  const validBugNameRegexTemplate = `^compiler_bugs/${context.issue.number}_{TRACKERNUMBER}_[CR]EC-?\\d+`; // @copyPasta
+  // When running the first time, the trackerIssueNumber is 0, so we need to replace it with the actual number
+  const validBugNameRegex = new RegExp(validBugNameRegexTemplate.replace('{TRACKERNUMBER}', 0));
+  const validBugNameTrackerRegex = new RegExp(validBugNameRegexTemplate.replace('{TRACKERNUMBER}', 0));
+  if (!tree.tree.some(file => validBugNameRegex.test(file.path))) {
+    throw new Error('No files of this PR found. Should never happen, because of validation before!');
+  }
   const updatedTree = tree.tree.flatMap(file => {
-    if (validBugNameRegex.test(file.path)) {
+    if (validBugNameRegex.test(file.path)) { // Found one that wasn't renamed yet
       // If the file matches, rename it and mark the old one for deletion
       return [
         {
-          path: file.path.replace(/_new/, `_${trackerIssueNumber}`),
+          path: file.path.replace(/_0_/, `_${trackerIssueNumber}_`), // only replace first occurence
           mode: file.mode,
           type: file.type,
           sha: file.sha, // Keep the file content for the renamed file

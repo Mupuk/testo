@@ -3,7 +3,7 @@ name: 2_validate_PR_and_merge
 on:
   workflow_dispatch:
   pull_request_target:
-    types: [opened, synchronize, edited] # @todo remove edited
+    types: [opened, synchronize]
 
 concurrency:
   group: ${{ github.event.issue.number || github.event.pull_request.number }}
@@ -163,7 +163,7 @@ jobs:
             // The file/folder must be named after the PR number
             // Usually the have _new in the name, but if the merge for example failed after the files 
             // have already been renamed below, they could have a number instead of _new
-            const validBugNameRegexTemplate = `^compiler_bugs/\\d+_\\d+_[CR]EC-?\\d+`; // @copyPasta
+            const validBugNameRegexTemplate = `^compiler_bugs/${context.issue.number}_\\d+_[CR]EC-?\\d+`; // @copyPasta
             const singleFileValidBugNameRegex = new RegExp(`${validBugNameRegexTemplate}\\.jai$`);
             const validFilePathRegex =          new RegExp(`${validBugNameRegexTemplate}/`);
             const validFirstJaiRegex =          new RegExp(`${validBugNameRegexTemplate}/first\\.jai$`);
@@ -254,6 +254,7 @@ jobs:
           script: |
             console.log(`Manual approval was given for Pull Request #${context.issue.number}...`);
 
+            // If not its garanted its BB because of validation above
             const isSingleFile = ${{ needs.pr-validation.outputs.is_single_file == 'true' }};
             const validatedCommitSha = '${{ needs.pr-validation.outputs.validated_commit_sha }}';
 
