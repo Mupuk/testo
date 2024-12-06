@@ -2,8 +2,8 @@ name: 2_validate_PR_and_merge
 
 on:
   workflow_dispatch:
-  pull_request_target:
-    types: [opened, synchronize]
+  # pull_request_target:
+  #   types: [opened, synchronize]
 
 concurrency:
   group: ${{ github.event.issue.number || github.event.pull_request.number }}
