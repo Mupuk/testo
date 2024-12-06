@@ -4,6 +4,9 @@ on:
   pull_request_target:
     types: [opened, synchronize, edited] # @todo remove edited
 
+concurrency:
+  group: ${{ github.workflow }}-${{ github.event.issue.number }}
+
 jobs:
   # Since only workflow files themselves are safe when using pull_request_target
   # we have to write the validation logic in the workflow file itself
