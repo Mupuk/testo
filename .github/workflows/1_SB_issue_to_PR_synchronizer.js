@@ -102,21 +102,8 @@ const convertSBIssueToPRAndSynchronize = async ({ github, context, exec }) => {
       sha: baseBranchData.commit.sha,
     });
 
-    // Add the issue owner as an assignee to the PR
-    await github.rest.issues.addAssignees({
-      ...context.repo,
-      issue_number: prData.number,
-      assignees: [originialIssueCreator],
-    });
 
-    await github.rest.issues.createComment({
-      ...context.repo,
-      issue_number: context.issue.number,
-      body: `👋 Thanks for the contribution @${originialIssueCreator}! If you need to do modifications, you can do so, as long as the PR is not merged yet!`,
-    });
-
-
-  } else { // !isIssue
+  } else { 
     // Find old file to update
     const { data } = await github.rest.pulls.listFiles({
       ...context.repo,
@@ -158,6 +145,19 @@ const convertSBIssueToPRAndSynchronize = async ({ github, context, exec }) => {
       base: baseBranch,
       body: issuePRData.body,
       issue: context.issue.number
+    });
+
+    // Add the issue owner as an assignee to the PR
+    await github.rest.issues.addAssignees({
+      ...context.repo,
+      issue_number: prData.number,
+      assignees: [originialIssueCreator],
+    });
+
+    await github.rest.issues.createComment({
+      ...context.repo,
+      issue_number: context.issue.number,
+      body: `👋 Thanks for the contribution @${originialIssueCreator}! If you need to do modifications, you can do so, as long as the PR is not merged yet!`,
     });
   }
 
