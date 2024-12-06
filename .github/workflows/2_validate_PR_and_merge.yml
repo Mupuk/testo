@@ -38,6 +38,15 @@ jobs:
             console.log('eventType', context.eventName);
             console.log('context.payload.sender', context.payload.sender)
 
+            const isBot = github.context.payload.pull_request.user.type === 'Bot';
+            const userName = github.context.payload.pull_request.user.login;
+
+            if (isBot) {
+              console.log(`This PR was created by a bot '${userName}'. Skipping ...`);
+              core.setOutput("run_validation", false);
+              return;
+            }
+
             // Get PR data. This PR anchors the sha for the whole workflow
             const { data: pr } = await github.rest.pulls.get({
               ...context.repo,
