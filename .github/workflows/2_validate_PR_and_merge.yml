@@ -42,7 +42,7 @@ jobs:
             const userName = context.payload.sender.login;
 
             if (isBot) {
-              console.log(`This PR was created by a bot '${userName}'. Skipping ...`);
+              console.log(`This Workflow was triggered by a bot '${userName}'. Skipping ...`);
               core.setOutput("run_validation", false);
               return;
             }
