@@ -253,6 +253,7 @@ jobs:
               ...context.repo,
               pull_number: context.issue.number
             });
+            pr.body = pr.body.replace(/\r\n/g, '\n').replace(/\r/g, '\n');
 
             // Make sure PR is still open
             if (pr.state !== 'open') {
@@ -275,7 +276,7 @@ jobs:
             }
 
             // We could check if bodies are the same, im not sure if we want that though
-            if (pr.body.trim() !== originalPRData.body.trim()) {
+            if (pr.body !== originalPRData.body) {
               console.log('old body', originalPRData.body);
               console.log('new body', pr.body);
               throw new Error('The PR body has changed since validation! Aborting ...');
