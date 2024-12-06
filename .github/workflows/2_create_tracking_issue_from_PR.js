@@ -127,13 +127,13 @@ const renameAllFilesToMatchTracker = async ({ github, context, validatedCommitSh
   });
 
   // Update the tree by renaming files
-  const validBugNameRegex = /^compiler_bugs\/[CR]EC-?\\d+_new\//; // @copyPasta
+  const validBugNameRegex = /^compiler_bugs\/[CR]EC-?\\d+_new/; // @copyPasta
   const updatedTree = tree.tree.map(file => {
     if (!validBugNameRegex.test(file.path)) {
       throw new Error(`Invalid file name: '${file.path}'. This should never happen as valdiation should have taken care of this`);
     }
     return {
-      path: file.path.replace(/_new\//, `_${trackerIssueNumber}\/`),
+      path: file.path.replace(/_new/, `_${trackerIssueNumber}`),
       mode: file.mode,
       type: file.type,
       sha: file.sha

@@ -132,10 +132,13 @@ const convertSBIssueToPRAndSynchronize = async ({ github, context, exec }) => {
       recursive: true,
     });
 
+    const validBugNameRegex = /^compiler_bugs\/[CR]EC-?\\d+_new/; // @copyPasta
+    let deletionCounter = 0;
     const newTree = tree.data.tree
       // The bug type or error code may have changed, so we need to delete the old one
       .map(file => {
-        if (file.path.includes(String(context.issue.number))) {
+        if (validBugNameRegex.test(file.path)) {
+          deletionCounter++;
           console.log('Deleting file:', file.path);
           return {
             path: file.path,
@@ -151,6 +154,10 @@ const convertSBIssueToPRAndSynchronize = async ({ github, context, exec }) => {
           sha: file.sha,
         };
       });
+
+    if (deletionCounter > 1) {
+      throw new Error('Deleted more than one file. This should never happen');
+    }
 
     // Add new file to the tree
     const blob = await github.rest.git.createBlob({
