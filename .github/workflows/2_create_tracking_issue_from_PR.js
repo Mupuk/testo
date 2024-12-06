@@ -160,6 +160,7 @@ const renameAllFilesToMatchTracker = async ({ github, context, originalPRData, v
 
   // No changes, for example when just the merge had an error and we re-run the workflow
   if (newTree.data.sha !== tree.data.sha) {
+    console.log('Renaming files to match tracker issue number...');
     // Create a new commit with the updated tree
     const { data: newCommit } = await github.rest.git.createCommit({
       ...context.repo,
@@ -180,6 +181,7 @@ const renameAllFilesToMatchTracker = async ({ github, context, originalPRData, v
   }
 
   // No changes, return the original commit sha
+  console.log('No changes, skipping renaming files');
   return validatedCommitSha;
 };
 
