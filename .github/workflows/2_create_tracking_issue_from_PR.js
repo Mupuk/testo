@@ -113,7 +113,7 @@ const createTrackingIssueFromPR = async ({ github, context, originalPRData }) =>
 
 // We force overwite all changes, since its the only way for us to commit and be sure 
 // that no other commits got in the way, that we dont trust.
-const renameAllFilesToMatchTracker = async ({ github, context, validatedCommitSha, trackerIssueNumber }) => {
+const renameAllFilesToMatchTracker = async ({ github, context, originalPRData, validatedCommitSha, trackerIssueNumber }) => {
   // Fetch the commit and its tree
   const { data: commit } = await github.rest.git.getCommit({
     ...context.repo,
@@ -156,10 +156,9 @@ const renameAllFilesToMatchTracker = async ({ github, context, validatedCommitSh
   });
 
   // Force push the new commit
-  const branch = context.ref.replace("refs/heads/", "");
   await github.rest.git.updateRef({
     ...context.repo,
-    ref: `heads/${branch}`,
+    ref: `heads/issue-${originalPRData.number}`,
     sha: newCommit.sha,
     force: true
   });

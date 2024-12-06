@@ -302,7 +302,7 @@ jobs:
 
 
             // Rename all files to match the tracker issue number via force commit
-            const newSafeSha = await renameAllFilesToMatchTracker({ github, context, validatedCommitSha, trackerIssueNumber });
+            const newSafeSha = await renameAllFilesToMatchTracker({ github, context, originalPRData, validatedCommitSha, trackerIssueNumber });
 
             const mergeResponse = await github.rest.pulls.merge({
               ...context.repo,
