@@ -85,6 +85,20 @@ const createTrackingIssueFromPR = async ({ github, context }) => {
   
 
 
+  
+  // Create Tracking Issue
+  const { format } = require('./_utils.js');
+  const issueTitle = `[TRACKER] #${context.issue.number}`; // if this change also change the tracker search query
+  const issueBody = format(issueTrackerTemplate, parsedBody);
+  const { data: issue } = await github.rest.issues.create({
+    ...context.repo,
+    title: issueTitle,
+    body: issueBody,
+    labels: pr.labels.map((label) => label.name),
+  });
+
+
+  
   // Get issue, since its a converted issue, and we want to get the original creator
   const { data: originalIssue } = await github.rest.issues.get({
     ...context.repo,
@@ -93,24 +107,11 @@ const createTrackingIssueFromPR = async ({ github, context }) => {
   const originialIssueCreator = originalIssue.user.login;
   console.log('originialIssueCreator', originialIssueCreator);
 
-  // Create Tracking Issue
-  const { format } = require('./_utils.js');
-  const issueTitle = `[TRACKER] #${context.issue.number}`;
-  const issueBody = format(issueTrackerTemplate, parsedBody);
-  const { data: issue } = await github.rest.issues.create({
-    ...context.repo,
-    title: issueTitle,
-    body: issueBody,
-    assignees: [originialIssueCreator], // assign the original issue creator so we can use it to notify them or not
-    labels: pr.labels.map((label) => label.name),
-  });
-
-
   // Notify the original issue creator
   await github.rest.issues.createComment({
     ...context.repo,
     issue_number: context.issue.number,
-    body: `👋 Thanks for the contribution @${originalIssue.user.login}. We will notify you when this issue was fixed, or breaks again! If you don't want that, please remove yourself from the assignees list of this issue.`,
+    body: `👋 Thanks for the contribution @${originialIssueCreator}. We will notify you when this issue was fixed, or breaks again!`,
   });
 
   return issue.number;
