@@ -241,7 +241,7 @@ jobs:
       - name: Create Tracking Issue and merge Pull Request
         uses: actions/github-script@v7
         with:
-          # github-token: ${{ steps.app_token.outputs.token }} # we need to trigger the bugsuit on merge
+          github-token: ${{ steps.app_token.outputs.token }} # we need to trigger the bugsuit on merge
           script: |
             console.log(`Manual approval was given for Pull Request #${context.issue.number}...`);
 
