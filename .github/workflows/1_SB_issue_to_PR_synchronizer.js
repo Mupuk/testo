@@ -33,10 +33,10 @@ const convertSBIssueToPRAndSynchronize = async ({ github, context, exec }) => {
 
   let isForked = false;
   if (!isIssue && issuePRData.head.repo.fork) {
-    core.info("This PR is from a forked repository.");
+    console.log("This PR is from a forked repository.");
     isForked = true;
   } else {
-    core.info("This PR is from the same repository.");
+    console.log("This PR is from the same repository.");
   }
 
 
