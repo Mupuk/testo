@@ -13,12 +13,13 @@
 # [ ] look at concurrency locks
 # [ ] check if we can reduce needed permissions and filters.
 # [ ] test BB pipeline
+# [ ] rename template to id_CEC0.jai
 
 
 # [-] making the test run without offline platform? How?
        NOTE: Not directly possible (https://github.com/orgs/community/discussions/50926)
              For when its stuck. Its possible to check completely offline though
-# [ ] update issue template to support is_runtime_test
+# [x] update issue template to support is_runtime_test
 # [ ] change emailed in handling and add lable for it
 # [ ] create summary? issue? issue would need limits. readme? has bad visual support
 # [ ] readme
