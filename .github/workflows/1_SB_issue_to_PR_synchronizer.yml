@@ -8,7 +8,7 @@ on:
     types: [edited] 
 
 concurrency:
-  group: ${{ github.workflow }}-${{ github.event.issue.number }}
+  group: ${{ github.event.issue.number || github.event.pull_request.number }}
 
 jobs:
   convert-SB-issue-to-PR-and-synchronize:
@@ -39,7 +39,7 @@ jobs:
         with:
           github-token: ${{ steps.app_token.outputs.token }}
           script: |
-            console.log('Concurrency Group', '${{ github.workflow }}-${{ github.event.issue.number }}');
+            console.log('Concurrency Group', '${{ github.event.issue.number || github.event.pull_request.number }}');
 
             console.log('eventType', context.eventName);
             console.log('context.payload.sender', context.payload.sender)
