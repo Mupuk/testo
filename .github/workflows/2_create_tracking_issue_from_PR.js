@@ -39,7 +39,6 @@ function parsePrBody(text) {
 
   let parsedData = {
     alreadyReported:(text.match(regexEmailedIn)?.[1] || ' ').toLowerCase() === 'x' ? '✅' : '❌',
-    categories: text.match(regexCategory)?.[1] || '-',
     description: text.match(regexDescription)?.[1] || '-',
     workaround: text.match(regexWorkaround)?.[1] || '-',
     code: text.match(regexCode)?.[1] || '-',
