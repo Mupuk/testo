@@ -314,6 +314,8 @@ jobs:
             console.log('originalPRData.head.sha', originalPRData.head.sha);
             console.log('pr.head.sha', pr.head.sha);
 
+            const sleep = (ms) => new Promise(resolve => setTimeout(resolve, ms));
+            await sleep(5000); // Wait for the force commit to be processed
 
             const mergeResponse = await github.rest.pulls.merge({
               ...context.repo,
