@@ -95,7 +95,9 @@ body:
   - type: textarea
     id: workaround
     attributes:
-      label: Workaround
+      label: Workarounds
       placeholder: If you have a workaround, please share it here.
       description: If you have a workaround, please share it here.
       value: 
+  
+  # IF YOU ADD ANTHING BELOW WORKAROUND, MAKE SURE TO CHANGE THE REGEX MATCHING IT IN 2_create_tracking_issue_from_PR.js

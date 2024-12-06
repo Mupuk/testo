@@ -1,7 +1,6 @@
 name: 2_validate_PR_and_merge
 
 on:
-  workflow_dispatch: # Manual trigger
   pull_request_target:
     types: [synchronize, edited] # @todo remove edited
 
@@ -81,6 +80,7 @@ jobs:
               throw new Error('This PR has more than 300 files.');
             }
 
+            // Save the file paths instead of using outputs, because they could be to big
             const fs = require('fs');
             // Could get to big to pass around via outputs
             console.log('saving pr_files.json');
@@ -135,6 +135,7 @@ jobs:
         if: ${{ steps.pr_safety_check.outputs.run_validation == 'true' }} 
         with:
           script: |
+            // Load the file paths instead of querying them again because of race conditions
             const fs = require('fs');
             const filePaths = JSON.parse(fs.readFileSync('pr_files.json', 'utf-8'));
             console.log('loaded pr_files.json', filePaths);
@@ -170,15 +171,16 @@ jobs:
             core.setOutput("is_single_file", isSingleFile);
 
 
-      - name: Upload file list as an artifact
-        uses: actions/upload-artifact@v4
-        with:
-          name: pr_files
-          path: pr_files.json
-          retention-days: 1 # we only need this for the next job
+      # - name: Upload file list as an artifact
+      #   uses: actions/upload-artifact@v4
+      #   with:
+      #     name: pr_files
+      #     path: pr_files.json
+      #     retention-days: 1 # we only need this for the next job
 
 
 
+  # WARNING: This could get called quite some time later, than the check above
   validate-added-test-and-merge-pr:
     runs-on: [self-hosted, linux] # @todo remove
     needs: pr-validation
@@ -192,15 +194,6 @@ jobs:
     # environment: test
 
     steps:
-      # - name: Get App Token
-      #   uses: actions/create-github-app-token@v1
-      #   id: app_token
-      #   with:
-      #     app-id: ${{ secrets.APP_ID }}
-      #     private-key: ${{ secrets.APP_PRIVATE_KEY }}
-
-
-
       # The JS in here *should* be safe, as we validated that the .github was not modified
       - name: Checkout Validated PRs 
         uses: actions/checkout@v4
@@ -217,44 +210,40 @@ jobs:
 
 
 
-      - name: Download file list artifact
-        uses: actions/download-artifact@v4
+      # - name: Download file list artifact
+      #   uses: actions/download-artifact@v4
+      #   with:
+      #     name: pr_files
+
+
+      - name: Get App Token
+        uses: actions/create-github-app-token@v1
+        id: app_token
         with:
-          name: pr_files
+          app-id: ${{ secrets.APP_ID }}
+          private-key: ${{ secrets.APP_PRIVATE_KEY }}
 
-
-
-      - name: Validate new Test and Merge Pull Request
+      - name: Create Tracking Issue and merge Pull Request
         uses: actions/github-script@v7
         with:
-          github-token: ${{ steps.app_token.outputs.token }}
+          github-token: ${{ steps.app_token.outputs.token }} # we need to trigger the bugsuit on merge
           script: |
-            // Use Base Branch!
-            const { validateAddedTestAndMergeOnSuccess } = require('./base/.github/workflows/2_validate_PR_and_merge.js');
+            // @todo make sure a) issue does not exist already b) same sha c) then use PR data from validation d) pr still open
+            console.log(`Manual approval was given for Pull Request #${context.issue.number}...`);
+
             const isSingleFile = ${{ needs.pr-validation.outputs.is_single_file == 'true' }};
             const validatedCommitSha = '${{ needs.pr-validation.outputs.validated_commit_sha }}';
-            await validateAddedTestAndMergeOnSuccess({ github, exec, io, context, isSingleFile, validatedCommitSha });
 
+            // Use Base Branch! Create Tracking issue so the bug suit already can use it.
+            // Throws if issue already exists
+            const { createTrackingIssueFromPR } = require('./base/.github/workflows/2_create_tracking_issue_from_PR.js');
+            createTrackingIssueFromPR({ github, context });
 
-      # # Not sure why the merge below only works after Checking out the PR again.
-      # # If we dont do this, the merge will fail with 'Head branch is out of date'
-      # # Use the app_token to checkout the PR, so we can trigger
-      # # the push event when merging the PR
-      # - name: Checkout Updated PR
-      #   uses: actions/checkout@v4
-      #   with:
-      #     token: ${{ steps.app_token.outputs.token }}
-      #     persist-credentials: false
-      #     ref: ${{ github.event.pull_request.head.ref }}
+            // const mergeResponse = await github.rest.pulls.merge({
+            //   ...context.repo,
+            //   pull_number: context.issue.number,
+            //   merge_method: 'squash', // Use 'merge', 'squash', or 'rebase'
+            //   sha: validatedCommitSha, // make sure the head has not changed, from what we expected and validated!
+            // });
 
-      # - name: Merge PR
-      #   uses: actions/github-script@v7
-      #   with:
-      #     github-token: ${{ steps.app_token.outputs.token }}
-      #     script: |
-      #       const mergeResponse = await github.rest.pulls.merge({
-      #         ...context.repo,
-      #         pull_number: context.issue.number,
-      #         merge_method: 'squash'  // Use 'merge', 'squash', or 'rebase' depending on your needs
-      #       });
 

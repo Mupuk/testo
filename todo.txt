@@ -9,9 +9,11 @@
 # [ ] cleanup and rework (2.1)
     # [ ] Name tracker after test name
 # [x] cleanup and rework (3)
+# [ ] notify user of fix / break
 # [ ] check all code again
 # [ ] look at concurrency locks
 # [ ] check if we can reduce needed permissions and filters.
+
 
 # [-] making the test run without offline platform? How?
        NOTE: Not directly possible (https://github.com/orgs/community/discussions/50926)
@@ -21,6 +23,7 @@
 # [ ] create summary? issue? issue would need limits. readme? has bad visual support
 # [ ] readme
 # [ ] history (de)compression
+# [ ] optional checking if test really crashes on latest version after manual approval
 
 
 

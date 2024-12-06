@@ -470,7 +470,7 @@ const updateGithubIssuesAndFiles = async ({
               : testResult.compilation_exit_code;
             row[groupName] = testResult.passed_test
               ? `✅ - ExitCode ${errorCode}`
-              : `❌ - ExitCode ${errorCode} `;
+              : `❌ - ExitCode ${errorCode}`;
           } else {
             // We dont have any result for this platform. Maybe it was inactive
             row[groupName] = '-';
@@ -504,7 +504,7 @@ const updateGithubIssuesAndFiles = async ({
               : testResult.compilation_exit_code;
             row[platformColumn] = testResult.passed_test
               ? `✅ - ExitCode ${errorCode}`
-              : `❌ - ExitCode ${errorCode} `;
+              : `❌ - ExitCode ${errorCode}`;
           }
 
           // Otherwise do not update old history
