@@ -132,7 +132,7 @@ const convertSBIssueToPRAndSynchronize = async ({ github, context, exec }) => {
       recursive: true,
     });
 
-    const validBugNameRegex = /^compiler_bugs\/[CR]EC-?\\d+_new/; // @copyPasta
+    const validBugNameRegex = /^compiler_bugs\/[CR]EC-?\d+_new/; // @copyPasta
     let deletionCounter = 0;
     const newTree = tree.data.tree
       // The bug type or error code may have changed, so we need to delete the old one
