@@ -160,7 +160,7 @@ const renameAllFilesToMatchTracker = async ({ github, context, originalPRData, v
     ...context.repo,
     ref: `heads/issue-${originalPRData.number}`,
     sha: newCommit.sha,
-    force: true
+    force: true        // VERY IMPORTANT: Force push to overwrite any untrusted changes
   });
 
   return newCommit.sha
