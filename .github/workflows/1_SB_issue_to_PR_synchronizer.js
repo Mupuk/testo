@@ -309,7 +309,7 @@ const convertSBIssueToPRAndSynchronize = async ({ github, context, exec }) => {
 
 
   // Set labels on PR
-  const categoryLabels = categories.split(', ').split(',')
+  const categoryLabels = categories.split(',')
                             .map((label) => label.trim())
                             .filter((label) => whitelistedLabels.includes(label));
   console.log('categoryLabels', categoryLabels);
