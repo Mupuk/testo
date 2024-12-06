@@ -39,7 +39,6 @@ jobs:
         with:
           github-token: ${{ steps.app_token.outputs.token }}
           script: |
-            console.log('Concurrency Group', process.env.GITHUB_CONCURRENCY_GROUP);
             console.log('Concurrency Group', '${{ github.workflow }}-${{ github.event.issue.number }}');
 
             console.log('eventType', context.eventName);

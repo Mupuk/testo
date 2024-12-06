@@ -32,7 +32,6 @@ jobs:
         uses: actions/github-script@v7
         with:
           script: |
-            console.log('Concurrency Group', process.env.GITHUB_CONCURRENCY_GROUP);
             console.log('Concurrency Group', '${{ github.workflow }}-${{ github.event.issue.number }}');
 
             console.log('eventType', context.eventName);
