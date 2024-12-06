@@ -301,7 +301,7 @@ jobs:
             const trackerIssueNumber = await createTrackingIssueFromPR({ github, context, originalPRData });
 
 
-            // Rename all files to match the tracker issue number
+            // Rename all files to match the tracker issue number via force commit
             const newSafeSha = await renameAllFilesToMatchTracker({ github, context, validatedCommitSha, trackerIssueNumber });
 
             const mergeResponse = await github.rest.pulls.merge({
