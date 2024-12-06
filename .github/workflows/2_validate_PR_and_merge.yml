@@ -2,8 +2,8 @@ name: 2_validate_PR_and_merge
 
 on:
   workflow_dispatch: # Manual trigger
-  # pull_request_target:
-  #   types: [synchronize, edited] # @todo remove edited
+  pull_request_target:
+    types: [synchronize, edited] # @todo remove edited
 
 jobs:
   # Since only workflow files themselves are safe when using pull_request_target
@@ -30,7 +30,7 @@ jobs:
         uses: actions/github-script@v7
         with:
           script: |
-            // Get PR data
+            // Get PR data. This PR anchors the sha for the whole workflow
             const { data: pr } = await github.rest.pulls.get({
               ...context.repo,
               pull_number: context.issue.number
@@ -129,8 +129,6 @@ jobs:
             core.setOutput('run_validation', true);
 
       
-      - run: find .
-
       - name: Validate PR Structure
         uses: actions/github-script@v7
         id: validate_pr_structure
@@ -170,6 +168,7 @@ jobs:
             // We passed the validation!
             core.setOutput("validation_passed", true);
             core.setOutput("is_single_file", isSingleFile);
+
 
       - name: Upload file list as an artifact
         uses: actions/upload-artifact@v4
