@@ -77,6 +77,7 @@ const convertSBIssueToPRAndSynchronize = async ({ github, context, exec }) => {
   if (!code) {
     throw new Error('Code Snippet not found. Most likely the issue was not formatted correctly after editing.');
   }
+  code = code.replace(/\r\n/g, '\n').replace(/\r/g, '\n');
   console.log('parsed code', code);
 
 
@@ -84,7 +85,6 @@ const convertSBIssueToPRAndSynchronize = async ({ github, context, exec }) => {
   // 'new' will be replaced with the tracker id later on
   const fileName = `0_${context.issue.number}_${bug_type_letter}EC${Number.parseInt(expected_error_code)}`; 
   let filePath = `compiler_bugs/${fileName}.jai`;
-  const newFileContent = Buffer.from(code).toString('base64');
   let oldFile = null;
 
 
@@ -145,18 +145,20 @@ const convertSBIssueToPRAndSynchronize = async ({ github, context, exec }) => {
       ref: branchName
     });
     oldFile = fileContent;
+    oldFile.data.content = Buffer.from(oldFile.data.content, 'base64')
+                            .toString('utf-8').replace(/\r\n/g, '\n').replace(/\r/g, '\n');
   }
 
 
   // Update the file in the PR branch if it changed. Never update forkes
-  if (!isForked && oldFile?.data.content !== newFileContent) {
+  if (!isForked && oldFile?.data.content !== code) {
     console.log('Updating file:', filePath);
     await github.rest.repos.createOrUpdateFileContents({
       ...context.repo,
       branch: branchName,
       path: filePath,
       message: `[CI] Synchronizing issue content to PR branch`,
-      content: newFileContent,
+      content: Buffer.from(code).toString('base64'),
       ...(oldFile? { sha: oldFile.data.sha } : {}),
     });
   } else {
