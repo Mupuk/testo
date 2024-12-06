@@ -163,7 +163,7 @@ jobs:
             // The file/folder must be named after the PR number
             // Usually the have _new in the name, but if the merge for example failed after the files 
             // have already been renamed below, they could have a number instead of _new
-            const validBugNameRegexTemplate = `^compiler_bugs/[CR]EC-?\\d+_(?:new|\\d+)`; // @copyPasta
+            const validBugNameRegexTemplate = `^compiler_bugs/\\d+_\\d+_[CR]EC-?\\d+`; // @copyPasta
             const singleFileValidBugNameRegex = new RegExp(`${validBugNameRegexTemplate}\\.jai$`);
             const validFilePathRegex =          new RegExp(`${validBugNameRegexTemplate}/`);
             const validFirstJaiRegex =          new RegExp(`${validBugNameRegexTemplate}/first\\.jai$`);

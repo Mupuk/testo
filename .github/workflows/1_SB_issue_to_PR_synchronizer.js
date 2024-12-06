@@ -6,7 +6,9 @@ const whitelistedLabels = ['insert', 'leak'];
 
 // Apart from the labels and the correct checkout, should not have to care about any security.
 // This workflow is only supposed to convert the issue into a PR and forward edits to the PR
-// to the PR branch.
+// to the PR branch. The only thing it enforces is the PR body and that its only one file in the PR.
+// If its a fork we dont update anything, since the PR could be badly formatted, and it could happen,
+// that we dont have write access to the forked repository. 
 const convertSBIssueToPRAndSynchronize = async ({ github, context, exec }) => {
   const eventType = context.eventName; // 'issues' or 'pull_request'
   console.log('eventType', eventType);
