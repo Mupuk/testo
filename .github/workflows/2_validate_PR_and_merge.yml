@@ -227,7 +227,7 @@ jobs:
       - name: Validate new Test and Merge Pull Request
         uses: actions/github-script@v7
         with:
-          # github-token: ${{ steps.app_token.outputs.token }}
+          github-token: ${{ steps.app_token.outputs.token }}
           script: |
             // Use Base Branch!
             const { validateAddedTestAndMergeOnSuccess } = require('./base/.github/workflows/2_validate_PR_and_merge.js');
