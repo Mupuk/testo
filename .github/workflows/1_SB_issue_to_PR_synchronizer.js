@@ -2,6 +2,7 @@
 // Also update issue_template and pull_request_template to include the following:
 const whitelistedLabels = ['insert', 'leak'];
 
+// @todo test what happens when user SB Pr edits the issue. Error for permission? if not allo maintainer to edit?
 
 // Apart from the labels and the correct checkout, should not have to care about any security.
 // This workflow is only supposed to convert the issue into a PR and forward edits to the PR
@@ -91,7 +92,7 @@ const convertSBIssueToPRAndSynchronize = async ({ github, context, exec }) => {
       ...context.repo,
       head: branchName,
       base: baseBranch,
-      body: prBody,
+      // body: issuePRData.body,
       issue: context.issue.number
     });
 
