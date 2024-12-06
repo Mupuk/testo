@@ -88,6 +88,20 @@ const convertSBIssueToPRAndSynchronize = async ({ github, context, exec }) => {
   // Convert issue to a pull request if it isn't already
   if (isIssue) {
     console.log('Converting issue to PR...');
+
+    const { data: baseBranchData } = await github.rest.repos.getBranch({
+      owner: context.repo.owner,
+      repo: context.repo.repo,
+      branch: 'master',
+    });
+
+    // Create a new branch for the PR
+    await github.rest.git.createRef({
+      ...context.repo,
+      ref: `refs/heads/${branchName}`,
+      sha: baseBranchData.commit.sha,
+    });
+
     const { data: prData } = await github.rest.pulls.create({
       ...context.repo,
       head: branchName,
@@ -109,7 +123,10 @@ const convertSBIssueToPRAndSynchronize = async ({ github, context, exec }) => {
       body: `👋 Thanks for the contribution @${originialIssueCreator}! If you need to do modifications, you can do so, as long as the PR is not merged yet!`,
     });
 
-  } else { // Find old file to update
+
+
+  } else { // !isIssue
+    // Find old file to update
     const { data } = await github.rest.pulls.listFiles({
       ...context.repo,
       pull_number: context.issue.number,
