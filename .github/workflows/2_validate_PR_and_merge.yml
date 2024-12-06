@@ -51,6 +51,12 @@ jobs:
               core.setOutput("run_validation", false);
               return;
             }
+            
+            // Make sure PR is still open
+            if (pr.state !== 'open') {
+              console.log('Issue/PR is not open ... skipping');
+              return;
+            }
 
             
             // THIS IS UNSAFE because we have a race condition from our
