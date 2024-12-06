@@ -141,7 +141,7 @@ const renameAllFilesToMatchTracker = async ({ github, context, originalPRData, v
       // If the file matches, rename it and mark the old one for deletion
       return [
         {
-          path: file.path.replace(/_0_/, `_${trackerIssueNumber}_`), // only replace first occurence
+          path: file.path.replace(/^compiler_bugs\/0_/, `compiler_bugs/${trackerIssueNumber}_`), // only replace first occurence
           mode: file.mode,
           type: file.type,
           sha: file.sha, // Keep the file content for the renamed file
