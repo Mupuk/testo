@@ -158,23 +158,29 @@ const renameAllFilesToMatchTracker = async ({ github, context, originalPRData, v
     base_tree: commit.tree.sha,
   });
 
-  // Create a new commit with the updated tree
-  const { data: newCommit } = await github.rest.git.createCommit({
-    ...context.repo,
-    message: `Renamed files to use tracker issue number '${trackerIssueNumber}'`,
-    tree: newTree.sha,
-    parents: [validatedCommitSha]
-  });
+  // No changes, for example when just the merge had an error and we re-run the workflow
+  if (newTree.data.sha !== tree.data.sha) {
+    // Create a new commit with the updated tree
+    const { data: newCommit } = await github.rest.git.createCommit({
+      ...context.repo,
+      message: `Renamed files to use tracker issue number '${trackerIssueNumber}'`,
+      tree: newTree.sha,
+      parents: [validatedCommitSha]
+    });
 
-  // Force push the new commit
-  await github.rest.git.updateRef({
-    ...context.repo,
-    ref: `heads/issue-${originalPRData.number}`,
-    sha: newCommit.sha,
-    force: true        // VERY IMPORTANT: Force push to overwrite any untrusted changes
-  });
+    // Force push the new commit
+    await github.rest.git.updateRef({
+      ...context.repo,
+      ref: `heads/issue-${originalPRData.number}`,
+      sha: newCommit.sha,
+      force: true        // VERY IMPORTANT: Force push to overwrite any untrusted changes
+    });
 
-  return newCommit.sha
+    return newCommit.sha
+  }
+
+  // No changes, return the original commit sha
+  return validatedCommitSha;
 };
 
 
