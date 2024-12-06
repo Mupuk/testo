@@ -2,9 +2,9 @@ name: 3_run_test_suit_and_update
 
 on:
   workflow_dispatch: # Manual trigger
-  # push: # @todo uncomment
-  #   branches:
-  #     - master
+  push: # @todo uncomment
+    branches:
+      - master
 
 jobs:
   run-test-suit:
