@@ -110,7 +110,7 @@ const createTrackingIssueFromPR = async ({ github, context }) => {
   // Notify the original issue creator
   await github.rest.issues.createComment({
     ...context.repo,
-    issue_number: context.issue.number,
+    issue_number: issue.number,
     body: `👋 Thanks for the contribution @${originialIssueCreator}. We will notify you when this issue was fixed, or breaks again!`,
   });
 
