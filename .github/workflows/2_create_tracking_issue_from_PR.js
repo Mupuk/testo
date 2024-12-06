@@ -56,8 +56,8 @@ const createTrackingIssueFromPR = async ({ github, context, originalPRData }) =>
   });
 
   const existingIssue = searchResults.data.items;
-  console.log('existingIssue', existingIssue);
   if (existingIssue.length > 0) {
+    console.log('existingIssues', existingIssue);
     if (existingIssue.length > 1) {
       throw new Error('Multiple trackers found, this should not happen! Most likely it clashes with another PR. Manual intervention required.');
     }
@@ -159,7 +159,7 @@ const renameAllFilesToMatchTracker = async ({ github, context, originalPRData, v
   });
 
   // No changes, for example when just the merge had an error and we re-run the workflow
-  if (newTree.data.sha !== tree.data.sha) {
+  if (newTree.data.sha !== tree.sha) {
     console.log('Renaming files to match tracker issue number...');
     // Create a new commit with the updated tree
     const { data: newCommit } = await github.rest.git.createCommit({
