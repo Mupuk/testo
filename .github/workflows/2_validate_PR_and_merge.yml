@@ -327,11 +327,11 @@ jobs:
             const sleep = (ms) => new Promise(resolve => setTimeout(resolve, ms));
             await sleep(5000); // Wait for the force commit to be processed
 
-            const mergeResponse = await github.rest.pulls.merge({
-              ...context.repo,
-              pull_number: context.issue.number,
-              merge_method: 'squash', // Use 'merge', 'squash', or 'rebase'
-              sha: newSafeSha, // make sure the head has not changed, from what we expected and validated!
-            });
+            // const mergeResponse = await github.rest.pulls.merge({
+            //   ...context.repo,
+            //   pull_number: context.issue.number,
+            //   merge_method: 'squash', // Use 'merge', 'squash', or 'rebase'
+            //   sha: newSafeSha, // make sure the head has not changed, from what we expected and validated!
+            // });
 
 
