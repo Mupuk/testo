@@ -256,21 +256,28 @@ jobs:
 
             // Make sure PR is still open
             if (pr.state !== 'open') {
+              console.log('pr.state', pr.state);
               throw new Error('The PR is not open anymore! Aborting ...');
             }
 
             // Make sure head sha is the same!
             if (pr.head.sha !== validatedCommitSha) {
+              console.log('new sha', pr.head.sha);
+              console.log('old sha', validatedCommitSha);
               throw new Error('The head sha has changed since validation! This could happen when changes happened since the time validation was requested, and manual approval was given. Aborting ...');
             }
 
             // Check if title has changed
             if (pr.title !== originalPRData.title) {
+              console.log('new title', pr.title);
+              console.log('old title', originalPRData.title);
               throw new Error('The PR title has changed since validation! Aborting ...');
             }
 
             // We could check if bodies are the same, im not sure if we want that though
             if (pr.body !== originalPRData.body) {
+              console.log('new body', pr.body);
+              console.log('old body', originalPRData.body);
               throw new Error('The PR body has changed since validation! Aborting ...');
             }
 
