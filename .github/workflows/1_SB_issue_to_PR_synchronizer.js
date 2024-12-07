@@ -35,11 +35,9 @@ const convertSBIssueToPRAndSynchronize = async ({ github, context, exec }) => {
 
   let isForked = false;
   if (!isIssue && issuePRData.head.repo.fork) {
-    console.log("This PR is from a forked repository.");
     isForked = true;
-  } else {
-    console.log("This PR is from the same repository.");
   }
+  console.log('isForked', isForked);
 
 
   // Get issue, since its a converted issue, we need to get the original issue
