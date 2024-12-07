@@ -197,7 +197,8 @@ const renameAllFilesToMatchTracker = async ({ github, context, originalPRData, v
   // No changes, for example when just the merge had an error and we re-run the workflow
   // NOTE: This should be fine even if canceled and re-run, since the commit is the
   // not 'active' until updateRef happened. If that goes through, we are fine.
-  if (newTree.sha !== tree.sha) {
+  // if (newTree.sha !== tree.sha) // @todo enable
+    {
     console.log('Renaming files to match tracker issue number...');
     // Create a new commit with the updated tree
     const { data: newCommit } = await github.rest.git.createCommit({
