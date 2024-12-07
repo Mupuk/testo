@@ -184,6 +184,7 @@ jobs:
 
   # WARNING: This could get called quite some time later, than the check above
   validate-added-test-and-merge-pr:
+    permissions: write-all
     runs-on: [self-hosted, linux] # @todo remove linux
     needs: pr-validation
     # Only run if validation passed
