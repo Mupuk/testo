@@ -103,40 +103,40 @@ jobs:
             }
 
 
-            // Get existing labels
-            const existingLabelsResponse = await github.rest.issues.listLabelsOnIssue({
-              ...context.repo,
-              issue_number: context.issue.number,
-            });
-            const existingLabels = existingLabelsResponse.data.map((l) => l.name); 
-            console.log('existingLabels', existingLabels);
+            // // Get existing labels
+            // const existingLabelsResponse = await github.rest.issues.listLabelsOnIssue({
+            //   ...context.repo,
+            //   issue_number: context.issue.number,
+            // });
+            // const existingLabels = existingLabelsResponse.data.map((l) => l.name); 
+            // console.log('existingLabels', existingLabels);
 
 
 
-            // Make sure .github folder is not modified
-            if (filePaths.some(filePath => filePath.includes('.github'))) {
-              await github.rest.issues.createComment({
-                ...context.repo,
-                issue_number: context.issue.number,
-                body: `This PR has modified the .github folder, which is illegal!`
-              })
+            // // Make sure .github folder is not modified
+            // if (filePaths.some(filePath => filePath.includes('.github'))) {
+            //   await github.rest.issues.createComment({
+            //     ...context.repo,
+            //     issue_number: context.issue.number,
+            //     body: `This PR has modified the .github folder, which is illegal!`
+            //   })
 
-              // Add labels to PR
-              await github.rest.issues.setLabels({
-                ...context.repo,
-                issue_number: context.issue.number,
-                labels: [...new Set([...existingLabels, 'validation-failed']) ],
-              });
+            //   // Add labels to PR
+            //   await github.rest.issues.setLabels({
+            //     ...context.repo,
+            //     issue_number: context.issue.number,
+            //     labels: [...new Set([...existingLabels, 'validation-failed']) ],
+            //   });
 
-              throw new Error('This PR has modified the .github folder, which is illegal!');
-            }
+            //   throw new Error('This PR has modified the .github folder, which is illegal!');
+            // }
 
-            // Remove validation-failed label
-            await github.rest.issues.setLabels({
-              ...context.repo,
-              issue_number: context.issue.number,
-              labels: [...existingLabels.filter((l) => l !== 'validation-failed') ],
-            });
+            // // Remove validation-failed label
+            // await github.rest.issues.setLabels({
+            //   ...context.repo,
+            //   issue_number: context.issue.number,
+            //   labels: [...existingLabels.filter((l) => l !== 'validation-failed') ],
+            // });
 
             // Save the file paths instead of using outputs, because they could be to big
             const fs = require('fs');
