@@ -57,7 +57,7 @@ const createTrackingIssueFromPR = async ({ github, context, originalPRData }) =>
   // We know the PR is valid, so we can just take any file
   const prFile = filePaths[0];
   // Extract the tracker issue number from the file path
-  const trackerIssueNumber = parseInt(prFile.match(/compiler_bugs\/(\d+)_\d+_[CR]EC-\d+(?:\.jai$|\/)/)[1]);
+  const trackerIssueNumber = parseInt(prFile.match(/compiler_bugs\/(\d+)_\d+_[CR]EC-?\d+(?:\.jai$|\/)/)[1]);
   if (isNaN(trackerIssueNumber)) {
     throw new Error('Invalid tracker issue number found in file path. Should never happen, because of validation before!');
   }
