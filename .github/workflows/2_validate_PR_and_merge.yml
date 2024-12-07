@@ -306,7 +306,7 @@ jobs:
             console.log('validatedCommitSha', validatedCommitSha);
 
             const sleep = (ms) => new Promise(resolve => setTimeout(resolve, ms));
-            await sleep(5000); // Wait for the force commit to be processed
+            await sleep(1000); // Wait for the force commit to be processed
 
             const mergeResponse = await github.rest.pulls.merge({
               ...context.repo,
