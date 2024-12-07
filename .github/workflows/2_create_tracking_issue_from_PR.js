@@ -48,32 +48,52 @@ function parsePrBody(text) {
 }
 
 const createTrackingIssueFromPR = async ({ github, context, originalPRData }) => {
-  // @todo swap to using the PR number of the file list
 
-  // Search of existing tracker, sadly we dont know the trackers issue number, so we use the PR number to find it
-  const query = `repo:${context.repo.owner}/${context.repo.repo} is:issue in:title TRACKER for PR ${context.issue.number}`;
-  const searchResults = await github.rest.search.issuesAndPullRequests({
-    q: query,
-    per_page: 100 // Fetch up to 100 results
-  });
+    // Load the file paths instead of querying them again because of race conditions
+  const fs = require('fs');
+  const filePaths = JSON.parse(fs.readFileSync('pr_files.json', 'utf-8'));
+  console.log('loaded pr_files.json', filePaths);
 
-  const existingIssue = searchResults.data.items;
-  if (existingIssue.length > 0) {
-    console.log('existingIssues', existingIssue);
-    if (existingIssue.length > 1) {
-      throw new Error('Multiple trackers found, this should not happen! Most likely it clashes with another PR. Manual intervention required.');
-    }
-    if (existingIssue[0].title === `[TRACKER] for PR #${context.issue.number}`) {
-      // @todo check that it matches template
-      // :trackerTemplate
-      if (true) {
-        console.log('Tracker already exists, skipping');
-        return existingIssue[0].number;
-      }
-    } else {
-      throw new Error('Tracker found, but does not match the template. Manual intervention required.');
-    }
+  // We know the PR is valid, so we can just take any file
+  const prFile = filePaths[0];
+  // Extract the tracker issue number from the file path
+  const trackerIssueNumber = parseInt(prFile.match(/compiler_bugs\/(\d+)_\d+_[CR]EC-\d+(?:\.jai$|\/)/)[1]);
+  if (isNaN(trackerIssueNumber)) {
+    throw new Error('Invalid tracker issue number found in file path. Should never happen, because of validation before!');
   }
+  if (trackerIssueNumber !== 0) {
+    console.log('Tracker issue number already set, skipping creation');
+    return trackerIssueNumber;
+  }
+
+
+
+
+
+  // // Search of existing tracker, sadly we dont know the trackers issue number, so we use the PR number to find it
+  // const query = `repo:${context.repo.owner}/${context.repo.repo} is:issue in:title TRACKER for PR ${context.issue.number}`;
+  // const searchResults = await github.rest.search.issuesAndPullRequests({
+  //   q: query,
+  //   per_page: 100 // Fetch up to 100 results
+  // });
+
+  // const existingIssue = searchResults.data.items;
+  // if (existingIssue.length > 0) {
+  //   console.log('existingIssues', existingIssue);
+  //   if (existingIssue.length > 1) {
+  //     throw new Error('Multiple trackers found, this should not happen! Most likely it clashes with another PR. Manual intervention required.');
+  //   }
+  //   if (existingIssue[0].title === `[TRACKER] for PR #${context.issue.number}`) {
+  //     // @todo check that it matches template
+  //     // :trackerTemplate
+  //     if (true) {
+  //       console.log('Tracker already exists, skipping');
+  //       return existingIssue[0].number;
+  //     }
+  //   } else {
+  //     throw new Error('Tracker found, but does not match the template. Manual intervention required.');
+  //   }
+  // }
 
 
   console.log('Creating tracker issue...');

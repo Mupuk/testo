@@ -203,12 +203,14 @@ jobs:
 
 
       # We need this for later validation as the approval could be given quite some time later
-      - name: Upload PR Response as an artifact
+      - name: Upload Captured Data as an artifact
         if: ${{ steps.pr_safety_check.outputs.run_validation == 'true' }} 
         uses: actions/upload-artifact@v4
         with:
           name: pr_response
-          path: pr_response.json
+          path: |
+            pr_response.json
+            pr_files.json
           retention-days: 1 # we only need this for the next job
 
 
@@ -243,7 +245,7 @@ jobs:
 
 
 
-      - name: Download PR Response artifact
+      - name: Download Captured Data artifact
         uses: actions/download-artifact@v4
         with:
           name: pr_response
@@ -337,11 +339,11 @@ jobs:
             const sleep = (ms) => new Promise(resolve => setTimeout(resolve, ms));
             await sleep(5000); // Wait for the force commit to be processed
 
-            const mergeResponse = await github.rest.pulls.merge({
-              ...context.repo,
-              pull_number: context.issue.number,
-              merge_method: 'squash', // Use 'merge', 'squash', or 'rebase'
-              sha: newSafeSha, // make sure the head has not changed, from what we expected and validated!
-            });
+            // const mergeResponse = await github.rest.pulls.merge({
+            //   ...context.repo,
+            //   pull_number: context.issue.number,
+            //   merge_method: 'squash', // Use 'merge', 'squash', or 'rebase'
+            //   sha: newSafeSha, // make sure the head has not changed, from what we expected and validated!
+            // });
 
 
