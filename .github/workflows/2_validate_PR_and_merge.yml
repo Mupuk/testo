@@ -5,10 +5,6 @@ on:
   pull_request_target:
     types: [opened, synchronize, edited] # @todo remove
 
-concurrency:
-  group: ${{ github.workflow }}-${{ github.event.issue.number || github.event.pull_request.number }}
-  cancel-in-progress: true
-
 jobs:
   # Since only workflow files themselves are safe when using pull_request_target
   # we have to write the validation logic in the workflow file itself
@@ -228,6 +224,10 @@ jobs:
     # commit has the correct structure. But the jai files themselves are still
     # untrusted.
     environment: test
+
+    concurrency:
+      group: ${{ github.workflow }}-${{ github.event.issue.number || github.event.pull_request.number }}
+      cancel-in-progress: true
 
     steps:
       # The JS in here *should* be safe, as we validated that the .github was not modified
