@@ -84,169 +84,6 @@ const convertSBIssueToPRAndSynchronize = async ({ github, context }) => {
   // 'new' will be replaced with the tracker id later on
   const fileName = `0_${context.issue.number}_${bug_type_letter}EC${Number.parseInt(expected_error_code)}`; 
   let filePath = `compiler_bugs/${fileName}.jai`;
-  let oldFile = null;
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-  // // We dont care about any race conditions, as the commit will fail if the branch is not up to date
-  // // Also since we just update the file content and have the actual validation happen later,
-  // // we can use this api.
-
-  // // Convert issue to a pull request if it isn't already
-  // if (isIssue) {
-  //   if (isForked) {
-  //     throw new Error('Fork cant be an Issue');
-  //   }
-  //   console.log('Creating Branch', branchName);
-  //   try {
-  //     // Check if the branch already exists
-  //     branchRef = await github.rest.git.getRef({
-  //       ...context.repo,
-  //       ref: `heads/${branchName}`,
-  //     });
-  //   } catch (error) {
-  //     if (error.status === 404) {
-  //       const { data: baseBranchData } = await github.rest.repos.getBranch({
-  //         owner: context.repo.owner,
-  //         repo: context.repo.repo,
-  //         branch: 'master',
-  //       });
-
-  //       // Create a new branch for the PR
-  //       await github.rest.git.createRef({
-  //         ...context.repo,
-  //         ref: `refs/heads/${branchName}`,
-  //         sha: baseBranchData.commit.sha,
-  //       });
-  //     }
-  //   }
-
-
-  // } else { 
-  //   // Find old file to update
-  //   const { data } = await github.rest.pulls.listFiles({
-  //     ...context.repo,
-  //     pull_number: context.issue.number,
-  //     per_page: 100
-  //   });
-  //   console.log('data', data);
-  //   if (data.length !== 1) {
-  //     throw new Error('Expected exactly 1 file in a SB PR');
-  //   }
-  //   filePath = data.map(file => file.filename)[0];
-  //   console.log('found filePathToChange', filePath);
-
-  //   // Get the current content of the matched file
-  //   const fileContent = await github.rest.repos.getContent({
-  //     ...context.repo,
-  //     path: filePath,
-  //     ref: branchName
-  //   });
-  //   oldFile = fileContent;
-  //   oldFile.data.content = Buffer.from(oldFile.data.content, 'base64')
-  //                           .toString('utf-8').replace(/\r\n/g, '\n').replace(/\r/g, '\n');
-  // }
-
-
-  // // Update the file in the PR branch if it changed. Never update forkes
-  // if (!isForked && oldFile?.data.content !== code) {
-  //   console.log('Updating file:', filePath);
-  //   await github.rest.repos.createOrUpdateFileContents({
-  //     ...context.repo,
-  //     branch: branchName,
-  //     path: filePath,
-  //     message: `[CI] Synchronizing issue content to PR branch`,
-  //     content: Buffer.from(code).toString('base64'),
-  //     ...(oldFile? { sha: oldFile.data.sha } : {}),
-  //   });
-  // } else {
-  //   console.log('No changes detected. Skipping file update.');
-  // }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 
@@ -343,6 +180,7 @@ const convertSBIssueToPRAndSynchronize = async ({ github, context }) => {
           } else {
             replacedFile = true;
           }
+          // In case file.path == filePath, the latter will be used
           return [
             {
               path: file.path,
@@ -402,39 +240,6 @@ const convertSBIssueToPRAndSynchronize = async ({ github, context }) => {
       console.log('No changes detected. Skipping commit.');
     }
   }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 
