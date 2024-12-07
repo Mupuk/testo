@@ -132,7 +132,7 @@ const runTestSuitAndGatherOutput = async ({ github, context, exec, io }) => {
   
   
   
-  // Run test suit for all tests{ silent: false }
+  // Run test suit for all tests
   const options = { silent: false };
   await exec.exec(`${compilerPath} bug_suit.jai`, [], options);
 
