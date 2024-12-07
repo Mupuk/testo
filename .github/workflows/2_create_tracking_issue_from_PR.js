@@ -67,35 +67,6 @@ const createTrackingIssueFromPR = async ({ github, context, originalPRData }) =>
   }
 
 
-
-
-
-  // // Search of existing tracker, sadly we dont know the trackers issue number, so we use the PR number to find it
-  // const query = `repo:${context.repo.owner}/${context.repo.repo} is:issue in:title TRACKER for PR ${context.issue.number}`;
-  // const searchResults = await github.rest.search.issuesAndPullRequests({
-  //   q: query,
-  //   per_page: 100 // Fetch up to 100 results
-  // });
-
-  // const existingIssue = searchResults.data.items;
-  // if (existingIssue.length > 0) {
-  //   console.log('existingIssues', existingIssue);
-  //   if (existingIssue.length > 1) {
-  //     throw new Error('Multiple trackers found, this should not happen! Most likely it clashes with another PR. Manual intervention required.');
-  //   }
-  //   if (existingIssue[0].title === `[TRACKER] for PR #${context.issue.number}`) {
-  //     // @todo check that it matches template
-  //     // :trackerTemplate
-  //     if (true) {
-  //       console.log('Tracker already exists, skipping');
-  //       return existingIssue[0].number;
-  //     }
-  //   } else {
-  //     throw new Error('Tracker found, but does not match the template. Manual intervention required.');
-  //   }
-  // }
-
-
   console.log('Creating tracker issue...');
 
   // Parse PR body
@@ -197,8 +168,7 @@ const renameAllFilesToMatchTracker = async ({ github, context, originalPRData, v
   // No changes, for example when just the merge had an error and we re-run the workflow
   // NOTE: This should be fine even if canceled and re-run, since the commit is the
   // not 'active' until updateRef happened. If that goes through, we are fine.
-  // if (newTree.sha !== tree.sha) // @todo enable
-    {
+  if (newTree.sha !== tree.sha) {
     console.log('Renaming files to match tracker issue number...');
     // Create a new commit with the updated tree
     const { data: newCommit } = await github.rest.git.createCommit({
@@ -207,10 +177,6 @@ const renameAllFilesToMatchTracker = async ({ github, context, originalPRData, v
       tree: newTree.sha,
       parents: [validatedCommitSha]
     });
-
-    console.log('KILL ME') // @todo remove
-    sleep = require('util').promisify(setTimeout);
-    await sleep(20000);
 
     // Force push the new commit
     await github.rest.git.updateRef({
