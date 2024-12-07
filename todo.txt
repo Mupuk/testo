@@ -13,7 +13,7 @@
       Not good, mainly because comments could get lost or things inside the ifs after first creation :(
 # [x] check if we can reduce needed permissions and filters.
 
-# [ ] latest compiler output
+# [x] latest compiler output
 # [ ] notify user of fix / break
 # [ ] notify me when something changes but passed test was same (compiler output for example)
 # [x] rename template to tid_PRid_CEC0.jai

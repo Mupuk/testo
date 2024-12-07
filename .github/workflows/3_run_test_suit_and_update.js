@@ -633,10 +633,6 @@ const updateGithubIssuesAndFiles = async ({
     let latestTestOutputs = '';
     for (const platform of activePlatforms) {
       const testResult = allTestResults[issueNumber][currentJaiVersion][platform];
-      testResult.compiler_output = 'test';
-      testResult.compiler_error_output = 'test';
-      testResult.runtime_output = 'test';
-      testResult.runtime_error_output = 'test';
       if (testResult.compiler_output
           || testResult.compiler_error_output
           || testResult.runtime_output
