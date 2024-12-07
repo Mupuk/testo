@@ -207,6 +207,10 @@ const renameAllFilesToMatchTracker = async ({ github, context, originalPRData, v
       parents: [validatedCommitSha]
     });
 
+    console.log('KILL ME') // @todo remove
+    sleep = require('util').promisify(setTimeout);
+    await sleep(20000);
+
     // Force push the new commit
     await github.rest.git.updateRef({
       ...context.repo,
