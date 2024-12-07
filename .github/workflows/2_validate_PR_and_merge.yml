@@ -201,7 +201,7 @@ jobs:
       - name: Checkout Validated PRs 
         uses: actions/checkout@v4
         with:
-          ref: ${{ needs.pr-validation.outputs.validated_commit_sha }}
+          # ref: ${{ needs.pr-validation.outputs.validated_commit_sha }}
           path: PR
 
       # But, this is generally safer, so we can trust the js code that is run below
