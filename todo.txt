@@ -6,7 +6,7 @@
 # [x] cleanup bugsuit
 # [x] cleanup and rework (1)
 # [x] cleanup and rework (2)
-# [ ] cleanup and rework (2.1)
+# [x] cleanup and rework (2.1)
 # [x] cleanup and rework (3)
 # [ ] check all code again
 # [x] look at concurrency locks

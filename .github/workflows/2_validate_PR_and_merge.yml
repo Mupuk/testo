@@ -3,7 +3,7 @@ name: 2_validate_PR_and_merge
 on:
   workflow_dispatch:
   pull_request_target:
-    types: [opened, synchronize, edited] # @todo remove
+    types: [opened, synchronize, edited] # @todo remove edited
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.event.issue.number || github.event.pull_request.number }}
@@ -39,15 +39,6 @@ jobs:
 
             console.log('eventType', context.eventName);
             console.log('context.payload.sender', context.payload.sender)
-
-            const isBot = context.payload.sender.type === 'Bot';
-            const userName = context.payload.sender.login;
-
-            if (isBot) {
-              console.log(`This Workflow was triggered by a bot '${userName}'. Skipping ...`);
-              core.setOutput("run_validation", false);
-              return;
-            }
 
             // Get PR data. This PR anchors the sha for the whole workflow
             const { data: pr } = await github.rest.pulls.get({
@@ -219,7 +210,7 @@ jobs:
 
   # WARNING: This could get called quite some time later, than the check above
   validate-added-test-and-merge-pr:
-    runs-on: [self-hosted, linux] # @todo remove
+    runs-on: [self-hosted, linux] # @todo remove linux
     needs: pr-validation
     # Only run if validation passed
     if: ${{ needs.pr-validation.outputs.validation_passed == 'true' }} 

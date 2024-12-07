@@ -8,6 +8,9 @@ on:
     # edited PRs will update the PRs commits
     types: [edited] 
 
+permissions: {}
+
+
 concurrency:
   group: ${{ github.workflow }}-${{ github.event.issue.number || github.event.pull_request.number }}
 
@@ -46,6 +49,6 @@ jobs:
             console.log('context.payload.sender', context.payload.sender)
 
             const convertSBIssueToPRAndSynchronize = require('./.github/workflows/1_SB_issue_to_PR_synchronizer.js');
-            await convertSBIssueToPRAndSynchronize({ github, context, exec });
+            await convertSBIssueToPRAndSynchronize({ github, context });
 
 

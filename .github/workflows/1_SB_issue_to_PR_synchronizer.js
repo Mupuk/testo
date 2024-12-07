@@ -2,14 +2,13 @@
 // Also update issue_template and pull_request_template to include the following:
 const whitelistedLabels = ['insert', 'leak'];
 
-// @todo test what happens when user SB Pr edits the issue. Error for permission? if not allo maintainer to edit?
 
-// Apart from the labels and the correct checkout, should not have to care about any security.
+// Apart from the labels and the correct checkout, we should not have to care about any security.
 // This workflow is only supposed to convert the issue into a PR and forward edits to the PR
 // to the PR branch. The only thing it enforces is the PR body and that its only one file in the PR.
 // If its a fork we dont update anything, since the PR could be badly formatted, and it could happen,
 // that we dont have write access to the forked repository. 
-const convertSBIssueToPRAndSynchronize = async ({ github, context, exec }) => {
+const convertSBIssueToPRAndSynchronize = async ({ github, context }) => {
   const eventType = context.eventName; // 'issues' or 'pull_request'
   console.log('eventType', eventType);
   const isIssue = eventType === 'issues';
@@ -73,8 +72,8 @@ const convertSBIssueToPRAndSynchronize = async ({ github, context, exec }) => {
     throw new Error('Categories not found. Most likely the issue was not formatted correctly after editing.');
   }
 
-  let code = issuePRData.body.match(/^### Short Code Snippet\n[\S\s]*?```c\n(?<code>[\S\s]*?)```/mi).groups.code;
-  if (!code) {
+  let code = issuePRData.body.match(/^### Short Code Snippet\n[\S\s]*?```c\n(?<code>[\S\s]*?)```/mi)?.groups.code;
+  if (!isForked && !code) { // Dont need it on a fork
     throw new Error('Code Snippet not found. Most likely the issue was not formatted correctly after editing.');
   }
   code = code.replace(/\r\n/g, '\n').replace(/\r/g, '\n');
@@ -164,158 +163,6 @@ const convertSBIssueToPRAndSynchronize = async ({ github, context, exec }) => {
   } else {
     console.log('No changes detected. Skipping file update.');
   }
-
-
-
-
-
-  
-
-
-  // // Delete old file if it exists, create new file, commit if it changed
-  // // We use this verbose api to avoid 2 separate commits
-  // {
-  //   // Check if the branch exists or create it
-  //   let branchSha = null;
-  //   try {
-  //     const branchRef = await github.rest.git.getRef({
-  //       ...context.repo,
-  //       ref: `heads/${branchName}`,
-  //     });
-  //     branchSha = branchRef.data.object.sha
-
-  //     console.log(`Branch '${branchName}' already exists.`);
-  //   } catch (error) {
-  //     if (error.status === 404) {
-  //       // Branch does not exist, create it
-  //       console.log(`Branch '${branchName}' does not exist. Creating it...`);
-
-  //       // Get the default branch (e.g., main) as the base
-  //       const { data: defaultBranch } = await github.rest.repos.get({
-  //         ...context.repo,
-  //       });
-  //       const baseBranch = defaultBranch.default_branch;
-
-  //       // Get the SHA of the default branch
-  //       const baseBranchRef = await github.rest.git.getRef({
-  //         ...context.repo,
-  //         ref: `heads/${baseBranch}`,
-  //       });
-
-  //       // Create the new branch
-  //       const createRefResponse = await github.rest.git.createRef({
-  //         ...context.repo,
-  //         ref: `refs/heads/${branchName}`,
-  //         sha: baseBranchRef.data.object.sha,
-  //       });
-  //       branchSha = createRefResponse.data.object.sha
-
-  //       // Retrieve the reference of the newly created branch
-  //       const branchRef = await github.rest.git.getRef({
-  //         ...context.repo,
-  //         ref: `heads/${branchName}`,
-  //       });
-  //       if (branchRef.data.object.sha !== branchSha) { // @todo remove
-  //         throw new Error(`Failed to create branch '${branchName}'.`);
-  //       }
-
-  //       console.log(`Branch '${branchName}' successfully created.`);
-  //     } else {
-  //       throw error;
-  //     }
-  //   }
-
-  //   // Get the current commit and tree
-  //   const branchCommit = await github.rest.git.getCommit({
-  //     ...context.repo,
-  //     commit_sha: branchSha,
-  //   });
-
-  //   const currentTreeSha = branchCommit.data.tree.sha;
-
-  //   // Prepare the new tree entries
-  //   const tree = await github.rest.git.getTree({
-  //     ...context.repo,
-  //     tree_sha: currentTreeSha,
-  //     recursive: true,
-  //   });
-
-    
-
-  //   // Create the new blob
-  //   const blob = await github.rest.git.createBlob({
-  //     ...context.repo,
-  //     content: newFileContent,
-  //     encoding: 'base64',
-  //   });
-
-  //   // This code does not prevent the user from having more files with different names in the PR
-  //   // But this will be caught by the validation later on
-  //   const validBugNameRegexTemplate = `^compiler_bugs/(?:${context.issue.number}|0)_\\d+_[CR]EC-?\\d+\\.jai$`; // @copyPasta
-  //   const validBugNameRegex = new RegExp(validBugNameRegexTemplate);
-  //   let replacedFile = false;
-  //   const newTree = tree.data.tree
-  //     // The bug type or error code may have changed, so we need to delete the old one
-  //     .map(file => {
-  //       if (validBugNameRegex.test(file.path)) {
-  //         console.log('Changing Content of file:', file.path);
-  //         if (replacedFile) {
-  //           throw new Error('Expected exactly 1 file in a SB PR');
-  //         } else {
-  //           replacedFile = true;
-  //         }
-  //         return {
-  //           path: file.path,
-  //           mode: file.mode,
-  //           type: file.type,
-  //           sha: blob.data.sha, // Replace the file content
-  //         };
-  //       }
-  //       return file;
-  //     });
-
-
-  //   if (!replacedFile) {
-  //     console.log('Adding file:', filePath);
-  //     newTree.push({
-  //       path: filePath,
-  //       mode: '100644', // https://docs.github.com/en/rest/git/trees?apiVersion=2022-11-28
-  //       type: 'blob',
-  //       sha: blob.data.sha,
-  //     });
-  //   }
-
-  //   // Create the new tree
-  //   const newTreeResponse = await github.rest.git.createTree({
-  //     ...context.repo,
-  //     tree: newTree,
-  //     base_tree: currentTreeSha,
-  //   });
-
-  //   // Check if the new tree is identical to the current tree
-  //   if (newTreeResponse.data.sha !== tree.data.sha) {
-  //     // Create a new commit
-  //     const newCommit = await github.rest.git.createCommit({
-  //       ...context.repo,
-  //       message: `[CI] Issue was updated, updating PR branch`,
-  //       tree: newTreeResponse.data.sha,
-  //       parents: [branchSha],
-  //     });
-
-  //     // Update the branch to point to the new commit
-  //     await github.rest.git.updateRef({
-  //       ...context.repo,
-  //       ref: `heads/${branchName}`,
-  //       sha: newCommit.data.sha,
-  //       // force: true,         // Fail if a new update happened, and restart this workflow
-  //     });
-
-  //     console.log(`Branch '${branchName}' updated with new commit.`);
-  //   } else {
-  //     console.log('No changes detected. Skipping commit.');
-  //   }
-  // }
-
 
 
   // Convert issue to PR if it isn't already
