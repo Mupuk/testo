@@ -32,11 +32,10 @@ const convertSBIssueToPRAndSynchronize = async ({ github, context }) => {
     return;
   }
 
-  let isForked = false;
   if (!isIssue && issuePRData.head.repo.fork) {
-    isForked = true;
+    console.log('SB PR is only supported for non-forked repositories ... skipping');
+    return;
   }
-  console.log('isForked', isForked);
 
 
   // Get issue, since its a converted issue, we need to get the original issue
@@ -73,7 +72,7 @@ const convertSBIssueToPRAndSynchronize = async ({ github, context }) => {
   }
 
   let code = issuePRData.body.match(/^### Short Code Snippet\n[\S\s]*?```c\n(?<code>[\S\s]*?)```/mi)?.groups.code;
-  if (!isForked && !code) { // Dont need it on a fork
+  if (!code) { // Dont need it on a fork
     throw new Error('Code Snippet not found. Most likely the issue was not formatted correctly after editing.');
   }
   code = code.replace(/\r\n/g, '\n').replace(/\r/g, '\n');
