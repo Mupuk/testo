@@ -404,7 +404,10 @@ const updateGithubIssuesAndFiles = async ({
           `Issue not found for '${issueNumber}'. The issue was most likely deleted, but the test still exists. This should never happen. Skipping update.`,
         );
         continue;
-      } else {
+      } else if (error.status === 410) {
+        console.log(`Issue was deleted for '${issueNumber}'. Skipping update.`);
+        continue;
+      }else {
         throw error;
       }
     }
@@ -669,6 +672,25 @@ const updateGithubIssuesAndFiles = async ({
       latestTestOutputs = 'No test outputs available';
     }
     newIssueBody = newIssueBody.replace(/### Latest Test Outputs\n---\n[\s\S]+?\n---/, `### Latest Test Outputs\n---\n${latestTestOutputs}\n---`);
+
+
+
+    // // Notify maintainer if a test ouput changed, but the test did not toggle passing status.
+    // // This helps to find tests that need to be updated, because of syntach changes for example.
+    // const didTestPassLastRun = existingLabels.includes(currentJaiVersion) === false;
+    // const didTestPassThisRun = brokenVersions.includes(currentJaiVersion) === false;
+    // // Only notify when the result did not toggle the passing status
+    // if ((didTestPassLastRun && didTestPassThisRun) || (!didTestPassLastRun && !didTestPassThisRun)) {
+    //   if (
+        
+    //   ) {
+    //     await github.rest.issues.createComment({
+    //     ...context.repo,
+    //     issue_number: issueNumber,
+    //     body: `The test outputs have changed, but the test did not toggle the passing status. This could indicate that the test needs to be updated. Please take a look at this, @Mupu.`,
+    //   }
+    // });
+
 
 
     // Update Labels

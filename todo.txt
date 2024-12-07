@@ -14,7 +14,6 @@
 # [x] check if we can reduce needed permissions and filters.
 
 # [x] latest compiler output
-# [ ] notify user of fix / break
 # [ ] notify me when something changes but passed test was same (compiler output for example)
 # [x] rename template to tid_PRid_CEC0.jai
 # [ ] for issue update in bug suit make rate limit works, for when a new version is released
