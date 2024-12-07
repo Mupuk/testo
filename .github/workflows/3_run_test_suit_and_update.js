@@ -93,23 +93,20 @@ const runTestSuitAndGatherOutput = async ({ github, context, exec, io }) => {
 
   // FORMAT:
   // {
-  //   "263": { // issue id
-  //     "beta-0.1.096": {
-  //       "windows": {
-  //         "compilation_exit_code": 0,
-  //         "expected_compilation_exit_code": 0,
-  //         "expected_run_exit_code": 0,
-  //         "is_runtime_test": false,
-  //         "passed_test": true,
-  //         "run_exit_code": -1
-  //       },
-  //       "linux": {
-  //         ...
-  //       }
-  //     },
-  //     "file_path": "compiler_bugs/CEC0_263.jai",
-  //     "issue_number": 263
-  //   },
+  //  "264": { // tracking_issue_number
+  //    "beta-0.1.093": {
+  //      "linux": {
+  //        "compilation_exit_code": 1,
+  //        "expected_compilation_exit_code": 1,
+  //        "expected_run_exit_code": -1,
+  //        "is_runtime_test": false,
+  //        "passed_test": true,
+  //        "run_exit_code": -1
+  //      }
+  //    },
+  //    "file_path": "compiler_bugs/264_0_CEC1.jai",
+  //    "tracking_issue_number": 264
+  //  },
   //   ...
   // }
   // Get old state of test results

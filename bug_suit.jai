@@ -3,7 +3,7 @@
 // Comiles all files in the 'compiler_bugs' directory and runs them if they compile
 // and produce a binary. If its a folder it has to contain a 'first.jai' file.
 //
-// Files must have a prefix of the form [C|R]EC<exit_code>_<issue_number>.jai //@todo new style
+// Files must have a prefix of the form <tracking_issue_number>_<PRNumber>[C|R]EC<exit_code>.jai
 // Files that start with "CEC" are expected to compile with the exit code that follows
 // Files that start with "REC" are expected to run with the exit code that follows
 //
@@ -17,7 +17,7 @@ Test_Result :: struct
 {
   passed_test: bool = false; // ifx tried_to_run then run_exit_code == expected_run_exist_code else compilation_exit_code == expected_compilation_exist_code
   file_path: string; @JsonIgnore
-  issue_number: int; @JsonIgnore // @todo rename to tracking_issue_number
+  tracking_issue_number: int; @JsonIgnore // @todo rename to tracking_issue_number
 
   is_runtime_test: bool = false; // if not we ignore runtime
 
@@ -83,8 +83,8 @@ Test_Result :: struct
     array_add(*test_file_list, copy_string(args[0]));
 
   // Used to check if issue numbers are unique
-  unique_issue_numbers: [..] int;
-  defer { array_free(unique_issue_numbers); }
+  unique_tracking_issue_numbers: [..] int;
+  defer { array_free(unique_tracking_issue_numbers); }
 
   // Compile and run all the test files
   for file_path_to_compile: test_file_list
@@ -105,10 +105,10 @@ Test_Result :: struct
       tracking_issue_number, success, remainder := string_to_int(filename);
       assert(success, "File name does not start with an tracking issue number. File: '%'", filename);
 
-      newly_added := array_add_if_unique(*unique_issue_numbers, tracking_issue_number);
+      newly_added := array_add_if_unique(*unique_tracking_issue_numbers, tracking_issue_number);
       assert(newly_added, "Tracking Issue number % is not unique", tracking_issue_number);
 
-      test_result.issue_number = tracking_issue_number;
+      test_result.tracking_issue_number = tracking_issue_number;
 
       ec_index := find_index_from_left(filename, "EC");
       assert(ec_index != -1, "File name does not contain 'EC'. File: '%'", filename);
@@ -431,21 +431,21 @@ write_test_results :: (test_results: [..] Test_Result, filename: string)
 }
     // File Path
     json_set(root_obj, 
-             tprint("%!file_path", it.issue_number), 
+             tprint("%!file_path", it.tracking_issue_number), 
              json_value(copy_string(it.file_path)),
              dot_character=#char "!"); // ignore dots from version number
 
     // Issue Number
     json_set(root_obj, 
-             tprint("%!issue_number", it.issue_number), 
-             .{ type=.NUMBER, number= xx it.issue_number },
+             tprint("%!tracking_issue_number", it.tracking_issue_number), 
+             .{ type=.NUMBER, number= xx it.tracking_issue_number },
              dot_character=#char "!"); // ignore dots from version number
 
     // Test Result
     test_result_string := json_write_string(it,, temp);
     success, test_result_value := json_parse_string(test_result_string);
     json_set(root_obj, 
-             tprint("%!%!%", it.issue_number, current_compiler_version, current_platform), 
+             tprint("%!%!%", it.tracking_issue_number, current_compiler_version, current_platform), 
              test_result_value,
              dot_character=#char "!"); // ignore dots from version number
   }

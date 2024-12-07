@@ -11,7 +11,7 @@
       }
     },
     "file_path": "compiler_bugs/264_0_CEC1.jai",
-    "issue_number": 264
+    "tracking_issue_number": 264
   },
   "265": {
     "beta-0.1.094": {
@@ -33,7 +33,7 @@
       }
     },
     "file_path": "compiler_bugs/265_0_REC2.jai",
-    "issue_number": 265
+    "tracking_issue_number": 265
   },
   "999": {
     "beta-0.1.093": {
@@ -47,6 +47,6 @@
       }
     },
     "file_path": "compiler_bugs/999_0_REC0/first.jai",
-    "issue_number": 999
+    "tracking_issue_number": 999
   }
 }
