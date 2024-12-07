@@ -106,6 +106,7 @@ const createTrackingIssueFromPR = async ({ github, context, originalPRData }) =>
   const { format } = require('./_utils.js');
   const issueTitle = `[TRACKER] for PR #${context.issue.number}`; // if this changes, also change the tracker search query
   const issueBody = format(issueTrackerTemplate, parsedBody);
+
   const { data: issue } = await github.rest.issues.create({
     ...context.repo,
     title: issueTitle,
@@ -114,6 +115,13 @@ const createTrackingIssueFromPR = async ({ github, context, originalPRData }) =>
   });
 
 
+  //
+  // NOTE: if the workflow got cancelled right here, to comment on the tracker would get
+  // lost. But its not a big deal. 
+  //
+  // @todo maybe read out comments even if exist
+  // and add if it wasnt there. Doesnt seem worth it though
+  //
   
   // Get issue, since its a converted issue, and we want to get the original creator
   const { data: originalIssue } = await github.rest.issues.get({
@@ -187,6 +195,8 @@ const renameAllFilesToMatchTracker = async ({ github, context, originalPRData, v
   });
 
   // No changes, for example when just the merge had an error and we re-run the workflow
+  // NOTE: This should be fine even if canceled and re-run, since the commit is the
+  // not 'active' until updateRef happened. If that goes through, we are fine.
   if (newTree.sha !== tree.sha) {
     console.log('Renaming files to match tracker issue number...');
     // Create a new commit with the updated tree
