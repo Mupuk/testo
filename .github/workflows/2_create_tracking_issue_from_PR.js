@@ -21,7 +21,10 @@ const issueTrackerTemplate = `
 
 ### Latest Test Outputs
 ---
- -
+\`\`\`
+No test outputs available
+\`\`\`
+
 ---
 
 ### History V1

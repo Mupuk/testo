@@ -664,7 +664,7 @@ const updateGithubIssuesAndFiles = async ({
     if (!latestTestOutputs) {
       latestTestOutputs = 'No test outputs available';
     }
-    newIssueBody = newIssueBody.replace(/### Latest Test Outputs\n---\n[\s\S]+---/, `### Latest Test Outputs\n---\n${latestTestOutputs}\n---`);
+    newIssueBody = newIssueBody.replace(/### Latest Test Outputs\n---\n[\s\S]+?\n---/, `### Latest Test Outputs\n---\n${latestTestOutputs}\n\n---`);
 
 
     // Update Labels
