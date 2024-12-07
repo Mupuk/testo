@@ -758,7 +758,7 @@ const updateGithubIssuesAndFiles = async ({
       });
       console.log('Closed Issue for removed test', issueNumber);
     } catch (error) {
-      if (error.status === 404) {
+      if (error.status === 404 || error.status === 410) {
         console.log(`Issue not found for '${issueNumber}'. The issue was most likely deleted.`);
         continue;
       } else {
