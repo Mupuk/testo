@@ -17,7 +17,7 @@ Test_Result :: struct
 {
   passed_test: bool = false; // ifx tried_to_run then run_exit_code == expected_run_exist_code else compilation_exit_code == expected_compilation_exist_code
   file_path: string; @JsonIgnore
-  tracking_issue_number: int; @JsonIgnore // @todo rename to tracking_issue_number
+  tracking_issue_number: int; @JsonIgnore
 
   is_runtime_test: bool = false; // if not we ignore runtime
 
@@ -28,6 +28,11 @@ Test_Result :: struct
   // run results
   expected_run_exit_code: int = -1;
   run_exit_code: int = -1;
+
+  compiler_output: string;
+  compiler_error_output: string;
+  runtime_output: string;
+  runtime_error_output: string;
 };
 
 
@@ -126,32 +131,6 @@ Test_Result :: struct
       {
         assert(false, "File name does not contain 'CEC' or 'REC'. File: '%'", filename);
       }
-
-    //   if starts_with(filename, "CEC") // expected compilation exit code
-    //   {
-    //     ec_index := find_index_from_left(filename, "EC");
-    //     assert(ec_index != -1, "File name does not contain 'EC'. File: '%'", filename);
-    //     expected_exit_code, success, remainder := string_to_int(advance(filename, ec_index + 2));
-    //     if success then   test_result.expected_compilation_exit_code = expected_exit_code;
-    //     test_result.issue_number = string_to_int(advance(remainder, 1)); // skip '_'
-
-    //     newly_added := array_add_if_unique(*unique_issue_numbers, test_result.issue_number);
-    //     assert(newly_added, "Issue number % is not unique", test_result.issue_number);
-    //   }
-    //   else if starts_with(filename, "REC") // expected run exit code
-    //   {
-    //     test_result.is_runtime_test = true;
-    //     expected_exit_code, success, remainder := string_to_int(advance(filename, 3));
-    //     if success then   test_result.expected_run_exit_code = expected_exit_code;
-    //     test_result.issue_number = string_to_int(advance(remainder, 1)); // skip '_'
-
-    //     newly_added := array_add_if_unique(*unique_issue_numbers, test_result.issue_number);
-    //     assert(newly_added, "Issue number % is not unique", test_result.issue_number);
-    //   }
-    //   else
-    //   {
-    //     assert(false, "File name does not start with 'CEC' or 'REC'. File: '%'", filename);
-    //   }
     }
 
 
@@ -199,6 +178,14 @@ Test_Result :: struct
   //
 
   write_test_results(test_results, "test_results.json");
+
+  // Free output strings
+  for test_results {
+    free(it.compiler_output);
+    free(it.compiler_error_output);
+    free(it.runtime_output);
+    free(it.runtime_error_output);
+  }
 
 
 
@@ -308,7 +295,10 @@ compile_program :: (test_result: *Test_Result, jai_path: string) -> (compile_pro
                                 capture_and_return_output=true, 
                                 print_captured_output=false,
                                 timeout_ms = 5000 // avoid infinite loops
-                                ,, temp);
+                                );
+
+  test_result.compiler_output = output_string;
+  test_result.compiler_error_output = error_string;
 
 
   if compile_process_result.type == .FAILED_TO_LAUNCH {
@@ -377,7 +367,10 @@ run_program :: (test_result: *Test_Result) -> (process_result: Process_Result)
                                 capture_and_return_output=true, 
                                 print_captured_output=false,
                                 timeout_ms = 5000 // avoid infinite loops
-                                ,, temp);
+                                );
+
+  test_result.runtime_output = output_string;
+  test_result.runtime_error_output = error_string;
 
   if process_result.type == .FAILED_TO_LAUNCH {
       print_color("Could not run command: \"%\"", program_path_to_run, color=.RED);

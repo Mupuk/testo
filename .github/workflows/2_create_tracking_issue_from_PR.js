@@ -19,6 +19,11 @@ const issueTrackerTemplate = `
 {workaround}
 \`\`\`
 
+### Latest Test Outputs
+---
+ -
+---
+
 ### History V1
 | Version | Windows | Linux | Mac |
 | :-------: | :-------------: | :-------------: | :-------------: |

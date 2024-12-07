@@ -102,6 +102,10 @@ const runTestSuitAndGatherOutput = async ({ github, context, exec, io }) => {
   //        "is_runtime_test": false,
   //        "passed_test": true,
   //        "run_exit_code": -1
+  //        "compiler_output": "..."
+  //        "compiler_error_output": "..."
+  //        "runtime_output": "..."
+  //        "runtime_error_output": "..."
   //      }
   //    },
   //    "file_path": "compiler_bugs/264_0_CEC1.jai",
@@ -436,7 +440,7 @@ const updateGithubIssuesAndFiles = async ({
 
 
 
-    // Update History
+    // Update History in Table
     // @todo add history compression and decompression
     for (const version of allTestResultPerVersionsSorted) {
       let row = fullHistoryDataByVersion[version];
@@ -523,7 +527,7 @@ const updateGithubIssuesAndFiles = async ({
 
 
 
-    // Insert updated data into issue body
+    // Update History Table in Issue Body
     let replaceIndex = -1;
     newIssueBody = newIssueBody.replace(parseIssueHistoryRegex, (match) => {
       replaceIndex += 1;
@@ -571,7 +575,7 @@ const updateGithubIssuesAndFiles = async ({
 
 
 
-    // Update Header
+    // Update Header of Issue Body
     replaceIndex = -1;
     newIssueBody = newIssueBody.replace(parseIssueHeaderRegex, (match, ...args) => {
       replaceIndex += 1;
@@ -623,6 +627,44 @@ const updateGithubIssuesAndFiles = async ({
       );
     }
 
+
+    // Update the Latest Test Outputs
+    let latestTestOutputs = '';
+    for (const platform of activePlatforms) {
+      const testResult = allTestResults[issueNumber][currentJaiVersion][platform];
+      if (testResult.compiler_output
+          || testResult.compiler_error_output
+          || testResult.runtime_output
+          || testResult.runtime_error_output
+        ) {
+
+        latestTestOutputs += `<details>\n<summary>${platform}</summary>\n\n`;
+
+        if (testResult.compiler_output) {
+          latestTestOutputs += `    <details>\n<summary>Compiler Output</summary>\n\n\`\`\``;
+          latestTestOutputs += testResult.compiler_output.replace(/\r\n/g, '\n').replace(/\r/g, '\n');;
+          latestTestOutputs += "\`\`\`\n    </details>";
+        } else if (testResult.compiler_error_output) {
+          latestTestOutputs += `    <details>\n<summary>Compiler Error Output</summary>\n\n\`\`\``;
+          latestTestOutputs += testResult.compiler_error_output.replace(/\r\n/g, '\n').replace(/\r/g, '\n');;
+          latestTestOutputs += "\`\`\`\n    </details>";
+        } else if (testResult.runtime_output) {
+          latestTestOutputs += `    <details>\n<summary>Runtime Output</summary>\n\n\`\`\``;
+          latestTestOutputs += testResult.runtime_output.replace(/\r\n/g, '\n').replace(/\r/g, '\n');;
+          latestTestOutputs += "\`\`\`\n    </details>";
+        } else if (testResult.runtime_error_output) {
+          latestTestOutputs += `    <details>\n<summary>Runtime Error Output</summary>\n\n\`\`\``;
+          latestTestOutputs += testResult.runtime_error_output.replace(/\r\n/g, '\n').replace(/\r/g, '\n');;
+          latestTestOutputs += "\`\`\`\n    </details>";
+        }
+
+        latestTestOutputs += "</details>";
+      }
+    }
+    if (!latestTestOutputs) {
+      latestTestOutputs = 'No test outputs available';
+    }
+    newIssueBody = newIssueBody.replace(/### Latest Test Outputs\n---\n[\s\S]+---/, `### Latest Test Outputs\n---\n${latestTestOutputs}\n---`);
 
 
     // Update Labels

@@ -11,14 +11,14 @@
 # [ ] check all code again
 # [x] look at concurrency locks
       Not good, mainly because comments could get lost or things inside the ifs after first creation :(
-# [ ] check if we can reduce needed permissions and filters.
+# [x] check if we can reduce needed permissions and filters.
 
-# [ ] notify user of fix / break
-# [ ] test BB pipeline
-# [x] rename template to tid_PRid_CEC0.jai
 # [ ] latest compiler output
+# [ ] notify user of fix / break
 # [ ] notify me when something changes but passed test was same (compiler output for example)
+# [x] rename template to tid_PRid_CEC0.jai
 # [ ] for issue update in bug suit make rate limit works, for when a new version is released
+# [ ] test BB pipeline
 
 
 #
