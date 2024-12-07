@@ -89,80 +89,353 @@ const convertSBIssueToPRAndSynchronize = async ({ github, context }) => {
 
 
 
-  // We dont care about any race conditions, as the commit will fail if the branch is not up to date
-  // Also since we just update the file content and have the actual validation happen later,
-  // we can use this api.
 
-  // Convert issue to a pull request if it isn't already
-  if (isIssue) {
-    if (isForked) {
-      throw new Error('Fork cant be an Issue');
-    }
-    console.log('Creating Branch', branchName);
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  // // We dont care about any race conditions, as the commit will fail if the branch is not up to date
+  // // Also since we just update the file content and have the actual validation happen later,
+  // // we can use this api.
+
+  // // Convert issue to a pull request if it isn't already
+  // if (isIssue) {
+  //   if (isForked) {
+  //     throw new Error('Fork cant be an Issue');
+  //   }
+  //   console.log('Creating Branch', branchName);
+  //   try {
+  //     // Check if the branch already exists
+  //     branchRef = await github.rest.git.getRef({
+  //       ...context.repo,
+  //       ref: `heads/${branchName}`,
+  //     });
+  //   } catch (error) {
+  //     if (error.status === 404) {
+  //       const { data: baseBranchData } = await github.rest.repos.getBranch({
+  //         owner: context.repo.owner,
+  //         repo: context.repo.repo,
+  //         branch: 'master',
+  //       });
+
+  //       // Create a new branch for the PR
+  //       await github.rest.git.createRef({
+  //         ...context.repo,
+  //         ref: `refs/heads/${branchName}`,
+  //         sha: baseBranchData.commit.sha,
+  //       });
+  //     }
+  //   }
+
+
+  // } else { 
+  //   // Find old file to update
+  //   const { data } = await github.rest.pulls.listFiles({
+  //     ...context.repo,
+  //     pull_number: context.issue.number,
+  //     per_page: 100
+  //   });
+  //   console.log('data', data);
+  //   if (data.length !== 1) {
+  //     throw new Error('Expected exactly 1 file in a SB PR');
+  //   }
+  //   filePath = data.map(file => file.filename)[0];
+  //   console.log('found filePathToChange', filePath);
+
+  //   // Get the current content of the matched file
+  //   const fileContent = await github.rest.repos.getContent({
+  //     ...context.repo,
+  //     path: filePath,
+  //     ref: branchName
+  //   });
+  //   oldFile = fileContent;
+  //   oldFile.data.content = Buffer.from(oldFile.data.content, 'base64')
+  //                           .toString('utf-8').replace(/\r\n/g, '\n').replace(/\r/g, '\n');
+  // }
+
+
+  // // Update the file in the PR branch if it changed. Never update forkes
+  // if (!isForked && oldFile?.data.content !== code) {
+  //   console.log('Updating file:', filePath);
+  //   await github.rest.repos.createOrUpdateFileContents({
+  //     ...context.repo,
+  //     branch: branchName,
+  //     path: filePath,
+  //     message: `[CI] Synchronizing issue content to PR branch`,
+  //     content: Buffer.from(code).toString('base64'),
+  //     ...(oldFile? { sha: oldFile.data.sha } : {}),
+  //   });
+  // } else {
+  //   console.log('No changes detected. Skipping file update.');
+  // }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  // Delete old file if it exists, create new file, commit if it changed
+  // We use this verbose api to avoid 2 separate commits, because we have
+  // to rename a file...
+  {
+    // Check if the branch exists or create it
+    let branchSha = null;
     try {
-      // Check if the branch already exists
-      branchRef = await github.rest.git.getRef({
+      const branchRef = await github.rest.git.getRef({
         ...context.repo,
         ref: `heads/${branchName}`,
       });
+      branchSha = branchRef.data.object.sha
+
+      console.log(`Branch '${branchName}' already exists.`);
     } catch (error) {
       if (error.status === 404) {
-        const { data: baseBranchData } = await github.rest.repos.getBranch({
-          owner: context.repo.owner,
-          repo: context.repo.repo,
-          branch: 'master',
+        // Branch does not exist, create it
+        console.log(`Branch '${branchName}' does not exist. Creating it...`);
+
+        // Get the default branch (e.g., main) as the base
+        const { data: defaultBranch } = await github.rest.repos.get({
+          ...context.repo,
+        });
+        const baseBranch = defaultBranch.default_branch;
+
+        // Get the SHA of the default branch
+        const baseBranchRef = await github.rest.git.getRef({
+          ...context.repo,
+          ref: `heads/${baseBranch}`,
         });
 
-        // Create a new branch for the PR
-        await github.rest.git.createRef({
+        // Create the new branch
+        const createRefResponse = await github.rest.git.createRef({
           ...context.repo,
           ref: `refs/heads/${branchName}`,
-          sha: baseBranchData.commit.sha,
+          sha: baseBranchRef.data.object.sha,
         });
+        branchSha = createRefResponse.data.object.sha
+
+        // Retrieve the reference of the newly created branch
+        const branchRef = await github.rest.git.getRef({
+          ...context.repo,
+          ref: `heads/${branchName}`,
+        });
+        if (branchRef.data.object.sha !== branchSha) { // @todo remove
+          throw new Error(`Failed to create branch '${branchName}'.`);
+        }
+
+        console.log(`Branch '${branchName}' successfully created.`);
+      } else {
+        throw error;
       }
     }
 
-
-  } else { 
-    // Find old file to update
-    const { data } = await github.rest.pulls.listFiles({
+    // Get the current commit and tree
+    const branchCommit = await github.rest.git.getCommit({
       ...context.repo,
-      pull_number: context.issue.number,
-      per_page: 100
+      commit_sha: branchSha,
     });
-    console.log('data', data);
-    if (data.length !== 1) {
-      throw new Error('Expected exactly 1 file in a SB PR');
+
+    const currentTreeSha = branchCommit.data.tree.sha;
+
+    // Prepare the new tree entries
+    const tree = await github.rest.git.getTree({
+      ...context.repo,
+      tree_sha: currentTreeSha,
+      recursive: true,
+    });
+
+    
+
+    // Create the new blob
+    const blob = await github.rest.git.createBlob({
+      ...context.repo,
+      content: newFileContent,
+      encoding: 'base64',
+    });
+
+    // This code does not prevent the user from having more files with different names in the PR
+    // But this will be caught by the validation later on
+    const validBugNameRegexTemplate = `^compiler_bugs/\\d+_${context.issue.number}_[CR]EC-?\\d+\\.jai$`; // @copyPasta
+    const validBugNameRegex = new RegExp(validBugNameRegexTemplate);
+    let replacedFile = false;
+    const newTree = tree.data.tree
+      // The bug type or error code may have changed, so we need to delete the old one
+      .flatMap(file => {
+        if (validBugNameRegex.test(file.path)) {
+          console.log('Changing Content of file:', file.path);
+          if (replacedFile) {
+            throw new Error('Expected exactly 1 file in a SB PR');
+          } else {
+            replacedFile = true;
+          }
+          return [
+            {
+              path: filePath,
+              mode: file.mode,
+              type: file.type,
+              sha: blob.data.sha, // Replace the file content
+            },
+            {
+              path: file.path,
+              mode: file.mode,
+              type: file.type,
+              sha: null, // Mark the original file for deletion
+            }
+          ];
+        }
+        return file;
+      });
+
+
+    if (!replacedFile) {
+      console.log('Adding file:', filePath);
+      newTree.push({
+        path: filePath,
+        mode: '100644', // https://docs.github.com/en/rest/git/trees?apiVersion=2022-11-28
+        type: 'blob',
+        sha: blob.data.sha,
+      });
     }
-    filePath = data.map(file => file.filename)[0];
-    console.log('found filePathToChange', filePath);
 
-    // Get the current content of the matched file
-    const fileContent = await github.rest.repos.getContent({
+    // Create the new tree
+    const newTreeResponse = await github.rest.git.createTree({
       ...context.repo,
-      path: filePath,
-      ref: branchName
+      tree: newTree,
+      base_tree: currentTreeSha,
     });
-    oldFile = fileContent;
-    oldFile.data.content = Buffer.from(oldFile.data.content, 'base64')
-                            .toString('utf-8').replace(/\r\n/g, '\n').replace(/\r/g, '\n');
+
+    // Check if the new tree is identical to the current tree
+    if (newTreeResponse.data.sha !== tree.data.sha) {
+      // Create a new commit
+      const newCommit = await github.rest.git.createCommit({
+        ...context.repo,
+        message: `[CI] Issue was updated, updating PR branch`,
+        tree: newTreeResponse.data.sha,
+        parents: [branchSha],
+      });
+
+      // Update the branch to point to the new commit
+      await github.rest.git.updateRef({
+        ...context.repo,
+        ref: `heads/${branchName}`,
+        sha: newCommit.data.sha,
+        // force: true,         // Fail if a new update happened, and restart this workflow
+      });
+
+      console.log(`Branch '${branchName}' updated with new commit.`);
+    } else {
+      console.log('No changes detected. Skipping commit.');
+    }
   }
 
 
-  // Update the file in the PR branch if it changed. Never update forkes
-  if (!isForked && oldFile?.data.content !== code) {
-    console.log('Updating file:', filePath);
-    await github.rest.repos.createOrUpdateFileContents({
-      ...context.repo,
-      branch: branchName,
-      path: filePath,
-      message: `[CI] Synchronizing issue content to PR branch`,
-      content: Buffer.from(code).toString('base64'),
-      ...(oldFile? { sha: oldFile.data.sha } : {}),
-    });
-  } else {
-    console.log('No changes detected. Skipping file update.');
-  }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
   // Convert issue to PR if it isn't already
