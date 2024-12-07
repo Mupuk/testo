@@ -158,7 +158,7 @@ const convertSBIssueToPRAndSynchronize = async ({ github, context }) => {
 
     // This code does not prevent the user from having more files with different names in the PR
     // But this will be caught by the validation later on
-    const validBugNameRegexTemplate = `^compiler_bugs/\\d+_${context.issue.number}_[CR]EC-?\\d+\\.jai$`; // @copyPasta
+    const validBugNameRegexTemplate = `^compiler_bugs/\\d+_(?:${context.issue.number}|0)_[CR]EC-?\\d+\\.jai$`; // @copyPasta
     const validBugNameRegex = new RegExp(validBugNameRegexTemplate);
     let replacedFile = false;
     const newTree = tree.data.tree
