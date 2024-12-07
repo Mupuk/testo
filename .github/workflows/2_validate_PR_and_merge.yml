@@ -7,7 +7,6 @@ on:
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.event.issue.number || github.event.pull_request.number }}
-  cancel-in-progress: true # So that we cancle the approval job if a new one is started
 
 jobs:
   # Since only workflow files themselves are safe when using pull_request_target

@@ -8,9 +8,6 @@ on:
 
 concurrency:
   group: ${{ github.workflow }}
-  # Technically issues could already have updated partially, but it doesnt matter
-  # Since our program is tolerant to this.
-  cancel-in-progress: true 
 
 jobs:
   run-test-suit:

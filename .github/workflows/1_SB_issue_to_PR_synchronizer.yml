@@ -10,8 +10,6 @@ on:
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.event.issue.number || github.event.pull_request.number }}
-  # This should be safe since this workflow is designed to be called multiple times anyways
-  cancel-in-progress: true
 
 jobs:
   convert-SB-issue-to-PR-and-synchronize:
