@@ -3,7 +3,7 @@
 // Comiles all files in the 'compiler_bugs' directory and runs them if they compile
 // and produce a binary. If its a folder it has to contain a 'first.jai' file.
 //
-// Files must have a prefix of the form [C|R]EC<exit_code>_<issue_number>.jai
+// Files must have a prefix of the form [C|R]EC<exit_code>_<issue_number>.jai //@todo new style
 // Files that start with "CEC" are expected to compile with the exit code that follows
 // Files that start with "REC" are expected to run with the exit code that follows
 //
@@ -17,7 +17,7 @@ Test_Result :: struct
 {
   passed_test: bool = false; // ifx tried_to_run then run_exit_code == expected_run_exist_code else compilation_exit_code == expected_compilation_exist_code
   file_path: string; @JsonIgnore
-  issue_number: int; @JsonIgnore
+  issue_number: int; @JsonIgnore // @todo rename to tracking_issue_number
 
   is_runtime_test: bool = false; // if not we ignore runtime
 
@@ -82,7 +82,7 @@ Test_Result :: struct
   else
     array_add(*test_file_list, copy_string(args[0]));
 
-  // Used for checking if issue numbers are unique
+  // Used to check if issue numbers are unique
   unique_issue_numbers: [..] int;
   defer { array_free(unique_issue_numbers); }
 
@@ -91,7 +91,7 @@ Test_Result :: struct
   {
     test_result: Test_Result;
     test_result.file_path = file_path_to_compile;
-    // Extract expected exit code from file name
+    // Extract expected exit code and tracker issue number from file name
     {
       filename := path_filename(file_path_to_compile);
       // If its a folder we need to use the folder name instead of file name
@@ -102,29 +102,56 @@ Test_Result :: struct
         filename = path_filename(file_path);
       }
 
-      if starts_with(filename, "CEC") // expected compilation exit code
-      {
-        expected_exit_code, success, remainder := string_to_int(advance(filename, 3));
-        if success then   test_result.expected_compilation_exit_code = expected_exit_code;
-        test_result.issue_number = string_to_int(advance(remainder, 1)); // skip '_'
+      tracking_issue_number, success, remainder := string_to_int(filename);
+      assert(success, "File name does not start with an tracking issue number. File: '%'", filename);
 
-        newly_added := array_add_if_unique(*unique_issue_numbers, test_result.issue_number);
-        assert(newly_added, "Issue number % is not unique", test_result.issue_number);
+      newly_added := array_add_if_unique(*unique_issue_numbers, tracking_issue_number);
+      assert(newly_added, "Tracking Issue number % is not unique", tracking_issue_number);
+
+      test_result.issue_number = tracking_issue_number;
+
+      ec_index := find_index_from_left(filename, "EC");
+      assert(ec_index != -1, "File name does not contain 'EC'. File: '%'", filename);
+      expected_exit_code:, success, remainder = string_to_int(advance(filename, ec_index + 2));
+      if (filename[ec_index - 1] == #char "C") // expected compilation exit code
+      {
+        test_result.expected_compilation_exit_code = expected_exit_code;
       }
-      else if starts_with(filename, "REC") // expected run exit code
+      else if (filename[ec_index - 1] == #char "R") // expected run exit code
       {
         test_result.is_runtime_test = true;
-        expected_exit_code, success, remainder := string_to_int(advance(filename, 3));
-        if success then   test_result.expected_run_exit_code = expected_exit_code;
-        test_result.issue_number = string_to_int(advance(remainder, 1)); // skip '_'
-
-        newly_added := array_add_if_unique(*unique_issue_numbers, test_result.issue_number);
-        assert(newly_added, "Issue number % is not unique", test_result.issue_number);
+        test_result.expected_run_exit_code = expected_exit_code;
       }
       else
       {
-        assert(false, "File name does not start with 'CEC' or 'REC'. File: '%'", filename);
+        assert(false, "File name does not contain 'CEC' or 'REC'. File: '%'", filename);
       }
+
+    //   if starts_with(filename, "CEC") // expected compilation exit code
+    //   {
+    //     ec_index := find_index_from_left(filename, "EC");
+    //     assert(ec_index != -1, "File name does not contain 'EC'. File: '%'", filename);
+    //     expected_exit_code, success, remainder := string_to_int(advance(filename, ec_index + 2));
+    //     if success then   test_result.expected_compilation_exit_code = expected_exit_code;
+    //     test_result.issue_number = string_to_int(advance(remainder, 1)); // skip '_'
+
+    //     newly_added := array_add_if_unique(*unique_issue_numbers, test_result.issue_number);
+    //     assert(newly_added, "Issue number % is not unique", test_result.issue_number);
+    //   }
+    //   else if starts_with(filename, "REC") // expected run exit code
+    //   {
+    //     test_result.is_runtime_test = true;
+    //     expected_exit_code, success, remainder := string_to_int(advance(filename, 3));
+    //     if success then   test_result.expected_run_exit_code = expected_exit_code;
+    //     test_result.issue_number = string_to_int(advance(remainder, 1)); // skip '_'
+
+    //     newly_added := array_add_if_unique(*unique_issue_numbers, test_result.issue_number);
+    //     assert(newly_added, "Issue number % is not unique", test_result.issue_number);
+    //   }
+    //   else
+    //   {
+    //     assert(false, "File name does not start with 'CEC' or 'REC'. File: '%'", filename);
+    //   }
     }
 
 

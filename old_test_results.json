@@ -10,7 +10,7 @@
         "run_exit_code": -1
       }
     },
-    "file_path": "compiler_bugs/CEC1_264.jai",
+    "file_path": "compiler_bugs/264_0_CEC1.jai",
     "issue_number": 264
   },
   "265": {
@@ -32,7 +32,7 @@
         "run_exit_code": 1
       }
     },
-    "file_path": "compiler_bugs/REC2_265.jai",
+    "file_path": "compiler_bugs/265_0_REC2.jai",
     "issue_number": 265
   },
   "999": {
@@ -46,7 +46,7 @@
         "run_exit_code": -1
       }
     },
-    "file_path": "compiler_bugs/REC0_999/first.jai",
+    "file_path": "compiler_bugs/999_0_REC0/first.jai",
     "issue_number": 999
   }
 }

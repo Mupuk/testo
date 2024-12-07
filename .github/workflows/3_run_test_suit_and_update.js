@@ -122,7 +122,6 @@ const runTestSuitAndGatherOutput = async ({ github, context, exec, io }) => {
   }
 
   // Get compiler path
-  const options = { silent: false };
   let compilerPath = await io.which('jai'); // we start with the current one
   try {
     // Get the real path, if its a symlink
@@ -130,10 +129,11 @@ const runTestSuitAndGatherOutput = async ({ github, context, exec, io }) => {
   } catch (err) {} // ignore error
   console.log('Running for version:', currentJaiVersion);
   console.log('compilerPath', compilerPath);
-
-
-
-  // Run test suit for all tests
+  
+  
+  
+  // Run test suit for all tests{ silent: false }
+  const options = { silent: false };
   await exec.exec(`${compilerPath} bug_suit.jai`, [], options);
 
 
@@ -709,6 +709,7 @@ const updateGithubIssuesAndFiles = async ({
     .getContent({ ...context.repo, path: 'old_test_results.json' })
     .catch(() => ({ data: null }));
 
+  // @todo uncomment
   // Commit new test_results.json
   // await github.rest.repos.createOrUpdateFileContents({
   //   ...context.repo,
