@@ -1,3 +1,4 @@
+const { default: test } = require('node:test');
 const { makeExtendedRegExp } = require('./_utils.js');
 
 // Make sure the regex capture groups stay the same :regexGroupNames
@@ -632,39 +633,43 @@ const updateGithubIssuesAndFiles = async ({
     let latestTestOutputs = '';
     for (const platform of activePlatforms) {
       const testResult = allTestResults[issueNumber][currentJaiVersion][platform];
+      testResult.compiler_output = 'test';
+      testResult.compiler_error_output = 'test';
+      testResult.runtime_output = 'test';
+      testResult.runtime_error_output = 'test';
       if (testResult.compiler_output
           || testResult.compiler_error_output
           || testResult.runtime_output
           || testResult.runtime_error_output
         ) {
 
-        latestTestOutputs += `<details>\n<summary>${platform}</summary>\n\n`;
+        latestTestOutputs += `<details>\n<summary>${platform}</summary>\n`;
 
         if (testResult.compiler_output) {
-          latestTestOutputs += `    <details>\n<summary>Compiler Output</summary>\n\n\`\`\``;
+          latestTestOutputs += `<details>\n<summary>Compiler Output</summary>\n\n\`\`\``;
           latestTestOutputs += testResult.compiler_output.replace(/\r\n/g, '\n').replace(/\r/g, '\n');;
-          latestTestOutputs += "\`\`\`\n    </details>\n\n";
+          latestTestOutputs += "\n\`\`\`\n</details>\n";
         } else if (testResult.compiler_error_output) {
-          latestTestOutputs += `    <details>\n<summary>Compiler Error Output</summary>\n\n\`\`\``;
+          latestTestOutputs += `<details>\n<summary>Compiler Error Output</summary>\n\n\`\`\``;
           latestTestOutputs += testResult.compiler_error_output.replace(/\r\n/g, '\n').replace(/\r/g, '\n');;
-          latestTestOutputs += "\`\`\`\n    </details>\n\n";
+          latestTestOutputs += "\n\`\`\`\n</details>\n";
         } else if (testResult.runtime_output) {
-          latestTestOutputs += `    <details>\n<summary>Runtime Output</summary>\n\n\`\`\``;
+          latestTestOutputs += `<details>\n<summary>Runtime Output</summary>\n\n\`\`\``;
           latestTestOutputs += testResult.runtime_output.replace(/\r\n/g, '\n').replace(/\r/g, '\n');;
-          latestTestOutputs += "\`\`\`\n    </details>\n\n";
+          latestTestOutputs += "\n\`\`\`\n</details>\n";
         } else if (testResult.runtime_error_output) {
-          latestTestOutputs += `    <details>\n<summary>Runtime Error Output</summary>\n\n\`\`\``;
+          latestTestOutputs += `<details>\n<summary>Runtime Error Output</summary>\n\n\`\`\``;
           latestTestOutputs += testResult.runtime_error_output.replace(/\r\n/g, '\n').replace(/\r/g, '\n');;
-          latestTestOutputs += "\`\`\`\n    </details>\n\n";
+          latestTestOutputs += "\n\`\`\`\n</details>\n";
         }
 
-        latestTestOutputs += "</details>";
+        latestTestOutputs += "</details>\n";
       }
     }
     if (!latestTestOutputs) {
       latestTestOutputs = 'No test outputs available';
     }
-    newIssueBody = newIssueBody.replace(/### Latest Test Outputs\n---\n[\s\S]+?\n---/, `### Latest Test Outputs\n---\n${latestTestOutputs}\n\n---`);
+    newIssueBody = newIssueBody.replace(/### Latest Test Outputs\n---\n[\s\S]+?\n---/, `### Latest Test Outputs\n---\n${latestTestOutputs}\n---`);
 
 
     // Update Labels
