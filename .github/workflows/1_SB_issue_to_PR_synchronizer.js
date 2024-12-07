@@ -324,7 +324,7 @@ const convertSBIssueToPRAndSynchronize = async ({ github, context }) => {
     // Create the new blob
     const blob = await github.rest.git.createBlob({
       ...context.repo,
-      content: newFileContent,
+      content: Buffer.from(code).toString('base64'),
       encoding: 'base64',
     });
 
