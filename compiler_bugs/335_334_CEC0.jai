@@ -1,2 +1,1 @@
-#insert -> string func()
-blubx
+main :: () {}
