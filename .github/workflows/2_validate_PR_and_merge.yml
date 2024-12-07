@@ -50,6 +50,13 @@ jobs:
               pull_number: context.issue.number
             });
 
+            // Make sure PR is still open
+            if (pr.state !== 'open') {
+              console.log('Issue/PR is not open ... skipping');
+              return;
+            }
+
+
             // We put this here as an exception to safe processing time, as an early exit
             const isSBOrBB = /^\[[SB]B\]:/.test(pr.title);
             if (!isSBOrBB) {
@@ -58,12 +65,6 @@ jobs:
               return;
             }
             
-            // Make sure PR is still open
-            if (pr.state !== 'open') {
-              console.log('Issue/PR is not open ... skipping');
-              return;
-            }
-
             
             // THIS IS UNSAFE because we have a race condition from our
             // sha of workflow trigger, to here! But it should support 3000
