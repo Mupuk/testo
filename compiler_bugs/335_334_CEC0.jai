@@ -1,0 +1,2 @@
+#insert -> string func()
+blubx
