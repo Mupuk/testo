@@ -123,14 +123,25 @@ const createTrackingIssueFromPR = async ({ github, context, originalPRData }) =>
 // We force overwite all changes, since its the only way for us to commit and be sure 
 // that no other commits got in the way, that we dont trust.
 const renameAllFilesToMatchTracker = async ({ github, context, originalPRData, validatedCommitSha, trackerIssueNumber }) => {
+  // In case its a fork we need to push to IT, instead of our own repo
+  let repo = null;
+  if (originalPRData.head.repo.fork) {
+    repo = {
+      owner: originalPRData.head.repo.owner.login,
+      repo: originalPRData.head.repo.name,
+    };
+  } else {
+    repo = context.repo;
+  }
+
   // Fetch the commit and its tree
   const { data: commit } = await github.rest.git.getCommit({
-    ...context.repo,
+    ...repo,
     commit_sha: validatedCommitSha
   });
 
   const { data: tree } = await github.rest.git.getTree({
-    ...context.repo,
+    ...repo,
     tree_sha: commit.tree.sha,
     recursive: true
   });
@@ -168,7 +179,7 @@ const renameAllFilesToMatchTracker = async ({ github, context, originalPRData, v
 
   // Create a new tree
   const { data: newTree } = await github.rest.git.createTree({
-    ...context.repo,
+  ...repo,
     tree: updatedTree,
     base_tree: commit.tree.sha,
   });
@@ -180,7 +191,7 @@ const renameAllFilesToMatchTracker = async ({ github, context, originalPRData, v
     console.log('Renaming files to match tracker issue number...');
     // Create a new commit with the updated tree
     const { data: newCommit } = await github.rest.git.createCommit({
-      ...context.repo,
+      ...repo,
       message: `[CI] Renamed files to use tracker issue number '${trackerIssueNumber}'`,
       tree: newTree.sha,
       parents: [validatedCommitSha]
@@ -188,7 +199,7 @@ const renameAllFilesToMatchTracker = async ({ github, context, originalPRData, v
 
     // Force push the new commit
     await github.rest.git.updateRef({
-      ...context.repo,
+      ...repo,
       ref: `heads/issue-${originalPRData.number}`,
       sha: newCommit.sha,
       force: true        // VERY IMPORTANT: Force push to overwrite any untrusted changes
