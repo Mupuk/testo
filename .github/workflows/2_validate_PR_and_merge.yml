@@ -4,8 +4,8 @@ on:
   workflow_dispatch:
   pull_request_target:
     types: [opened, synchronize, edited] # @todo remove edited
-  branches:
-      - master
+    branches:
+        - master
 
 permissions: {}
 
