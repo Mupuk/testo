@@ -226,7 +226,7 @@ jobs:
     # The validation above, only makes sure the JS files are safe and that the
     # commit has the correct structure. But the jai files themselves are still
     # untrusted.
-    # environment: test
+    environment: test
 
     steps:
       # The JS in here *should* be safe, as we validated that the .github was not modified
