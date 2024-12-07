@@ -2,9 +2,15 @@ name: 3_run_test_suit_and_update
 
 on:
   workflow_dispatch: # Manual trigger
-  # push: # @todo uncomment
-  #   branches:
-  #     - master
+  push: # @todo uncomment
+    branches:
+      - master
+
+concurrency:
+  group: ${{ github.workflow }}
+  # Technically issues could already have updated partially, but it doesnt matter
+  # Since our program is tolerant to this.
+  cancel-in-progress: true 
 
 jobs:
   run-test-suit:
