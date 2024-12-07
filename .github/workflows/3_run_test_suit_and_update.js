@@ -643,19 +643,19 @@ const updateGithubIssuesAndFiles = async ({
         if (testResult.compiler_output) {
           latestTestOutputs += `    <details>\n<summary>Compiler Output</summary>\n\n\`\`\``;
           latestTestOutputs += testResult.compiler_output.replace(/\r\n/g, '\n').replace(/\r/g, '\n');;
-          latestTestOutputs += "\`\`\`\n    </details>";
+          latestTestOutputs += "\`\`\`\n    </details>\n\n";
         } else if (testResult.compiler_error_output) {
           latestTestOutputs += `    <details>\n<summary>Compiler Error Output</summary>\n\n\`\`\``;
           latestTestOutputs += testResult.compiler_error_output.replace(/\r\n/g, '\n').replace(/\r/g, '\n');;
-          latestTestOutputs += "\`\`\`\n    </details>";
+          latestTestOutputs += "\`\`\`\n    </details>\n\n";
         } else if (testResult.runtime_output) {
           latestTestOutputs += `    <details>\n<summary>Runtime Output</summary>\n\n\`\`\``;
           latestTestOutputs += testResult.runtime_output.replace(/\r\n/g, '\n').replace(/\r/g, '\n');;
-          latestTestOutputs += "\`\`\`\n    </details>";
+          latestTestOutputs += "\`\`\`\n    </details>\n\n";
         } else if (testResult.runtime_error_output) {
           latestTestOutputs += `    <details>\n<summary>Runtime Error Output</summary>\n\n\`\`\``;
           latestTestOutputs += testResult.runtime_error_output.replace(/\r\n/g, '\n').replace(/\r/g, '\n');;
-          latestTestOutputs += "\`\`\`\n    </details>";
+          latestTestOutputs += "\`\`\`\n    </details>\n\n";
         }
 
         latestTestOutputs += "</details>";
