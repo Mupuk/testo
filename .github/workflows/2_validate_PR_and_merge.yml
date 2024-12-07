@@ -184,7 +184,7 @@ jobs:
 
   # WARNING: This could get called quite some time later, than the check above
   validate-added-test-and-merge-pr:
-    permissions: write-all
+    permissions: write-all # @todo remove
     runs-on: [self-hosted, linux] # @todo remove linux
     needs: pr-validation
     # Only run if validation passed
@@ -201,7 +201,7 @@ jobs:
       - name: Checkout Validated PRs 
         uses: actions/checkout@v4
         with:
-          # ref: ${{ needs.pr-validation.outputs.validated_commit_sha }}
+          ref: ${{ needs.pr-validation.outputs.validated_commit_sha }}
           path: PR
 
       # But, this is generally safer, so we can trust the js code that is run below
@@ -228,7 +228,8 @@ jobs:
       - name: Create Tracking Issue and merge Pull Request
         uses: actions/github-script@v7
         with:
-          github-token: ${{ steps.app_token.outputs.token }} # we need to trigger the bugsuit on merge
+          # @todo uncomment
+          # github-token: ${{ steps.app_token.outputs.token }} # we need to trigger the bugsuit on merge
           script: |
             console.log(`Manual approval was given for Pull Request #${context.issue.number}...`);
 
