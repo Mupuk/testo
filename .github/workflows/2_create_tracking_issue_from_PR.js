@@ -114,7 +114,7 @@ const createTrackingIssueFromPR = async ({ github, context, originalPRData }) =>
   await github.rest.issues.createComment({
     ...context.repo,
     issue_number: issue.number,
-    body: `👋 Thanks for the contribution @${originialIssueCreator}. We will notify you when this issue was fixed, or breaks again!`,
+    body: `👋 Thanks for the contribution @${originialIssueCreator}. If you want to get notified when this issue is fixed, or breaks again, subscribe to this issue!`,
   });
 
   return issue.number;
