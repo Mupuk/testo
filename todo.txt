@@ -12,27 +12,30 @@
 # [x] look at concurrency locks
       Not good, mainly because comments could get lost or things inside the ifs after first creation :(
 # [x] check if we can reduce needed permissions and filters.
+# [ ] PR template
 
 # [x] latest compiler output
-# [ ] notify me when something changes but passed test was same (compiler output for example)
 # [x] rename template to tid_PRid_CEC0.jai
 # [ ] for issue update in bug suit make rate limit works, for when a new version is released
 # [ ] test BB pipeline
+# [ ] test SB custom fork
+# [ ] readme
 
 
 #
-# BONUS
+# FOR RELEASE
 #
 
 # [-] making the test run without offline platform? How?
        NOTE: Not directly possible (https://github.com/orgs/community/discussions/50926)
              For when its stuck. Its possible to check completely offline though
 # [x] update issue template to support is_runtime_test
+# [ ] notify me when something changes but passed test was same (compiler output for example)
 # [ ] change emailed in handling and add lable for it
 # [ ] create summary? issue? issue would need limits. readme? has bad visual support
-# [ ] readme
 # [ ] history (de)compression
 # [ ] optional checking if test really crashes on latest version after manual approval
+# [] create the categoreies list for issue clasification
 
 
 
