@@ -126,15 +126,6 @@ const convertSBIssueToPRAndSynchronize = async ({ github, context }) => {
         });
         branchSha = createRefResponse.data.object.sha
 
-        // Retrieve the reference of the newly created branch
-        const branchRef = await github.rest.git.getRef({
-          ...context.repo,
-          ref: `heads/${branchName}`,
-        });
-        if (branchRef.data.object.sha !== branchSha) { // @todo remove
-          throw new Error(`Failed to create branch '${branchName}'.`);
-        }
-
         console.log(`Branch '${branchName}' successfully created.`);
       } else {
         throw error;
