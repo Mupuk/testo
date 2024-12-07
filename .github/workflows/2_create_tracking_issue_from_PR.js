@@ -200,7 +200,8 @@ const renameAllFilesToMatchTracker = async ({ github, context, originalPRData, v
     // Force push the new commit
     await github.rest.git.updateRef({
       ...repo,
-      ref: `heads/issue-${originalPRData.number}`,
+      // ref: `heads/issue-${originalPRData.number}`,
+      ref: `heads/${originalPRData.head.ref}`,
       sha: newCommit.sha,
       force: true        // VERY IMPORTANT: Force push to overwrite any untrusted changes
     });
