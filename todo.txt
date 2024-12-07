@@ -5,15 +5,19 @@
 # [x] make bug_suit output new structure
 # [x] cleanup bugsuit
 # [x] cleanup and rework (1)
-# [ ] cleanup and rework (2)
-# [ ] cleanup and rework (2.1)
+# [x] cleanup and rework (2)
+# [x] cleanup and rework (2.1)
 # [x] cleanup and rework (3)
-# [ ] notify user of fix / break
 # [ ] check all code again
 # [ ] look at concurrency locks
 # [ ] check if we can reduce needed permissions and filters.
+
+# [ ] notify user of fix / break
 # [ ] test BB pipeline
-# [ ] rename template to id_CEC0.jai
+# [x] rename template to tid_PRid_CEC0.jai
+# [ ] latest compiler output
+# [ ] notify me when something changes but passed test was same (compiler output for example)
+# [ ] for issue update in bug suit make rate limit works, for when a new version is released
 
 
 #
