@@ -345,16 +345,16 @@ const convertSBIssueToPRAndSynchronize = async ({ github, context }) => {
           }
           return [
             {
-              path: filePath,
-              mode: file.mode,
-              type: file.type,
-              sha: blob.data.sha, // Replace the file content
-            },
-            {
               path: file.path,
               mode: file.mode,
               type: file.type,
               sha: null, // Mark the original file for deletion
+            },
+            {
+              path: filePath,
+              mode: file.mode,
+              type: file.type,
+              sha: blob.data.sha, // Replace the file content
             }
           ];
         }
